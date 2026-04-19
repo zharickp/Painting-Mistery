@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('carrito', function (Blueprint $table) {
+        Schema::create('carrito_detalle', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('carrito_id')->constrained('carrito')->cascadeOnDelete();
+            $table->foreignId('producto_id')->constrained('producto');
+            $table->integer('cantidad');
+            $table->decimal('precio_unitario', 10, 2);
             $table->timestamps();
         });
     }

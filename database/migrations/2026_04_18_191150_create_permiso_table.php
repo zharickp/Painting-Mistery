@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('permiso', function (Blueprint $table) {
             $table->id();
+            $table->string('nombre', 40);
+            $table->text('descripcion')->nullable();
             $table->timestamps();
         });
     }

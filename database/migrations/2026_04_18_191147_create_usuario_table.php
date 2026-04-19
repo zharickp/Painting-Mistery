@@ -13,6 +13,15 @@ return new class extends Migration
     {
         Schema::create('usuario', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('tipo_documento_id')->constrained('tipo_documento')->restrictOnDelete();
+            $table->string('numero_documento', 20)->unique();
+            $table->string('primer_nombre', 50);
+            $table->string('segundo_nombre', 50)->nullable();
+            $table->string('primer_apellido', 50);
+            $table->string('segundo_apellido', 50)->nullable();
+            $table->string('correo', 100)->unique();
+            $table->string('password');
+            $table->string('telefono', 20)->nullable();
             $table->timestamps();
         });
     }

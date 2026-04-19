@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('tipo_iva', function (Blueprint $table) {
             $table->id();
+            $table->string('descripcion', 40);
+            $table->decimal('porcentaje', 5, 2);
             $table->timestamps();
         });
     }

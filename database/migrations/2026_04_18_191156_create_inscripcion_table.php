@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('inscripcion', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('usuario_id')->constrained('usuario')->cascadeOnDelete();
+            $table->foreignId('curso_id')->constrained('curso')->cascadeOnDelete();
+            $table->enum('estado', ['inscrito', 'cancelado'])->default('inscrito');
             $table->timestamps();
         });
     }

@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('usuarios_roles', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('usuario_id')->constrained('usuario')->cascadeOnDelete();
+            $table->foreignId('rol_id')->constrained('rol')->cascadeOnDelete();
+            $table->unique(['usuario_id', 'rol_id']);
             $table->timestamps();
         });
     }
