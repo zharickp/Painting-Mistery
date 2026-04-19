@@ -19,6 +19,7 @@ return new class extends Migration
             $table->dateTime('fecha')->useCurrent();
             $table->timestamps();
         });
+    }
 
     /**
      * Reverse the migrations.
