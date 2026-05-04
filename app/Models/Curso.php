@@ -23,4 +23,10 @@ class Curso extends Model
     {
         return $this->hasMany(Inscripcion::class);
     }
+
+    public function detalleVentaCursos()
+    {
+        return $this->hasMany(DetalleVentaCurso::class);
+    }
 }
+

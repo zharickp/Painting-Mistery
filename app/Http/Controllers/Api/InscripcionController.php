@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Inscripcion;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
 class InscripcionController extends Controller
@@ -20,7 +22,8 @@ class InscripcionController extends Controller
     public function index()
     {
         return response()->json(
-            Inscripcion::with(['usuario','curso'])->get()
+            Inscripcion::with(['usuario', 'curso'])->get(),
+            200
         );
     }
 
@@ -31,7 +34,7 @@ class InscripcionController extends Controller
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["usuario_id","curso_id"],
+                required: ["usuario_id", "curso_id"],
                 properties: [
                     new OA\Property(property: "usuario_id", type: "integer"),
                     new OA\Property(property: "curso_id", type: "integer"),
@@ -40,17 +43,36 @@ class InscripcionController extends Controller
             )
         ),
         responses: [
-            new OA\Response(response: 201, description: "Inscripción creada")
+            new OA\Response(response: 201, description: "Creada"),
+            new OA\Response(response: 422, description: "Error de validación")
         ]
     )]
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'usuario_id' => 'required|exists:usuario,id',
-            'curso_id' => 'required|exists:curso,id'
-        ]);
+        try {
+            $data = $request->validate([
+                'usuario_id' => 'required|exists:usuario,id',
+                'curso_id' => 'required|exists:curso,id',
+                'estado' => 'nullable|in:inscrito,cancelado'
+            ]);
 
-        return response()->json(Inscripcion::create($data), 201);
+            $data['estado'] = $data['estado'] ?? 'inscrito';
+
+            $inscripcion = Inscripcion::create($data);
+
+            return response()->json($inscripcion, 201);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al crear inscripción'
+            ], 500);
+        }
     }
 
     #[OA\Get(
@@ -72,9 +94,16 @@ class InscripcionController extends Controller
     )]
     public function show($id)
     {
-        return response()->json(
-            Inscripcion::with(['usuario','curso'])->findOrFail($id)
-        );
+        try {
+            $inscripcion = Inscripcion::with(['usuario', 'curso'])->findOrFail($id);
+
+            return response()->json($inscripcion, 200);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Inscripción no encontrada'
+            ], 404);
+        }
     }
 
     #[OA\Put(
@@ -89,16 +118,52 @@ class InscripcionController extends Controller
                 schema: new OA\Schema(type: "integer")
             )
         ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: "estado", type: "string", example: "cancelado")
+                ]
+            )
+        ),
         responses: [
-            new OA\Response(response: 200, description: "Actualizada")
+            new OA\Response(response: 200, description: "Actualizada"),
+            new OA\Response(response: 404, description: "No encontrada"),
+            new OA\Response(response: 422, description: "Error de validación")
         ]
     )]
     public function update(Request $request, $id)
     {
-        $inscripcion = Inscripcion::findOrFail($id);
-        $inscripcion->update($request->all());
+        try {
+            $inscripcion = Inscripcion::findOrFail($id);
 
-        return response()->json($inscripcion);
+            $data = $request->validate([
+                'estado' => 'sometimes|in:inscrito,cancelado'
+            ]);
+
+            $inscripcion->update($data);
+
+            return response()->json([
+                'message' => 'Actualizada correctamente',
+                'data' => $inscripcion->fresh()
+            ], 200);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Inscripción no encontrada'
+            ], 404);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al actualizar inscripción'
+            ], 500);
+        }
     }
 
     #[OA\Delete(
@@ -114,13 +179,29 @@ class InscripcionController extends Controller
             )
         ],
         responses: [
-            new OA\Response(response: 204, description: "Eliminada")
+            new OA\Response(response: 200, description: "Eliminada"),
+            new OA\Response(response: 404, description: "No encontrada")
         ]
     )]
     public function destroy($id)
     {
-        Inscripcion::destroy($id);
+        try {
+            $inscripcion = Inscripcion::findOrFail($id);
+            $inscripcion->delete();
 
-        return response()->noContent();
+            return response()->json([
+                'message' => 'Eliminada correctamente'
+            ], 200);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Inscripción no encontrada'
+            ], 404);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al eliminar inscripción'
+            ], 500);
+        }
     }
 }

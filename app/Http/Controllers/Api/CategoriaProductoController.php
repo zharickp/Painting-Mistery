@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\CategoriaProducto;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
 class CategoriaProductoController extends Controller
@@ -14,12 +16,20 @@ class CategoriaProductoController extends Controller
         summary: "Listar categorías",
         tags: ["Categorías"],
         responses: [
-            new OA\Response(response: 200, description: "Lista de categorías")
+            new OA\Response(response: 200, description: "Lista de categorías"),
+            new OA\Response(response: 500, description: "Error interno")
         ]
     )]
     public function index()
     {
-        return response()->json(CategoriaProducto::all());
+        try {
+            return response()->json(CategoriaProducto::all(), 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al obtener categorías'
+            ], 500);
+        }
     }
 
     #[OA\Post(
@@ -29,25 +39,39 @@ class CategoriaProductoController extends Controller
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
+                type: "object",
                 required: ["nombre"],
                 properties: [
-                    new OA\Property(property: "nombre", type: "string"),
-                    new OA\Property(property: "descripcion", type: "string"),
+                    new OA\Property(property: "nombre", type: "string", example: "Pinturas"),
+                    new OA\Property(property: "descripcion", type: "string", example: "Categoría de productos"),
                     new OA\Property(property: "estado", type: "boolean", example: true)
                 ]
             )
         ),
         responses: [
-            new OA\Response(response: 201, description: "Creada")
+            new OA\Response(response: 201, description: "Creada"),
+            new OA\Response(response: 422, description: "Error de validación")
         ]
     )]
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'nombre' => 'required'
-        ]);
+        try {
+            $data = $request->validate([
+                'nombre' => 'required|string|max:100|unique:categoria_producto,nombre',
+                'descripcion' => 'nullable|string',
+                'estado' => 'nullable|boolean'
+            ]);
 
-        return response()->json(CategoriaProducto::create($data), 201);
+            $categoria = CategoriaProducto::create($data);
+
+            return response()->json($categoria, 201);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        }
     }
 
     #[OA\Get(
@@ -59,7 +83,8 @@ class CategoriaProductoController extends Controller
                 name: "id",
                 in: "path",
                 required: true,
-                schema: new OA\Schema(type: "integer")
+                schema: new OA\Schema(type: "integer"),
+                example: 1
             )
         ],
         responses: [
@@ -69,7 +94,16 @@ class CategoriaProductoController extends Controller
     )]
     public function show($id)
     {
-        return response()->json(CategoriaProducto::findOrFail($id));
+        try {
+            $categoria = CategoriaProducto::findOrFail($id);
+
+            return response()->json($categoria, 200);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Categoría no encontrada'
+            ], 404);
+        }
     }
 
     #[OA\Put(
@@ -81,19 +115,70 @@ class CategoriaProductoController extends Controller
                 name: "id",
                 in: "path",
                 required: true,
-                schema: new OA\Schema(type: "integer")
+                schema: new OA\Schema(type: "integer"),
+                example: 1
             )
         ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                type: "object",
+                properties: [
+                    new OA\Property(property: "nombre", type: "string", example: "Pinturas"),
+                    new OA\Property(property: "descripcion", type: "string", example: "Descripción"),
+                    new OA\Property(property: "estado", type: "boolean", example: true)
+                ]
+            )
+        ),
         responses: [
-            new OA\Response(response: 200, description: "Actualizada")
+            new OA\Response(response: 200, description: "Actualizada"),
+            new OA\Response(response: 404, description: "No encontrada"),
+            new OA\Response(response: 422, description: "Error de validación"),
+            new OA\Response(response: 400, description: "Sin datos")
         ]
     )]
     public function update(Request $request, $id)
     {
-        $categoria = CategoriaProducto::findOrFail($id);
-        $categoria->update($request->all());
+        try {
+            $categoria = CategoriaProducto::findOrFail($id);
 
-        return response()->json($categoria);
+            $data = $request->only(['nombre', 'descripcion', 'estado']);
+
+            if (empty(array_filter($data))) {
+                return response()->json([
+                    'message' => 'No se enviaron datos para actualizar'
+                ], 400);
+            }
+
+            $validated = $request->validate([
+                'nombre' => 'sometimes|string|max:100|unique:categoria_producto,nombre,' . $id,
+                'descripcion' => 'nullable|string',
+                'estado' => 'nullable|boolean'
+            ]);
+
+            $categoria->update($validated);
+
+            return response()->json([
+                'message' => 'Actualizada correctamente',
+                'data' => $categoria->fresh()
+            ], 200);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Categoría no encontrada'
+            ], 404);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al actualizar categoría'
+            ], 500);
+        }
     }
 
     #[OA\Delete(
@@ -105,17 +190,29 @@ class CategoriaProductoController extends Controller
                 name: "id",
                 in: "path",
                 required: true,
-                schema: new OA\Schema(type: "integer")
+                schema: new OA\Schema(type: "integer"),
+                example: 1
             )
         ],
         responses: [
-            new OA\Response(response: 204, description: "Eliminada")
+            new OA\Response(response: 200, description: "Eliminada"),
+            new OA\Response(response: 404, description: "No encontrada")
         ]
     )]
     public function destroy($id)
     {
-        CategoriaProducto::destroy($id);
+        try {
+            $categoria = CategoriaProducto::findOrFail($id);
+            $categoria->delete();
 
-        return response()->noContent();
+            return response()->json([
+                'message' => 'Eliminada correctamente'
+            ], 200);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Categoría no encontrada'
+            ], 404);
+        }
     }
 }

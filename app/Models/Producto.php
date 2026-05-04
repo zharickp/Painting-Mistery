@@ -32,4 +32,14 @@ class Producto extends Model
     {
         return $this->hasOne(Inventario::class);
     }
+
+    public function carritoDetalles()
+    {
+        return $this->hasMany(CarritoDetalle::class);
+    }
+
+    public function detalleVentaProductos()
+    {
+        return $this->hasMany(DetalleVentaProducto::class);
+    }
 }

@@ -7,6 +7,8 @@ use App\Models\DetalleVentaCurso;
 use App\Models\Curso;
 use App\Models\Venta;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
 class DetalleVentaCursoController extends Controller
@@ -22,7 +24,8 @@ class DetalleVentaCursoController extends Controller
     public function index()
     {
         return response()->json(
-            DetalleVentaCurso::with(['venta','curso'])->get()
+            DetalleVentaCurso::with(['venta', 'curso'])->get(),
+            200
         );
     }
 
@@ -33,7 +36,7 @@ class DetalleVentaCursoController extends Controller
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["venta_id","curso_id"],
+                required: ["venta_id", "curso_id"],
                 properties: [
                     new OA\Property(property: "venta_id", type: "integer"),
                     new OA\Property(property: "curso_id", type: "integer")
@@ -41,32 +44,41 @@ class DetalleVentaCursoController extends Controller
             )
         ),
         responses: [
-            new OA\Response(response: 201, description: "Agregado")
+            new OA\Response(response: 201, description: "Agregado"),
+            new OA\Response(response: 422, description: "Error de validación"),
+            new OA\Response(response: 404, description: "No encontrado")
         ]
     )]
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'venta_id' => 'required|exists:venta,id',
-            'curso_id' => 'required|exists:curso,id'
-        ]);
+        try {
+            $data = $request->validate([
+                'venta_id' => 'required|exists:venta,id',
+                'curso_id' => 'required|exists:curso,id'
+            ]);
 
-        $curso = Curso::findOrFail($data['curso_id']);
+            $curso = Curso::findOrFail($data['curso_id']);
 
-        // 🔥 lógica financiera (más simple que producto)
-        $precio = $curso->costo;
+            $data['precio_unitario'] = $curso->costo;
+            $data['subtotal'] = $curso->costo;
 
-        $data['precio_unitario'] = $precio;
-        $data['subtotal'] = $precio;
+            $detalle = DetalleVentaCurso::create($data);
 
-        $detalle = DetalleVentaCurso::create($data);
+            $this->recalcularVenta($data['venta_id']);
 
-        // 🔥 actualizar total de la venta
-        $venta = Venta::findOrFail($data['venta_id']);
-        $venta->total += $precio;
-        $venta->save();
+            return response()->json($detalle, 201);
 
-        return response()->json($detalle, 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Curso o venta no encontrada'
+            ], 404);
+        }
     }
 
     #[OA\Get(
@@ -88,9 +100,17 @@ class DetalleVentaCursoController extends Controller
     )]
     public function show($id)
     {
-        return response()->json(
-            DetalleVentaCurso::with(['venta','curso'])->findOrFail($id)
-        );
+        try {
+            return response()->json(
+                DetalleVentaCurso::with(['venta', 'curso'])
+                    ->findOrFail($id),
+                200
+            );
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Detalle no encontrado'
+            ], 404);
+        }
     }
 
     #[OA\Put(
@@ -105,16 +125,56 @@ class DetalleVentaCursoController extends Controller
                 schema: new OA\Schema(type: "integer")
             )
         ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: "curso_id", type: "integer")
+                ]
+            )
+        ),
         responses: [
-            new OA\Response(response: 200, description: "Actualizado")
+            new OA\Response(response: 200, description: "Actualizado"),
+            new OA\Response(response: 404, description: "No encontrado"),
+            new OA\Response(response: 422, description: "Error de validación")
         ]
     )]
     public function update(Request $request, $id)
     {
-        $detalle = DetalleVentaCurso::findOrFail($id);
-        $detalle->update($request->all());
+        try {
+            $detalle = DetalleVentaCurso::findOrFail($id);
 
-        return response()->json($detalle);
+            $data = $request->validate([
+                'curso_id' => 'sometimes|exists:curso,id'
+            ]);
+
+            if (isset($data['curso_id'])) {
+                $curso = Curso::findOrFail($data['curso_id']);
+
+                $data['precio_unitario'] = $curso->costo;
+                $data['subtotal'] = $curso->costo;
+            }
+
+            $detalle->update($data);
+
+            $this->recalcularVenta($detalle->venta_id);
+
+            return response()->json([
+                'message' => 'Actualizado correctamente',
+                'data' => $detalle->fresh()
+            ], 200);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Detalle no encontrado'
+            ], 404);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        }
     }
 
     #[OA\Delete(
@@ -130,13 +190,41 @@ class DetalleVentaCursoController extends Controller
             )
         ],
         responses: [
-            new OA\Response(response: 204, description: "Eliminado")
+            new OA\Response(response: 200, description: "Eliminado"),
+            new OA\Response(response: 404, description: "No encontrado")
         ]
     )]
     public function destroy($id)
     {
-        DetalleVentaCurso::destroy($id);
+        try {
+            $detalle = DetalleVentaCurso::findOrFail($id);
 
-        return response()->noContent();
+            $ventaId = $detalle->venta_id;
+
+            $detalle->delete();
+
+            $this->recalcularVenta($ventaId);
+
+            return response()->json([
+                'message' => 'Eliminado correctamente'
+            ], 200);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Detalle no encontrado'
+            ], 404);
+        }
+    }
+
+    private function recalcularVenta($ventaId)
+    {
+        $venta = Venta::find($ventaId);
+
+        if (!$venta) return;
+
+        $venta->total = DetalleVentaCurso::where('venta_id', $ventaId)
+            ->sum('subtotal');
+
+        $venta->save();
     }
 }

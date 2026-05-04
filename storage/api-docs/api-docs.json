@@ -22,6 +22,9 @@
                 "responses": {
                     "200": {
                         "description": "Lista de carritos"
+                    },
+                    "500": {
+                        "description": "Error interno"
                     }
                 }
             },
@@ -55,7 +58,10 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Carrito creado"
+                        "description": "Creado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             }
@@ -65,7 +71,7 @@
                 "tags": [
                     "Carrito"
                 ],
-                "summary": "Obtener carrito con detalle",
+                "summary": "Obtener carrito",
                 "operationId": "b670f1cc5b219c1768f38584abcc18aa",
                 "parameters": [
                     {
@@ -74,12 +80,13 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Carrito encontrado"
+                        "description": "Encontrado"
                     },
                     "404": {
                         "description": "No encontrado"
@@ -99,12 +106,34 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "estado": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Actualizado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             },
@@ -121,12 +150,16 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
                 "responses": {
-                    "204": {
+                    "200": {
                         "description": "Eliminado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
                     }
                 }
             }
@@ -141,6 +174,9 @@
                 "responses": {
                     "200": {
                         "description": "Lista"
+                    },
+                    "500": {
+                        "description": "Error interno"
                     }
                 }
             },
@@ -179,6 +215,9 @@
                 "responses": {
                     "201": {
                         "description": "Agregado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             }
@@ -197,7 +236,8 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
                 "responses": {
@@ -222,12 +262,35 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "cantidad": {
+                                        "type": "integer",
+                                        "example": 2
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Actualizado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             },
@@ -244,12 +307,16 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
                 "responses": {
-                    "204": {
+                    "200": {
                         "description": "Eliminado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
                     }
                 }
             }
@@ -264,6 +331,9 @@
                 "responses": {
                     "200": {
                         "description": "Lista de categorías"
+                    },
+                    "500": {
+                        "description": "Error interno"
                     }
                 }
             },
@@ -283,10 +353,12 @@
                                 ],
                                 "properties": {
                                     "nombre": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "Pinturas"
                                     },
                                     "descripcion": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "Categoría de productos"
                                     },
                                     "estado": {
                                         "type": "boolean",
@@ -301,6 +373,9 @@
                 "responses": {
                     "201": {
                         "description": "Creada"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             }
@@ -319,7 +394,8 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
                 "responses": {
@@ -344,12 +420,46 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nombre": {
+                                        "type": "string",
+                                        "example": "Pinturas"
+                                    },
+                                    "descripcion": {
+                                        "type": "string",
+                                        "example": "Descripción"
+                                    },
+                                    "estado": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Actualizada"
+                    },
+                    "404": {
+                        "description": "No encontrada"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    },
+                    "400": {
+                        "description": "Sin datos"
                     }
                 }
             },
@@ -366,12 +476,16 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
                 "responses": {
-                    "204": {
+                    "200": {
                         "description": "Eliminada"
+                    },
+                    "404": {
+                        "description": "No encontrada"
                     }
                 }
             }
@@ -386,6 +500,9 @@
                 "responses": {
                     "200": {
                         "description": "Lista de cursos"
+                    },
+                    "500": {
+                        "description": "Error interno"
                     }
                 }
             },
@@ -436,7 +553,10 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Curso creado"
+                        "description": "Creado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             }
@@ -455,12 +575,13 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Curso encontrado"
+                        "description": "Encontrado"
                     },
                     "404": {
                         "description": "No encontrado"
@@ -480,12 +601,54 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nombre": {
+                                        "type": "string"
+                                    },
+                                    "descripcion": {
+                                        "type": "string"
+                                    },
+                                    "costo": {
+                                        "type": "number"
+                                    },
+                                    "fecha_inicio": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "fecha_fin": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "cupos": {
+                                        "type": "integer"
+                                    },
+                                    "estado": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Actualizado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             },
@@ -502,12 +665,16 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
                 "responses": {
-                    "204": {
+                    "200": {
                         "description": "Eliminado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
                     }
                 }
             }
@@ -556,6 +723,12 @@
                 "responses": {
                     "201": {
                         "description": "Agregado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    },
+                    "404": {
+                        "description": "No encontrado"
                     }
                 }
             }
@@ -602,9 +775,30 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "curso_id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Actualizado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             },
@@ -625,8 +819,11 @@
                     }
                 ],
                 "responses": {
-                    "204": {
+                    "200": {
                         "description": "Eliminado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
                     }
                 }
             }
@@ -679,6 +876,12 @@
                 "responses": {
                     "201": {
                         "description": "Agregado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    },
+                    "400": {
+                        "description": "Error de negocio"
                     }
                 }
             }
@@ -725,9 +928,30 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "cantidad": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Actualizado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             },
@@ -748,8 +972,11 @@
                     }
                 ],
                 "responses": {
-                    "204": {
+                    "200": {
                         "description": "Eliminado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
                     }
                 }
             }
@@ -801,7 +1028,10 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Inscripción creada"
+                        "description": "Creada"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             }
@@ -848,9 +1078,31 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "estado": {
+                                        "type": "string",
+                                        "example": "cancelado"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Actualizada"
+                    },
+                    "404": {
+                        "description": "No encontrada"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             },
@@ -871,8 +1123,11 @@
                     }
                 ],
                 "responses": {
-                    "204": {
+                    "200": {
                         "description": "Eliminada"
+                    },
+                    "404": {
+                        "description": "No encontrada"
                     }
                 }
             }
@@ -887,6 +1142,9 @@
                 "responses": {
                     "200": {
                         "description": "Lista de inventario"
+                    },
+                    "500": {
+                        "description": "Error interno"
                     }
                 }
             },
@@ -894,7 +1152,7 @@
                 "tags": [
                     "Inventario"
                 ],
-                "summary": "Crear registro de inventario",
+                "summary": "Crear inventario",
                 "operationId": "a56a6497e345aa264cf9501e1acec5df",
                 "requestBody": {
                     "required": true,
@@ -914,10 +1172,6 @@
                                     },
                                     "stock_minimo": {
                                         "type": "integer"
-                                    },
-                                    "ultima_actualizacion": {
-                                        "type": "string",
-                                        "format": "date-time"
                                     }
                                 },
                                 "type": "object"
@@ -927,7 +1181,10 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Inventario creado"
+                        "description": "Creado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             }
@@ -946,12 +1203,13 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Inventario encontrado"
+                        "description": "Encontrado"
                     },
                     "404": {
                         "description": "No encontrado"
@@ -971,12 +1229,37 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "stock_actual": {
+                                        "type": "integer"
+                                    },
+                                    "stock_minimo": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Actualizado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             },
@@ -993,12 +1276,16 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
                 "responses": {
-                    "204": {
+                    "200": {
                         "description": "Eliminado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
                     }
                 }
             }
@@ -1038,7 +1325,8 @@
                                         "type": "string"
                                     },
                                     "estado": {
-                                        "type": "boolean"
+                                        "type": "boolean",
+                                        "example": true
                                     }
                                 },
                                 "type": "object"
@@ -1049,6 +1337,9 @@
                 "responses": {
                     "201": {
                         "description": "Creado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             }
@@ -1058,7 +1349,7 @@
                 "tags": [
                     "Métodos de Pago"
                 ],
-                "summary": "Obtener método de pago",
+                "summary": "Obtener método de pago por ID",
                 "operationId": "8109e1b17e601a2714d83e0ba0358967",
                 "parameters": [
                     {
@@ -1095,9 +1386,36 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nombre": {
+                                        "type": "string"
+                                    },
+                                    "descripcion": {
+                                        "type": "string"
+                                    },
+                                    "estado": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Actualizado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             },
@@ -1118,8 +1436,11 @@
                     }
                 ],
                 "responses": {
-                    "204": {
+                    "200": {
                         "description": "Eliminado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
                     }
                 }
             }
@@ -1179,6 +1500,9 @@
                 "responses": {
                     "201": {
                         "description": "Pago registrado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             }
@@ -1225,9 +1549,43 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "venta_id": {
+                                        "type": "integer"
+                                    },
+                                    "metodo_pago_id": {
+                                        "type": "integer"
+                                    },
+                                    "numero_comprobante": {
+                                        "type": "string"
+                                    },
+                                    "valor": {
+                                        "type": "number"
+                                    },
+                                    "estado": {
+                                        "type": "string",
+                                        "example": "aprobado"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Actualizado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             },
@@ -1248,8 +1606,11 @@
                     }
                 ],
                 "responses": {
-                    "204": {
+                    "200": {
                         "description": "Eliminado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
                     }
                 }
             }
@@ -1264,6 +1625,9 @@
                 "responses": {
                     "200": {
                         "description": "Lista de permisos"
+                    },
+                    "500": {
+                        "description": "Error interno"
                     }
                 }
             },
@@ -1283,10 +1647,12 @@
                                 ],
                                 "properties": {
                                     "nombre": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "crear_usuario"
                                     },
                                     "descripcion": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "Permite crear usuarios"
                                     }
                                 },
                                 "type": "object"
@@ -1297,6 +1663,12 @@
                 "responses": {
                     "201": {
                         "description": "Permiso creado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    },
+                    "500": {
+                        "description": "Error interno"
                     }
                 }
             }
@@ -1306,7 +1678,7 @@
                 "tags": [
                     "Permisos"
                 ],
-                "summary": "Obtener permiso con roles",
+                "summary": "Obtener permiso",
                 "operationId": "c28b92bf31bc4d1d9572d755c4e2e761",
                 "parameters": [
                     {
@@ -1315,7 +1687,8 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
                 "responses": {
@@ -1324,6 +1697,9 @@
                     },
                     "404": {
                         "description": "No encontrado"
+                    },
+                    "500": {
+                        "description": "Error interno"
                     }
                 }
             },
@@ -1340,12 +1716,42 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nombre": {
+                                        "type": "string",
+                                        "example": "editar_usuario"
+                                    },
+                                    "descripcion": {
+                                        "type": "string",
+                                        "example": "Permite editar usuarios"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Actualizado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    },
+                    "400": {
+                        "description": "Sin datos"
                     }
                 }
             },
@@ -1362,12 +1768,19 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
                 "responses": {
-                    "204": {
+                    "200": {
                         "description": "Eliminado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
+                    },
+                    "500": {
+                        "description": "Error interno"
                     }
                 }
             }
@@ -1382,6 +1795,9 @@
                 "responses": {
                     "200": {
                         "description": "Lista de productos"
+                    },
+                    "500": {
+                        "description": "Error interno"
                     }
                 }
             },
@@ -1432,7 +1848,10 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Producto creado"
+                        "description": "Creado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             }
@@ -1442,7 +1861,7 @@
                 "tags": [
                     "Productos"
                 ],
-                "summary": "Obtener producto con categoría e IVA",
+                "summary": "Obtener producto",
                 "operationId": "0619aa35f62634e3b69b862406aa99b9",
                 "parameters": [
                     {
@@ -1451,12 +1870,13 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Producto encontrado"
+                        "description": "Encontrado"
                     },
                     "404": {
                         "description": "No encontrado"
@@ -1476,12 +1896,43 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nombre": {
+                                        "type": "string"
+                                    },
+                                    "descripcion": {
+                                        "type": "string"
+                                    },
+                                    "precio": {
+                                        "type": "number"
+                                    },
+                                    "estado": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Actualizado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             },
@@ -1498,12 +1949,16 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
                 "responses": {
-                    "204": {
+                    "200": {
                         "description": "Eliminado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
                     }
                 }
             }
@@ -1537,10 +1992,12 @@
                                 ],
                                 "properties": {
                                     "nombre": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "Administrador"
                                     },
                                     "descripcion": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "Control total del sistema"
                                     }
                                 },
                                 "type": "object"
@@ -1551,6 +2008,9 @@
                 "responses": {
                     "201": {
                         "description": "Rol creado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             }
@@ -1560,7 +2020,7 @@
                 "tags": [
                     "Roles"
                 ],
-                "summary": "Obtener rol con permisos",
+                "summary": "Obtener rol en especifico",
                 "operationId": "2d60f8015c5031ab0253f9fcab7e9adf",
                 "parameters": [
                     {
@@ -1597,9 +2057,38 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nombre": {
+                                        "type": "string",
+                                        "example": "Administrador"
+                                    },
+                                    "descripcion": {
+                                        "type": "string",
+                                        "example": "Actualización de descripción"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Actualizado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    },
+                    "400": {
+                        "description": "Sin datos"
                     }
                 }
             },
@@ -1616,12 +2105,19 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
                 "responses": {
-                    "204": {
+                    "200": {
                         "description": "Eliminado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
+                    },
+                    "500": {
+                        "description": "Error interno"
                     }
                 }
             }
@@ -1795,6 +2291,9 @@
                 "responses": {
                     "200": {
                         "description": "Lista de tipos de IVA"
+                    },
+                    "500": {
+                        "description": "Error interno"
                     }
                 }
             },
@@ -1830,6 +2329,9 @@
                 "responses": {
                     "201": {
                         "description": "Creado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             }
@@ -1848,7 +2350,8 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
                 "responses": {
@@ -1873,12 +2376,37 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "descripcion": {
+                                        "type": "string"
+                                    },
+                                    "porcentaje": {
+                                        "type": "number"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Actualizado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             },
@@ -1895,12 +2423,16 @@
                         "required": true,
                         "schema": {
                             "type": "integer"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
                 "responses": {
-                    "204": {
+                    "200": {
                         "description": "Eliminado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
                     }
                 }
             }
@@ -2159,6 +2691,9 @@
                 "responses": {
                     "201": {
                         "description": "Venta creada"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             }
@@ -2205,9 +2740,35 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "estado": {
+                                        "type": "string",
+                                        "example": "pagada"
+                                    },
+                                    "total": {
+                                        "type": "number",
+                                        "example": 50000
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Actualizada"
+                    },
+                    "404": {
+                        "description": "No encontrada"
+                    },
+                    "422": {
+                        "description": "Error de validación"
                     }
                 }
             },
@@ -2228,8 +2789,11 @@
                     }
                 ],
                 "responses": {
-                    "204": {
+                    "200": {
                         "description": "Eliminada"
+                    },
+                    "404": {
+                        "description": "No encontrada"
                     }
                 }
             }
