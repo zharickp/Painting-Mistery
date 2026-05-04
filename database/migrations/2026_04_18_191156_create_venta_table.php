@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('venta', function (Blueprint $table) {
             $table->id();
             $table->foreignId('usuario_id')->constrained('usuario');
-            $table->decimal('total', 10, 2)->nullable();
+            $table->decimal('total', 10, 2)->default(0);
             $table->enum('estado', ['pendiente', 'pagada', 'cancelada'])->default('pendiente');
             $table->dateTime('fecha')->useCurrent();
             $table->timestamps();

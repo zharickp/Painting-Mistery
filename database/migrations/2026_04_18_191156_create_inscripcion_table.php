@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('usuario_id')->constrained('usuario')->cascadeOnDelete();
             $table->foreignId('curso_id')->constrained('curso')->cascadeOnDelete();
             $table->enum('estado', ['inscrito', 'cancelado'])->default('inscrito');
+            $table->unique(['usuario_id', 'curso_id']);
             $table->timestamps();
         });
     }

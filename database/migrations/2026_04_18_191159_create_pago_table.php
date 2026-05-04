@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('venta_id')->constrained('venta')->cascadeOnDelete();
             $table->foreignId('metodo_pago_id')->constrained('metodo_pago');
-            $table->string('numero_comprobante')->unique()->nullable();
+            $table->string('numero_comprobante')->unique();
             $table->decimal('valor', 10, 2);
             $table->dateTime('fecha_pago')->nullable();
             $table->enum('estado', ['pendiente', 'aprobado', 'rechazado'])->default('pendiente');
