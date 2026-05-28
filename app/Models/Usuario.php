@@ -15,12 +15,21 @@ class Usuario extends Model
         'segundo_nombre',
         'primer_apellido',
         'segundo_apellido',
+        'genero',
         'correo',
         'password',
-        'telefono'
+        'telefono',
+        'estado'
     ];
 
-    // 🔗 Relaciones
+    protected $hidden = [
+        'password'
+    ];
+
+    protected $casts = [
+        'estado' => 'boolean'
+    ];
+    //  Relaciones
 
     public function tipoDocumento()
     {

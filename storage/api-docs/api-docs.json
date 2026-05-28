@@ -2122,6 +2122,86 @@
                 }
             }
         },
+        "/roles-permisos": {
+            "get": {
+                "tags": [
+                    "Roles Permisos"
+                ],
+                "summary": "Listar permisos de roles",
+                "operationId": "8c4c414f39d2c41815d834de51f229c0",
+                "responses": {
+                    "200": {
+                        "description": "Lista obtenida"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Roles Permisos"
+                ],
+                "summary": "Asignar permiso a rol",
+                "operationId": "cda5af2054307e5bba4cd34000e84f52",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "rol_id",
+                                    "permiso_id"
+                                ],
+                                "properties": {
+                                    "rol_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "permiso_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Asignación creada"
+                    },
+                    "422": {
+                        "description": "Error validación"
+                    }
+                }
+            }
+        },
+        "/roles-permisos/{id}": {
+            "delete": {
+                "tags": [
+                    "Roles Permisos"
+                ],
+                "summary": "Eliminar asignación rol-permiso",
+                "operationId": "a5f693174eb419a84bd68e64f5b53fa2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Eliminado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
+                    }
+                }
+            }
+        },
         "/tipo-documento": {
             "get": {
                 "tags": [
@@ -2494,6 +2574,10 @@
                                         "type": "string",
                                         "example": "Gómez"
                                     },
+                                    "genero": {
+                                        "type": "string",
+                                        "example": "M"
+                                    },
                                     "correo": {
                                         "type": "string",
                                         "example": "juan@mail.com"
@@ -2505,6 +2589,10 @@
                                     "telefono": {
                                         "type": "string",
                                         "example": "3001234567"
+                                    },
+                                    "estado": {
+                                        "type": "boolean",
+                                        "example": true
                                     }
                                 },
                                 "type": "object"
@@ -2595,6 +2683,10 @@
                                         "type": "string",
                                         "example": "Gómez"
                                     },
+                                    "genero": {
+                                        "type": "string",
+                                        "example": "F"
+                                    },
                                     "correo": {
                                         "type": "string",
                                         "example": "juan@mail.com"
@@ -2606,6 +2698,10 @@
                                     "telefono": {
                                         "type": "string",
                                         "example": "3001234567"
+                                    },
+                                    "estado": {
+                                        "type": "boolean",
+                                        "example": true
                                     }
                                 },
                                 "type": "object"
@@ -2634,6 +2730,96 @@
                 ],
                 "summary": "Eliminar usuario",
                 "operationId": "a3d8063f1f24ba25f576c51f773cb0d0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Eliminado"
+                    },
+                    "404": {
+                        "description": "No encontrado"
+                    }
+                }
+            }
+        },
+        "/usuarios-roles": {
+            "get": {
+                "tags": [
+                    "Usuarios Roles"
+                ],
+                "summary": "Listar asignaciones usuario-rol",
+                "operationId": "d3b7b95353c46ffa0f56a14fb69ccc4b",
+                "responses": {
+                    "200": {
+                        "description": "Lista obtenida"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Usuarios Roles"
+                ],
+                "summary": "Asignar rol a usuario",
+                "operationId": "1d6a3b0654f809a28441704845a64428",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "usuario_id",
+                                    "rol_id"
+                                ],
+                                "properties": {
+                                    "usuario_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "rol_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Asignación creada"
+                    },
+                    "422": {
+                        "description": "Error validación"
+                    }
+                }
+            }
+        },
+        "/usuarios-roles/{id}": {
+            "delete": {
+                "tags": [
+                    "Usuarios Roles"
+                ],
+                "summary": "Eliminar asignación usuario-rol",
+                "operationId": "540cf0ce4958011c906c50171f0ec0bb",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Eliminado"
@@ -2853,6 +3039,10 @@
             "description": "Roles"
         },
         {
+            "name": "Roles Permisos",
+            "description": "Roles Permisos"
+        },
+        {
             "name": "TipoDocumento",
             "description": "TipoDocumento"
         },
@@ -2863,6 +3053,10 @@
         {
             "name": "Usuarios",
             "description": "Usuarios"
+        },
+        {
+            "name": "Usuarios Roles",
+            "description": "Usuarios Roles"
         },
         {
             "name": "Ventas",

@@ -18,6 +18,8 @@ use App\Http\Controllers\Api\DetalleVentaProductoController;
 use App\Http\Controllers\Api\DetalleVentaCursoController;
 use App\Http\Controllers\Api\MetodoPagoController;
 use App\Http\Controllers\Api\PagoController;
+use App\Http\Controllers\Api\UsuariosRolesController;
+use App\Http\Controllers\Api\RolesPermisosController;
 
 
 Route::apiResource('tipo-documento', TipoDocumentoController::class);
@@ -37,3 +39,9 @@ Route::apiResource('detalle-venta-producto', DetalleVentaProductoController::cla
 Route::apiResource('detalle-venta-curso', DetalleVentaCursoController::class);
 Route::apiResource('metodos-pago', MetodoPagoController::class);
 Route::apiResource('pagos', PagoController::class);
+
+Route::apiResource('usuarios-roles', UsuariosRolesController::class)
+    ->only(['index', 'store', 'destroy']);
+
+Route::apiResource('roles-permisos', RolesPermisosController::class)
+    ->only(['index', 'store', 'destroy']);

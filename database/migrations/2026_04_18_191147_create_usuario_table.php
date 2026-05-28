@@ -19,9 +19,11 @@ return new class extends Migration
             $table->string('segundo_nombre', 50)->nullable();
             $table->string('primer_apellido', 50);
             $table->string('segundo_apellido', 50)->nullable();
+            $table->enum('genero', ['M', 'F', 'O'])->nullable();
             $table->string('correo', 100)->unique();
             $table->string('password');
             $table->string('telefono', 20)->nullable();
+            $table->boolean('estado')->default(true);
             $table->timestamps();
         });
     }
