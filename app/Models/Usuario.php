@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class Usuario extends Model
+class Usuario extends Authenticatable
 {
+    use Notifiable;
+
     protected $table = 'usuario';
 
     protected $fillable = [
@@ -23,12 +26,15 @@ class Usuario extends Model
     ];
 
     protected $hidden = [
-        'password'
+        'password',
+        'remember_token'
     ];
 
     protected $casts = [
-        'estado' => 'boolean'
+        'estado' => 'boolean',
+        'password' => 'hashed'
     ];
+
     //  Relaciones
 
     public function tipoDocumento()
@@ -59,5 +65,12 @@ class Usuario extends Model
     public function ventas()
     {
         return $this->hasMany(Venta::class);
+    }
+
+    //  Ayudante para verificar roles
+
+    public function tieneRol(string ...$nombres): bool
+    {
+        return $this->roles()->whereIn('nombre', $nombres)->exists();
     }
 }
