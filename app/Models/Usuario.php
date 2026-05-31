@@ -22,18 +22,29 @@ class Usuario extends Authenticatable
         'correo',
         'password',
         'telefono',
-        'estado'
+        'estado',
+        'verification_code',
+        'code_expires_at',
+        'correo_verificado_at',
     ];
 
     protected $hidden = [
         'password',
-        'remember_token'
+        'remember_token',
+        'verification_code',
     ];
 
     protected $casts = [
-        'estado' => 'boolean',
-        'password' => 'hashed'
+        'estado'               => 'boolean',
+        'password'             => 'hashed',
+        'code_expires_at'      => 'datetime',
+        'correo_verificado_at' => 'datetime',
     ];
+
+    public function correoVerificado(): bool
+    {
+        return $this->correo_verificado_at !== null;
+    }
 
     //  Relaciones
 
