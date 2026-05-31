@@ -12,7 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Alias para usar en rutas
+        $middleware->alias([
+            'email.verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
+            'role'           => \App\Http\Middleware\EnsureUserHasRole::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -60,10 +60,16 @@
                     </div>
                 </div>
 
-                <div class="flex items-center">
-                    <input id="recordarme" name="recordarme" type="checkbox"
-                           class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
-                    <label for="recordarme" class="ml-2 block text-sm text-gray-700">Recuérdame</label>
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center gap-2">
+                        <input id="recordarme" name="recordarme" type="checkbox"
+                               class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                        <span class="text-sm text-gray-700">Recuérdame</span>
+                    </label>
+                    <a href="{{ route('password.request') }}"
+                       class="text-sm text-red-600 hover:text-red-700 font-medium">
+                        ¿Olvidaste tu contraseña?
+                    </a>
                 </div>
 
                 <button type="submit"
