@@ -44,6 +44,10 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        if (auth()->user()->tieneRol('Cliente')) {
+            return redirect()->route('inicio')->with('success', '¡Bienvenido de nuevo!');
+            }
+
         return redirect()->route('dashboard')->with('success', '¡Bienvenido de nuevo!');
     }
 
