@@ -51,16 +51,10 @@
                         </span>
                     </td>
                     <td class="px-5 py-3 text-center">
-                        <div class="flex items-center justify-center gap-2">
-                            <a href="{{ route('admin.tipo-iva.edit', $tipo) }}"
-                               class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs rounded-md transition">
-                                Editar
-                            </a>
-                            <a href="{{ route('admin.tipo-iva.confirmDelete', $tipo) }}"
-                               class="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 text-xs rounded-md transition">
-                                Eliminar
-                            </a>
-                        </div>
+                        <a href="{{ route('admin.tipo-iva.edit', $tipo) }}"
+                           class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs rounded-md transition">
+                            Editar
+                        </a>
                     </td>
                 </tr>
                 @empty
