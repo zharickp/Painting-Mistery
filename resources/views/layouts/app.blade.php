@@ -87,13 +87,31 @@
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Catálogo</p>
             </div>
 
-            <a href="{{ route('admin.productos') }}"
-               class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.productos') ? 'bg-red-600 text-white' : 'hover:bg-gray-800 hover:text-white' }} transition">
+            <a href="{{ route('admin.productos.index') }}"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.productos.*') ? 'bg-red-600 text-white' : 'hover:bg-gray-800 hover:text-white' }} transition">
                 <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
                 </svg>
                 Productos
+            </a>
+
+            <a href="{{ route('admin.categorias.index') }}"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.categorias.*') ? 'bg-red-600 text-white' : 'hover:bg-gray-800 hover:text-white' }} transition">
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                </svg>
+                Categorías
+            </a>
+
+            <a href="{{ route('admin.tipo-iva.index') }}"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.tipo-iva.*') ? 'bg-red-600 text-white' : 'hover:bg-gray-800 hover:text-white' }} transition">
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                         d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+                </svg>
+                Tipos de IVA
             </a>
 
             <a href="{{ route('admin.inventario') }}"
@@ -105,8 +123,8 @@
                 Inventario
             </a>
 
-            <a href="{{ route('admin.cursos') }}"
-               class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.cursos') ? 'bg-red-600 text-white' : 'hover:bg-gray-800 hover:text-white' }} transition">
+            <a href="{{ route('admin.cursos.index') }}"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.cursos.*') ? 'bg-red-600 text-white' : 'hover:bg-gray-800 hover:text-white' }} transition">
                 <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>

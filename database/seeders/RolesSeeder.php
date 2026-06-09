@@ -25,6 +25,11 @@ class RolesSeeder extends Seeder
             ['descripcion' => 'Cliente registrado']
         );
 
+        Rol::firstOrCreate(
+            ['nombre' => 'Gerente'],
+            ['descripcion' => 'Visualiza reportes, ventas e inventario del negocio']
+        );
+
         TipoDocumento::firstOrCreate(
             ['abreviatura' => 'CC'],
             ['nombre' => 'Cédula de ciudadanía']

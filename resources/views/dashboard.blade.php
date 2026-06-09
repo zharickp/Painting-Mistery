@@ -36,9 +36,7 @@
 ══════════════════════════════════════════════════════ --}}
 @if($esAdmin)
 
-{{-- ── 5 Stat cards estilo Dusty ────────────────────────────────── --}}
 <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
-
     @php
     $cards = [
         [
@@ -102,7 +100,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $c['icon'] }}"/>
                 </svg>
             </div>
-            {{-- Mini sparkline decorativo --}}
             <svg class="h-8 w-16 opacity-40" viewBox="0 0 64 32" fill="none">
                 <polyline points="0,28 12,20 24,24 36,12 48,16 64,4"
                           stroke="{{ $c['color'] }}" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -118,16 +115,12 @@
     @endforeach
 </div>
 
-{{-- ── Gráficas 2 columnas estilo Dusty ────────────────────────── --}}
 <div class="grid grid-cols-1 lg:grid-cols-5 gap-5 mb-6">
-
-    {{-- Categorías más vendidas (doughnut) → 2/5 --}}
     <div class="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm p-6">
         <div class="mb-4">
             <h2 class="font-bold text-gray-800">Categorías más vendidas</h2>
             <p class="text-xs text-gray-400 mt-0.5">Distribución de ventas por estado</p>
         </div>
-
         <div class="relative flex items-center justify-center mb-4" style="height:180px;">
             <canvas id="statusChart"></canvas>
             <div class="absolute text-center pointer-events-none">
@@ -135,7 +128,6 @@
                 <p class="text-2xl font-extrabold text-gray-800" id="totalVentas">0</p>
             </div>
         </div>
-
         <div class="space-y-2.5 mt-2">
             @php
                 $pagadas    = \App\Models\Venta::where('estado','pagada')->count();
@@ -164,7 +156,6 @@
         </div>
     </div>
 
-    {{-- Ventas en el tiempo (line dual) → 3/5 --}}
     <div class="lg:col-span-3 bg-white rounded-xl border border-gray-100 shadow-sm p-6">
         <div class="flex items-start justify-between mb-4">
             <div>
@@ -180,8 +171,8 @@
     </div>
 </div>
 
-{{-- ── Productos / Cursos cards rápidos ────────────────────────── --}}
-<div class="grid grid-cols-2 gap-4 mb-6">
+{{-- Cards rápidos --}}
+<div class="grid grid-cols-3 gap-4 mb-6">
     <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
         <div class="h-12 w-12 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
             <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,10 +183,28 @@
             <p class="text-xs text-gray-400">Productos en catálogo</p>
             <p class="text-2xl font-extrabold text-gray-800">{{ $stats['productos'] }}</p>
         </div>
-        <a href="{{ route('admin.productos') }}" class="text-xs bg-red-600 text-white px-3 py-1.5 rounded-lg hover:bg-red-700 transition font-medium whitespace-nowrap">
+        <a href="{{ route('admin.productos.index') }}"
+           class="text-xs bg-red-600 text-white px-3 py-1.5 rounded-lg hover:bg-red-700 transition font-medium whitespace-nowrap">
             Gestionar →
         </a>
     </div>
+
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+        <div class="h-12 w-12 rounded-xl bg-orange-50 flex items-center justify-center flex-shrink-0">
+            <svg class="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <p class="text-xs text-gray-400">Categorías activas</p>
+            <p class="text-2xl font-extrabold text-gray-800">{{ $stats['categorias'] }}</p>
+        </div>
+        <a href="{{ route('admin.categorias.index') }}"
+           class="text-xs bg-orange-500 text-white px-3 py-1.5 rounded-lg hover:bg-orange-600 transition font-medium whitespace-nowrap">
+            Gestionar →
+        </a>
+    </div>
+
     <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
         <div class="h-12 w-12 rounded-xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
             <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -206,13 +215,14 @@
             <p class="text-xs text-gray-400">Cursos disponibles</p>
             <p class="text-2xl font-extrabold text-gray-800">{{ $stats['cursos'] }}</p>
         </div>
-        <a href="{{ route('admin.cursos') }}" class="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition font-medium whitespace-nowrap">
+        <a href="{{ route('admin.cursos.index') }}"
+           class="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition font-medium whitespace-nowrap">
             Gestionar →
         </a>
     </div>
 </div>
 
-{{-- ── Tabla Últimas ventas ─────────────────────────────────────── --}}
+{{-- Últimas ventas --}}
 <div class="bg-white rounded-xl border border-gray-100 shadow-sm mb-6 overflow-hidden">
     <div class="px-6 py-4 border-b border-gray-50 flex items-center justify-between">
         <div>
@@ -250,7 +260,10 @@
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-3.5 text-gray-500 text-xs">{{ \Carbon\Carbon::parse($venta->fecha)->format('d/m/Y') }}<br><span class="text-gray-300">{{ \Carbon\Carbon::parse($venta->fecha)->format('H:i') }}</span></td>
+                    <td class="px-6 py-3.5 text-gray-500 text-xs">
+                        {{ \Carbon\Carbon::parse($venta->fecha)->format('d/m/Y') }}<br>
+                        <span class="text-gray-300">{{ \Carbon\Carbon::parse($venta->fecha)->format('H:i') }}</span>
+                    </td>
                     <td class="px-6 py-3.5">
                         @php $ec=['pagada'=>'bg-green-100 text-green-700 border-green-200','pendiente'=>'bg-yellow-100 text-yellow-700 border-yellow-200','cancelada'=>'bg-red-100 text-red-700 border-red-200']; @endphp
                         <span class="px-2.5 py-1 rounded-full text-xs font-semibold border {{ $ec[$venta->estado] ?? 'bg-gray-100 text-gray-600 border-gray-200' }}">
@@ -276,7 +289,7 @@
     </div>
 </div>
 
-{{-- ── Módulo Mayorista ─────────────────────────────────────────── --}}
+{{-- Módulo Mayorista --}}
 <div class="rounded-xl overflow-hidden" style="background: linear-gradient(135deg, #111827 0%, #1f0000 100%);">
     <div class="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
@@ -298,7 +311,6 @@
     $mesesLabels = json_encode(array_column($ventasMensuales, 'mes'));
     $mesesData   = json_encode(array_column($ventasMensuales, 'total'));
     $statusData  = json_encode([$pagadas, $pendientes, $canceladas]);
-    $totalVentas = $pagadas + $pendientes + $canceladas;
 @endphp
 
 {{-- ══════════════════════════════════════════════════════
@@ -334,12 +346,14 @@
     </div>
     <div class="overflow-x-auto">
         <table class="w-full text-sm">
-            <thead><tr class="bg-gray-50 text-left text-xs text-gray-400 uppercase tracking-wide">
-                <th class="px-6 py-3 font-semibold">Cliente</th>
-                <th class="px-6 py-3 font-semibold">Fecha</th>
-                <th class="px-6 py-3 font-semibold">Estado</th>
-                <th class="px-6 py-3 font-semibold text-right">Total</th>
-            </tr></thead>
+            <thead>
+                <tr class="bg-gray-50 text-left text-xs text-gray-400 uppercase tracking-wide">
+                    <th class="px-6 py-3 font-semibold">Cliente</th>
+                    <th class="px-6 py-3 font-semibold">Fecha</th>
+                    <th class="px-6 py-3 font-semibold">Estado</th>
+                    <th class="px-6 py-3 font-semibold text-right">Total</th>
+                </tr>
+            </thead>
             <tbody class="divide-y divide-gray-50">
                 @forelse($ventasRecientes as $venta)
                 <tr class="hover:bg-red-50/20 transition">
@@ -360,11 +374,64 @@
 </div>
 
 {{-- ══════════════════════════════════════════════════════
+     PANEL GERENTE
+══════════════════════════════════════════════════════ --}}
+@elseif($esGerente)
+
+<div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+    @foreach([
+        ['Productos activos', $stats['productos'],  'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10', 'bg-red-50 text-red-600'],
+        ['Cursos activos',    $stats['cursos'],     'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253', 'bg-indigo-50 text-indigo-600'],
+        ['Ventas del mes',    '$'.number_format($stats['ventas_mes'],0,',','.'), 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'bg-green-50 text-green-600'],
+        ['Ventas del año',    '$'.number_format($stats['ventas_anio'],0,',','.'), 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6', 'bg-purple-50 text-purple-600'],
+        ['Órdenes del mes',   $stats['ordenes_mes'], 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', 'bg-orange-50 text-orange-600'],
+    ] as [$label, $value, $icon, $color])
+    <div class="bg-white rounded-xl border border-gray-100 p-5 flex items-center gap-4 shadow-sm hover:shadow-md transition">
+        <div class="rounded-xl p-3 {{ explode(' ',$color)[0] }}">
+            <svg class="h-6 w-6 {{ explode(' ',$color)[1] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icon }}"/>
+            </svg>
+        </div>
+        <div>
+            <p class="text-xs text-gray-400">{{ $label }}</p>
+            <p class="text-2xl font-extrabold text-gray-800">{{ $value }}</p>
+        </div>
+    </div>
+    @endforeach
+</div>
+
+<div class="grid grid-cols-2 gap-4 mb-6">
+    <a href="{{ route('admin.productos.index') }}"
+       class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4 hover:shadow-md hover:border-red-200 transition">
+        <div class="h-12 w-12 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
+            <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
+            </svg>
+        </div>
+        <div>
+            <p class="font-semibold text-gray-800">Ver productos</p>
+            <p class="text-xs text-gray-400 mt-0.5">Catálogo completo</p>
+        </div>
+    </a>
+    <a href="{{ route('admin.cursos.index') }}"
+       class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4 hover:shadow-md hover:border-indigo-200 transition">
+        <div class="h-12 w-12 rounded-xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
+            <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+        </div>
+        <div>
+            <p class="font-semibold text-gray-800">Ver cursos</p>
+            <p class="text-xs text-gray-400 mt-0.5">Oferta académica</p>
+        </div>
+    </a>
+</div>
+
+{{-- ══════════════════════════════════════════════════════
      PANEL CLIENTE
 ══════════════════════════════════════════════════════ --}}
 @else
 
-{{-- Bienvenida personalizada --}}
 <div class="bg-gradient-to-r from-red-600 to-red-800 rounded-2xl p-6 mb-6 text-white flex items-center gap-6">
     <div class="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center text-2xl font-extrabold flex-shrink-0">
         {{ strtoupper(substr(auth()->user()->primer_nombre,0,1)) }}
@@ -403,12 +470,14 @@
     </div>
     <div class="overflow-x-auto">
         <table class="w-full text-sm">
-            <thead><tr class="bg-gray-50 text-left text-xs text-gray-400 uppercase tracking-wide">
-                <th class="px-6 py-3 font-semibold"># Orden</th>
-                <th class="px-6 py-3 font-semibold">Fecha</th>
-                <th class="px-6 py-3 font-semibold">Estado</th>
-                <th class="px-6 py-3 font-semibold text-right">Total</th>
-            </tr></thead>
+            <thead>
+                <tr class="bg-gray-50 text-left text-xs text-gray-400 uppercase tracking-wide">
+                    <th class="px-6 py-3 font-semibold"># Orden</th>
+                    <th class="px-6 py-3 font-semibold">Fecha</th>
+                    <th class="px-6 py-3 font-semibold">Estado</th>
+                    <th class="px-6 py-3 font-semibold text-right">Total</th>
+                </tr>
+            </thead>
             <tbody class="divide-y divide-gray-50">
                 @forelse($misVentas as $venta)
                 <tr class="hover:bg-red-50/20 transition">
@@ -438,9 +507,7 @@
 
 @endif
 
-{{-- ══════════════════════════════════════════════════════
-     Chart.js — solo Admin
-══════════════════════════════════════════════════════ --}}
+{{-- Chart.js solo Admin --}}
 @if($esAdmin)
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
@@ -448,10 +515,8 @@ const mesesLabels = {!! $mesesLabels !!};
 const mesesData   = {!! $mesesData !!};
 const statusData  = {!! $statusData !!};
 
-// Total ventas badge
 document.getElementById('totalVentas').textContent = statusData.reduce((a,b)=>a+b, 0);
 
-// ── Gráfica doughnut ────────────────────────────────────────
 new Chart(document.getElementById('statusChart'), {
     type: 'doughnut',
     data: {
@@ -473,7 +538,6 @@ new Chart(document.getElementById('statusChart'), {
     }
 });
 
-// ── Gráfica línea dual ──────────────────────────────────────
 new Chart(document.getElementById('salesChart'), {
     type: 'line',
     data: {

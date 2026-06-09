@@ -18,7 +18,13 @@ class Curso extends Model
         'estado'
     ];
 
-    // 🔗 Relación con inscripciones
+    protected $casts = [
+        'estado'       => 'boolean',
+        'fecha_inicio' => 'date',
+        'fecha_fin'    => 'date',
+        'costo'        => 'decimal:2',
+    ];
+
     public function inscripciones()
     {
         return $this->hasMany(Inscripcion::class);
