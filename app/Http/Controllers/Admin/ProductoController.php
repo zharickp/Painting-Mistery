@@ -8,7 +8,6 @@ use App\Models\Producto;
 use App\Models\TipoIva;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProductoController extends Controller
@@ -43,7 +42,9 @@ class ProductoController extends Controller
 
         $rutaImagen = null;
         if ($request->hasFile('imagen')) {
-            $rutaImagen = $request->file('imagen')->store('productos', 'public');
+            $nombreArchivo = time() . '_' . $request->file('imagen')->getClientOriginalName();
+            $request->file('imagen')->move(public_path('images/productos'), $nombreArchivo);
+            $rutaImagen = '/images/productos/' . $nombreArchivo;
         }
 
         Producto::create([
@@ -52,7 +53,7 @@ class ProductoController extends Controller
             'precio'                => $request->precio,
             'categoria_producto_id' => $request->categoria_producto_id,
             'tipo_iva_id'           => $request->tipo_iva_id,
-            'imagen'                => $rutaImagen ? Storage::url($rutaImagen) : null,
+            'imagen'                => $rutaImagen,
             'estado'                => true,
         ]);
 
@@ -80,12 +81,13 @@ class ProductoController extends Controller
         ]);
 
         if ($request->hasFile('imagen')) {
-            if ($producto->imagen) {
-                $rutaAnterior = str_replace('/storage/', '', $producto->imagen);
-                Storage::disk('public')->delete($rutaAnterior);
+            // Elimina imagen anterior si existe
+            if ($producto->imagen && file_exists(public_path($producto->imagen))) {
+                unlink(public_path($producto->imagen));
             }
-            $rutaImagen = $request->file('imagen')->store('productos', 'public');
-            $producto->imagen = Storage::url($rutaImagen);
+            $nombreArchivo = time() . '_' . $request->file('imagen')->getClientOriginalName();
+            $request->file('imagen')->move(public_path('images/productos'), $nombreArchivo);
+            $producto->imagen = '/images/productos/' . $nombreArchivo;
         }
 
         $producto->update([
