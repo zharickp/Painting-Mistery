@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CategoriaProducto;
+use App\Models\Inventario;
 use App\Models\Producto;
 use App\Models\TipoIva;
 use Illuminate\Http\RedirectResponse;
@@ -47,7 +48,7 @@ class ProductoController extends Controller
             $rutaImagen = '/images/productos/' . $nombreArchivo;
         }
 
-        Producto::create([
+        $producto = Producto::create([
             'nombre'                => $request->nombre,
             'descripcion'           => $request->descripcion,
             'precio'                => $request->precio,
@@ -55,6 +56,13 @@ class ProductoController extends Controller
             'tipo_iva_id'           => $request->tipo_iva_id,
             'imagen'                => $rutaImagen,
             'estado'                => true,
+        ]);
+
+        Inventario::create([
+            'producto_id'          => $producto->id,
+            'stock_actual'         => 0,
+            'stock_minimo'         => 5,
+            'ultima_actualizacion' => now(),
         ]);
 
         return redirect()->route('admin.productos.index')
@@ -81,7 +89,6 @@ class ProductoController extends Controller
         ]);
 
         if ($request->hasFile('imagen')) {
-            // Elimina imagen anterior si existe
             if ($producto->imagen && file_exists(public_path($producto->imagen))) {
                 unlink(public_path($producto->imagen));
             }

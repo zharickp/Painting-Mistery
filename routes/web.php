@@ -14,7 +14,9 @@ use App\Http\Controllers\Admin\CategoriaProductoController;
 use App\Http\Controllers\Admin\TipoIvaController;
 use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\CursoController;
-
+use App\Http\Controllers\Admin\InventarioController;
+use App\Http\Controllers\Admin\UsuarioController;
+use App\Http\Controllers\CarritoController;
 // ─── Landing ──────────────────────────────────────────────────────────────────
 Route::get('/', [LandingController::class, 'index'])->name('inicio');
 
@@ -52,7 +54,14 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
 
     // ── Solo Administrador ────────────────────────────────────────────────────
     Route::prefix('admin')->name('admin.')->middleware('role:Administrador')->group(function () {
-        Route::get('/usuarios', fn() => view('admin.usuarios'))->name('usuarios');
+
+        Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
+        Route::get('/usuarios/create', [UsuarioController::class, 'create'])->name('usuarios.create');  // antes de {usuario}
+        Route::post('/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
+        Route::get('/usuarios/{usuario}/edit', [UsuarioController::class, 'edit'])->name('usuarios.edit');
+        Route::put('/usuarios/{usuario}', [UsuarioController::class, 'update'])->name('usuarios.update');
+        Route::post('/usuarios/{usuario}/toggle', [UsuarioController::class, 'toggleEstado'])->name('usuarios.toggle');
+
         Route::get('/roles',    [RolesController::class, 'index'])->name('roles');
         Route::post('/roles/{usuario}/update-role', [RolesController::class, 'updateRole'])->name('roles.update');
 
@@ -71,7 +80,8 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::resource('cursos', CursoController::class)->except(['show', 'destroy']);
         Route::post('cursos/{curso}/toggle', [CursoController::class, 'toggleEstado'])->name('cursos.toggle');
 
-        Route::get('/inventario', fn() => view('admin.inventario'))->name('inventario');
+        Route::get('/inventario', [InventarioController::class, 'index'])->name('inventario');
+        Route::post('/inventario/{inventario}/actualizar', [InventarioController::class, 'actualizar'])->name('inventario.actualizar');
     });
 
     // ── Admin + Asesor + Gerente: ventas y reportes ───────────────────────────
@@ -83,6 +93,15 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
     // ── Mayorista: informativo (Admin + Gerente) ──────────────────────────────
     Route::prefix('mayorista')->name('mayorista.')->middleware('role:Administrador,Gerente')->group(function () {
         Route::get('/', fn() => view('mayorista.index'))->name('index');
+    });
+
+    // ── Carrito (solo Clientes) ───────────────────────────────────────────────
+    Route::prefix('carrito')->name('carrito.')->middleware('role:Cliente')->group(function () {
+        Route::get('/',                      [CarritoController::class, 'index'])->name('index');
+        Route::post('/agregar',              [CarritoController::class, 'agregar'])->name('agregar');
+        Route::post('/actualizar/{detalle}', [CarritoController::class, 'actualizar'])->name('actualizar');
+        Route::delete('/eliminar/{detalle}', [CarritoController::class, 'eliminar'])->name('eliminar');
+        Route::post('/vaciar',               [CarritoController::class, 'vaciar'])->name('vaciar');
     });
 
     // ── Cliente ───────────────────────────────────────────────────────────────

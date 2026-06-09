@@ -12,7 +12,12 @@
     <div class="flex gap-3 flex-wrap">
         @foreach($roles as $rol)
         @php
-            $colors = ['Administrador'=>'bg-red-50 text-red-700 border-red-200','Asesor'=>'bg-indigo-50 text-indigo-700 border-indigo-200','Cliente'=>'bg-green-50 text-green-700 border-green-200'];
+            $colors = [
+                'Administrador' => 'bg-red-50 text-red-700 border-red-200',
+                'Asesor'        => 'bg-indigo-50 text-indigo-700 border-indigo-200',
+                'Gerente'       => 'bg-purple-50 text-purple-700 border-purple-200',
+                'Cliente'       => 'bg-green-50 text-green-700 border-green-200',
+            ];
             $c = $colors[$rol->nombre] ?? 'bg-gray-50 text-gray-700 border-gray-200';
         @endphp
         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold {{ $c }}">
@@ -89,7 +94,12 @@
                 <td class="px-5 py-4">
                     @forelse($u->roles as $rol)
                     @php
-                        $badge = ['Administrador'=>'bg-red-100 text-red-700','Asesor'=>'bg-indigo-100 text-indigo-700','Cliente'=>'bg-green-100 text-green-700'][$rol->nombre] ?? 'bg-gray-100 text-gray-700';
+                        $badge = [
+                            'Administrador' => 'bg-red-100 text-red-700',
+                            'Asesor'        => 'bg-indigo-100 text-indigo-700',
+                            'Gerente'       => 'bg-purple-100 text-purple-700',
+                            'Cliente'       => 'bg-green-100 text-green-700',
+                        ][$rol->nombre] ?? 'bg-gray-100 text-gray-700';
                     @endphp
                     <span class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold {{ $badge }}">{{ $rol->nombre }}</span>
                     @empty
