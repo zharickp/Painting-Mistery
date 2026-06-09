@@ -142,6 +142,67 @@
             </a>
             @endif
 
+            {{-- GERENTE --}}
+            @if(auth()->user()->tieneRol('Gerente'))
+            <div class="pt-4 pb-1 px-3">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Supervisión</p>
+            </div>
+
+            <a href="{{ route('admin.productos.index') }}"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.productos.*') ? 'bg-red-600 text-white' : 'hover:bg-gray-800 hover:text-white' }} transition">
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
+                </svg>
+                Productos
+            </a>
+
+            <a href="{{ route('admin.cursos.index') }}"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.cursos.*') ? 'bg-red-600 text-white' : 'hover:bg-gray-800 hover:text-white' }} transition">
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                Cursos
+            </a>
+
+            <a href="{{ route('admin.inventario') }}"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.inventario') ? 'bg-red-600 text-white' : 'hover:bg-gray-800 hover:text-white' }} transition">
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+                </svg>
+                Inventario
+            </a>
+
+            <a href="{{ route('admin.ventas') }}"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.ventas') ? 'bg-red-600 text-white' : 'hover:bg-gray-800 hover:text-white' }} transition">
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                Ventas
+            </a>
+
+            <a href="{{ route('admin.reportes') }}"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('admin.reportes') ? 'bg-red-600 text-white' : 'hover:bg-gray-800 hover:text-white' }} transition">
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                Reportes
+            </a>
+
+            <a href="{{ route('mayorista.index') }}"
+            class="flex items-center gap-3 px-3 py-2 rounded-lg {{ request()->routeIs('mayorista.*') ? 'bg-red-600 text-white' : 'hover:bg-gray-800 hover:text-white' }} transition">
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                Módulo Mayorista
+            </a>
+            @endif
+
             {{-- CLIENTE --}}
             @if(auth()->user()->tieneRol('Cliente'))
             <div class="pt-4 pb-1 px-3">
