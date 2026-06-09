@@ -16,7 +16,12 @@ class CursoController extends Controller
             ->orderByDesc('created_at')
             ->paginate(10);
 
-        return view('admin.cursos', compact('cursos'));
+        return view('admin.cursos.index', compact('cursos'));
+    }
+
+    public function create(): View
+    {
+        return view('admin.cursos.create');
     }
 
     public function store(Request $request): RedirectResponse
@@ -46,7 +51,7 @@ class CursoController extends Controller
 
     public function edit(Curso $curso): View
     {
-        return view('admin.cursos-edit', compact('curso'));
+        return view('admin.cursos.edit', compact('curso'));
     }
 
     public function update(Request $request, Curso $curso): RedirectResponse

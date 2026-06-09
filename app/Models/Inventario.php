@@ -15,7 +15,6 @@ class Inventario extends Model
         'ultima_actualizacion'
     ];
 
-    // 🔗 Relación con producto
     public function producto()
     {
         return $this->belongsTo(Producto::class);
