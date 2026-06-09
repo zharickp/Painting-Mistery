@@ -13,7 +13,10 @@ class TipoIva extends Model
         'porcentaje'
     ];
 
-    // 🔗 Relación con productos
+    protected $casts = [
+        'porcentaje' => 'decimal:2',
+    ];
+
     public function productos()
     {
         return $this->hasMany(Producto::class);
