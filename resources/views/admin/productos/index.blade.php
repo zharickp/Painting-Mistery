@@ -28,10 +28,10 @@
 <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
     @forelse ($productos as $producto)
     <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition">
-        <div class="h-40 bg-gray-100 flex items-center justify-center overflow-hidden">
+        <div class="bg-gray-100 flex items-center justify-center overflow-hidden" style="height:220px;">
             @if ($producto->imagen)
                 <img src="{{ $producto->imagen }}" alt="{{ $producto->nombre }}"
-                     class="h-full w-full object-cover">
+                     class="h-full w-full object-contain">
             @else
                 <svg class="h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"

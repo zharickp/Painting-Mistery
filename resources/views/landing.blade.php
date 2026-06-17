@@ -44,16 +44,27 @@
                         </button>
                     </div>
 
+                    {{-- Lista de deseos --}}
+                    <button onclick="abrirWishlist()"
+                       class="relative p-2 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition" title="Lista de deseos">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                        </svg>
+                        <span id="navWishBadge" class="hidden absolute -top-0.5 -right-0.5 bg-red-600 text-white text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center leading-none">0</span>
+                    </button>
+
                     {{-- Carrito --}}
-                    @auth
-                    <a href="{{ route('dashboard') }}"
+                    <button onclick="abrirCarrito()"
                        class="relative p-2 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition" title="Carrito">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
-                    </a>
+                        <span id="navCartBadge" class="hidden absolute -top-0.5 -right-0.5 bg-red-600 text-white text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center leading-none">0</span>
+                    </button>
 
+                    @auth
                     {{-- Icono usuario --}}
                     <a href="{{ route('dashboard') }}"
                        class="p-2 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition" title="Mi cuenta">
@@ -63,16 +74,6 @@
                         </svg>
                     </a>
                     @else
-
-                    {{-- Carrito (invitado) --}}
-                    <a href="{{ route('login') }}"
-                       class="relative p-2 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition" title="Carrito">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                        </svg>
-                    </a>
-
                     {{-- Login icon --}}
                     <a href="{{ route('login') }}"
                        class="p-2 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition" title="Iniciar sesión">
@@ -81,7 +82,6 @@
                                   d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                         </svg>
                     </a>
-
                     {{-- Register icon --}}
                     <a href="{{ route('register') }}"
                        class="p-2 rounded-full bg-red-600 text-white hover:bg-red-700 transition" title="Registrarse">
@@ -207,10 +207,36 @@
     {{-- PRODUCTOS --}}
     <section id="productos" class="py-20 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="mb-12">
-                <span class="text-red-600 font-semibold text-xs uppercase tracking-widest">Catálogo</span>
-                <h2 class="text-3xl font-bold text-gray-900 mt-1">Nuestros productos</h2>
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+                <div>
+                    <span class="text-red-600 font-semibold text-xs uppercase tracking-widest">Catálogo</span>
+                    <h2 class="text-3xl font-bold text-gray-900 mt-1">Productos destacados</h2>
+                </div>
+                <button onclick="abrirWishlist()"
+                    class="flex items-center gap-2 text-sm text-red-600 border border-red-200 rounded-full px-4 py-1.5 hover:bg-red-50 transition self-start sm:self-auto">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                    Mi lista de deseos
+                </button>
             </div>
+
+            {{-- Filtros por categoría --}}
+            @if (!$productosDestacados->isEmpty())
+            <div class="flex flex-wrap gap-2 mb-8" id="catFiltros">
+                <button onclick="filtrarCat('todos')"
+                    class="cat-btn px-4 py-1.5 rounded-full text-sm font-medium border transition active-cat"
+                    data-cat="todos">Todos</button>
+                @foreach($productosDestacados->unique('categoria_producto_id') as $p)
+                    @if($p->categoria)
+                    <button onclick="filtrarCat('{{ $p->categoria_producto_id }}')"
+                        class="cat-btn px-4 py-1.5 rounded-full text-sm font-medium border transition"
+                        data-cat="{{ $p->categoria_producto_id }}">{{ $p->categoria->nombre }}</button>
+                    @endif
+                @endforeach
+            </div>
+            @endif
+
             @if ($productosDestacados->isEmpty())
                 <div class="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-200">
                     <svg class="h-14 w-14 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -220,19 +246,48 @@
                     <p class="text-gray-400 text-sm">Muy pronto tendremos nuestros productos disponibles.</p>
                 </div>
             @else
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-7">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-7" id="productosGrid">
                     @foreach ($productosDestacados as $producto)
-                        <div class="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition group">
-                            <div class="h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
+                        <div class="prod-card bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition group"
+                             data-id="{{ $producto->id }}"
+                             data-nombre="{{ $producto->nombre }}"
+                             data-precio="{{ $producto->precio }}"
+                             data-descripcion="{{ addslashes($producto->descripcion ?? '') }}"
+                             data-imagen="{{ $producto->imagen ?? '' }}"
+                             data-categoria="{{ $producto->categoria->nombre ?? '' }}"
+                             data-cat="{{ $producto->categoria_producto_id ?? '' }}">
+
+                            {{-- Imagen con lupa overlay --}}
+                            <div class="relative h-52 bg-gray-100 overflow-hidden cursor-pointer"
+                                 onclick="abrirDetalle(this.closest('.prod-card'))">
                                 @if ($producto->imagen)
                                     <img src="{{ $producto->imagen }}" alt="{{ $producto->nombre }}"
                                          class="h-full w-full object-cover group-hover:scale-105 transition duration-300">
                                 @else
-                                    <svg class="h-14 w-14 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                    </svg>
+                                    <div class="h-full w-full flex items-center justify-center">
+                                        <svg class="h-14 w-14 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                    </div>
                                 @endif
+                                {{-- Overlay lupa --}}
+                                <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                                    <div class="bg-white/90 rounded-full p-3 shadow-lg">
+                                        <svg class="h-6 w-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zm-3 0v3m0 0v3m0-3h3m-3 0H9"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                {{-- Botón wishlist corazón --}}
+                                <button onclick="event.stopPropagation(); toggleWish(this.closest('.prod-card'))"
+                                    class="wish-btn absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-md hover:scale-110 transition"
+                                    title="Agregar a lista de deseos">
+                                    <svg class="h-4 w-4 text-gray-400 wish-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                    </svg>
+                                </button>
                             </div>
+
                             <div class="p-5">
                                 <h3 class="font-semibold text-gray-800 mb-1">{{ $producto->nombre }}</h3>
                                 @if ($producto->categoria)
@@ -241,7 +296,13 @@
                                     </span>
                                 @endif
                                 <p class="text-gray-400 text-sm mb-3 line-clamp-2">{{ $producto->descripcion ?? '' }}</p>
-                                <p class="text-red-600 font-bold">${{ number_format($producto->precio, 0, ',', '.') }}</p>
+                                <div class="flex items-center justify-between">
+                                    <p class="text-red-600 font-bold">${{ number_format($producto->precio, 0, ',', '.') }}</p>
+                                    <button onclick="abrirDetalle(this.closest('.prod-card'))"
+                                        class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">
+                                        Agregar
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     @endforeach
@@ -767,6 +828,218 @@
     }
     </style>
 
+    {{-- ═══════════════ MODAL LISTA DE DESEOS ═══════════════ --}}
+    <div id="wishlistModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/50" onclick="cerrarWishlist()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
+            <div class="flex items-center justify-between px-6 py-4 border-b">
+                <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
+                    <svg class="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                    Lista de deseos
+                </h3>
+                <button onclick="cerrarWishlist()" class="text-gray-400 hover:text-gray-600 transition">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="wishlistBody" class="flex-1 overflow-y-auto px-6 py-4 space-y-4"></div>
+        </div>
+    </div>
+
+    {{-- ═══════════════ MODAL CARRITO ═══════════════ --}}
+    <div id="carritoModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/50" onclick="cerrarCarrito()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
+            <div class="flex items-center justify-between px-6 py-4 border-b">
+                <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
+                    <svg class="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    Mi carrito
+                </h3>
+                <button onclick="cerrarCarrito()" class="text-gray-400 hover:text-gray-600 transition">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="carritoBody" class="flex-1 overflow-y-auto px-6 py-4 space-y-4"></div>
+            <div id="carritoFooter" class="hidden border-t px-6 py-4 space-y-3">
+                <div class="flex justify-between font-bold text-gray-800 text-base">
+                    <span>Total:</span>
+                    <span id="carritoTotal" class="text-red-600"></span>
+                </div>
+                <a id="carritoWaBtn" href="#" target="_blank"
+                   class="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-xl text-sm transition w-full">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                    Pedir por WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {{-- ═══════════════ MODAL DETALLE PRODUCTO ═══════════════ --}}
+    <div id="modalDetalle" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60" onclick="cerrarDetalle()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden">
+            {{-- Header --}}
+            <div class="flex items-center justify-between px-6 py-3 border-b flex-shrink-0">
+                <span id="mdCategoria" class="text-xs font-semibold text-red-600 uppercase tracking-widest"></span>
+                <button onclick="cerrarDetalle()" class="text-gray-400 hover:text-gray-600 transition">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            {{-- Body --}}
+            <div class="flex-1 overflow-y-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-0">
+                    {{-- Imagen --}}
+                    <div class="relative bg-gray-100 flex items-center justify-center" style="min-height:300px;">
+                        <img id="mdImagen" src="" alt=""
+                             class="w-full h-full object-contain cursor-zoom-in" style="max-height:420px;"
+                             onclick="abrirZoom(this.src)">
+                        <div class="absolute bottom-3 right-3 bg-white/80 rounded-full px-2 py-1 text-xs text-gray-500 flex items-center gap-1">
+                            <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                            Clic para ampliar
+                        </div>
+                    </div>
+                    {{-- Info --}}
+                    <div class="p-6 flex flex-col gap-4">
+                        <div>
+                            <h2 id="mdNombre" class="text-2xl font-extrabold text-gray-900 leading-tight mb-2"></h2>
+                            <div class="flex items-center gap-1 mb-3">
+                                @for($i=0;$i<5;$i++)
+                                <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                @endfor
+                                <span class="text-xs text-gray-400 ml-1">(18 reseñas)</span>
+                            </div>
+                            <p id="mdPrecio" class="text-3xl font-extrabold text-red-600 mb-3"></p>
+                            <p id="mdDescripcion" class="text-gray-500 text-sm leading-relaxed mb-4"></p>
+                        </div>
+                        {{-- Cantidad --}}
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-medium text-gray-700">Cantidad:</span>
+                            <div class="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+                                <button onclick="cambiarCantidad(-1)" class="px-3 py-2 text-gray-600 hover:bg-gray-100 transition font-bold text-lg leading-none">−</button>
+                                <input id="mdCantidad" type="number" value="1" min="1" max="99"
+                                       class="w-12 text-center border-0 text-sm font-semibold focus:outline-none">
+                                <button onclick="cambiarCantidad(1)" class="px-3 py-2 text-gray-600 hover:bg-gray-100 transition font-bold text-lg leading-none">+</button>
+                            </div>
+                        </div>
+                        {{-- Botones --}}
+                        <button onclick="agregarAlCarritoDesdeModal()"
+                            class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl text-sm transition flex items-center justify-center gap-2">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            Agregar al carrito
+                        </button>
+                        <a id="mdWaBtn" href="#" target="_blank"
+                           class="w-full flex items-center justify-center gap-2 border-2 border-green-500 text-green-600 hover:bg-green-500 hover:text-white font-semibold py-2.5 rounded-xl text-sm transition">
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                            </svg>
+                            Consultar por WhatsApp
+                        </a>
+                        {{-- Garantías --}}
+                        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-gray-100">
+                            <div class="text-center">
+                                <svg class="h-5 w-5 text-green-500 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                </svg>
+                                <p class="text-xs text-gray-500">Garantía</p>
+                            </div>
+                            <div class="text-center">
+                                <svg class="h-5 w-5 text-blue-500 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                </svg>
+                                <p class="text-xs text-gray-500">Pago seguro</p>
+                            </div>
+                            <div class="text-center">
+                                <svg class="h-5 w-5 text-orange-500 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                                <p class="text-xs text-gray-500">Soporte</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Reseñas --}}
+                <div class="px-6 pb-6 border-t mt-2 pt-5">
+                    <h4 class="font-bold text-gray-800 mb-4">Reseñas de clientes</h4>
+                    {{-- Barras de rating --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
+                        <div class="space-y-1.5">
+                            @foreach([5,4,3,2,1] as $star)
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="text-gray-500 w-3">{{ $star }}</span>
+                                <svg class="h-3 w-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                <div class="flex-1 bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                    <div class="bg-yellow-400 h-1.5 rounded-full" style="width:{{ $star == 5 ? 75 : ($star == 4 ? 15 : ($star == 3 ? 7 : 3)) }}%"></div>
+                                </div>
+                                <span class="text-gray-400 w-4">{{ $star == 5 ? 14 : ($star == 4 ? 3 : ($star == 3 ? 1 : 0)) }}</span>
+                            </div>
+                            @endforeach
+                        </div>
+                        <div class="space-y-3">
+                            @foreach([['Carlos M.','Excelente producto, llegó en perfectas condiciones y es de gran calidad.',5],['Daniela R.','Muy bueno, lo recomiendo a todos los que buscan calidad y precio justo.',5],['Andrés P.','Cumple lo que promete, la atención fue increíble también.',4]] as $rv)
+                            <div class="flex gap-3">
+                                <div class="h-8 w-8 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                                    {{ strtoupper(substr($rv[0],0,1)) }}
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-1 mb-0.5">
+                                        <span class="font-semibold text-gray-800 text-xs">{{ $rv[0] }}</span>
+                                        <div class="flex">
+                                            @for($s=0;$s<$rv[2];$s++)
+                                            <svg class="h-3 w-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                            </svg>
+                                            @endfor
+                                        </div>
+                                    </div>
+                                    <p class="text-gray-500 text-xs">{{ $rv[1] }}</p>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ═══════════════ MODAL ZOOM IMAGEN ═══════════════ --}}
+    <div id="zoomModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/90 p-4" onclick="cerrarZoom()">
+        <img id="zoomImg" src="" alt="" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl">
+        <button onclick="cerrarZoom()" class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white rounded-full p-2 transition">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+    </div>
+
+    {{-- Toast --}}
+    <div id="toast" class="hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-[70] bg-gray-900 text-white text-sm font-medium px-5 py-2.5 rounded-full shadow-xl transition-all duration-300 whitespace-nowrap"></div>
+
+    <style>
+    .cat-btn { background:#fff; color:#6b7280; border-color:#e5e7eb; }
+    .cat-btn.active-cat { background:#dc2626; color:#fff; border-color:#dc2626; }
+    </style>
+
     <script>
     // ── Carrusel de reseñas ──────────────────────────────────────────
     (function() {
@@ -801,6 +1074,253 @@
         // Autoplay
         setInterval(() => goTo(current >= maxSlide ? 0 : current + 1), 5000);
     })();
+
+    // ── Carrito & Wishlist (localStorage) ───────────────────────────
+    const CART_KEY = 'pm_carrito';
+    const WISH_KEY = 'pm_wishlist';
+
+    function getCarrito() { try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch(e) { return []; } }
+    function saveCarrito(c) { localStorage.setItem(CART_KEY, JSON.stringify(c)); syncUI(); }
+    function getWish() { try { return JSON.parse(localStorage.getItem(WISH_KEY)) || []; } catch(e) { return []; } }
+    function saveWish(w) { localStorage.setItem(WISH_KEY, JSON.stringify(w)); syncUI(); }
+
+    function fmt(n) { return '$' + Number(n).toLocaleString('es-CO'); }
+
+    function syncUI() {
+        const cart = getCarrito();
+        const wish = getWish();
+        const cartCount = cart.reduce((s,i) => s + i.qty, 0);
+        const wishCount = wish.length;
+
+        const cb = document.getElementById('navCartBadge');
+        const wb = document.getElementById('navWishBadge');
+        if (cb) { cb.textContent = cartCount; cb.classList.toggle('hidden', cartCount === 0); }
+        if (wb) { wb.textContent = wishCount; wb.classList.toggle('hidden', wishCount === 0); }
+
+        // Actualizar iconos de corazón en las tarjetas
+        document.querySelectorAll('.prod-card').forEach(card => {
+            const id = card.dataset.id;
+            const icon = card.querySelector('.wish-icon');
+            if (!icon) return;
+            const inWish = wish.some(w => w.id == id);
+            icon.setAttribute('fill', inWish ? '#dc2626' : 'none');
+            icon.setAttribute('stroke', inWish ? '#dc2626' : 'currentColor');
+        });
+    }
+
+    // ── Wishlist ──
+    function toggleWish(card) {
+        const id = card.dataset.id;
+        let wish = getWish();
+        const idx = wish.findIndex(w => w.id == id);
+        if (idx >= 0) {
+            wish.splice(idx, 1);
+            showToast('Eliminado de lista de deseos');
+        } else {
+            wish.push({ id: card.dataset.id, nombre: card.dataset.nombre, precio: card.dataset.precio, imagen: card.dataset.imagen });
+            showToast('Añadido a lista de deseos ❤️');
+        }
+        saveWish(wish);
+    }
+
+    function abrirWishlist() {
+        renderWishlist();
+        document.getElementById('wishlistModal').classList.remove('hidden');
+    }
+    function cerrarWishlist() { document.getElementById('wishlistModal').classList.add('hidden'); }
+
+    function renderWishlist() {
+        const wish = getWish();
+        const body = document.getElementById('wishlistBody');
+        if (wish.length === 0) {
+            body.innerHTML = '<div class="text-center py-12 text-gray-400"><svg class="h-12 w-12 mx-auto mb-3 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg><p class="text-sm">Tu lista de deseos está vacía</p></div>';
+            return;
+        }
+        body.innerHTML = wish.map(item => `
+            <div class="flex gap-4 items-center border border-gray-100 rounded-xl p-3">
+                <div class="h-16 w-16 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
+                    ${item.imagen ? `<img src="${item.imagen}" class="h-full w-full object-cover">` : '<div class="h-full w-full flex items-center justify-center"><svg class="h-6 w-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>'}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-gray-800 text-sm truncate">${item.nombre}</p>
+                    <p class="text-red-600 font-bold text-sm">${fmt(item.precio)}</p>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <button onclick="wishToCart('${item.id}'); renderWishlist();"
+                        class="text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition font-medium whitespace-nowrap">
+                        Al carrito
+                    </button>
+                    <button onclick="quitarDeWish('${item.id}'); renderWishlist();"
+                        class="text-xs border border-gray-200 text-gray-500 hover:border-red-300 hover:text-red-600 px-3 py-1.5 rounded-lg transition whitespace-nowrap">
+                        Quitar
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function wishToCart(id) {
+        const wish = getWish();
+        const item = wish.find(w => w.id == id);
+        if (!item) return;
+        addToCart({ id: item.id, nombre: item.nombre, precio: item.precio, imagen: item.imagen }, 1);
+        showToast('Añadido al carrito 🛒');
+    }
+
+    function quitarDeWish(id) {
+        let wish = getWish();
+        wish = wish.filter(w => w.id != id);
+        saveWish(wish);
+    }
+
+    // ── Carrito ──
+    function addToCart(prod, qty) {
+        let cart = getCarrito();
+        const idx = cart.findIndex(c => c.id == prod.id);
+        if (idx >= 0) { cart[idx].qty += qty; }
+        else { cart.push({ id: prod.id, nombre: prod.nombre, precio: prod.precio, imagen: prod.imagen, qty }); }
+        saveCarrito(cart);
+    }
+
+    function abrirCarrito() {
+        renderCarrito();
+        document.getElementById('carritoModal').classList.remove('hidden');
+    }
+    function cerrarCarrito() { document.getElementById('carritoModal').classList.add('hidden'); }
+
+    function renderCarrito() {
+        const cart = getCarrito();
+        const body = document.getElementById('carritoBody');
+        const footer = document.getElementById('carritoFooter');
+        if (cart.length === 0) {
+            body.innerHTML = '<div class="text-center py-12 text-gray-400"><svg class="h-12 w-12 mx-auto mb-3 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg><p class="text-sm">El carrito está vacío</p></div>';
+            footer.classList.add('hidden');
+            return;
+        }
+        let total = 0;
+        body.innerHTML = cart.map(item => {
+            const sub = item.precio * item.qty;
+            total += sub;
+            return `
+            <div class="flex gap-4 items-center border border-gray-100 rounded-xl p-3">
+                <div class="h-16 w-16 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
+                    ${item.imagen ? `<img src="${item.imagen}" class="h-full w-full object-cover">` : ''}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-gray-800 text-sm truncate">${item.nombre}</p>
+                    <p class="text-red-600 font-bold text-sm">${fmt(item.precio)}</p>
+                    <div class="flex items-center gap-1 mt-1">
+                        <button onclick="cambiarQtyCarrito('${item.id}', -1)" class="h-6 w-6 rounded border border-gray-200 text-gray-600 hover:bg-gray-100 text-sm font-bold flex items-center justify-center transition">−</button>
+                        <span class="text-sm font-semibold w-6 text-center">${item.qty}</span>
+                        <button onclick="cambiarQtyCarrito('${item.id}', 1)" class="h-6 w-6 rounded border border-gray-200 text-gray-600 hover:bg-gray-100 text-sm font-bold flex items-center justify-center transition">+</button>
+                    </div>
+                </div>
+                <div class="text-right flex-shrink-0">
+                    <p class="font-bold text-gray-700 text-sm">${fmt(sub)}</p>
+                    <button onclick="quitarDelCarrito('${item.id}')" class="text-xs text-red-400 hover:text-red-600 mt-1 transition">Quitar</button>
+                </div>
+            </div>`;
+        }).join('');
+
+        footer.classList.remove('hidden');
+        document.getElementById('carritoTotal').textContent = fmt(total);
+
+        // Armar mensaje WhatsApp
+        let msg = '🛒 *Pedido Painting Mistery*\n\n';
+        cart.forEach(i => { msg += `• ${i.nombre} x${i.qty} = ${fmt(i.precio * i.qty)}\n`; });
+        msg += `\n*Total: ${fmt(total)}*`;
+        document.getElementById('carritoWaBtn').href = 'https://wa.me/573144557602?text=' + encodeURIComponent(msg);
+    }
+
+    function cambiarQtyCarrito(id, delta) {
+        let cart = getCarrito();
+        const idx = cart.findIndex(c => c.id == id);
+        if (idx < 0) return;
+        cart[idx].qty = Math.max(1, cart[idx].qty + delta);
+        saveCarrito(cart);
+        renderCarrito();
+    }
+
+    function quitarDelCarrito(id) {
+        let cart = getCarrito().filter(c => c.id != id);
+        saveCarrito(cart);
+        renderCarrito();
+    }
+
+    // ── Modal Detalle ──
+    let productoActual = null;
+
+    function abrirDetalle(card) {
+        productoActual = {
+            id: card.dataset.id,
+            nombre: card.dataset.nombre,
+            precio: parseFloat(card.dataset.precio),
+            descripcion: card.dataset.descripcion,
+            imagen: card.dataset.imagen,
+            categoria: card.dataset.categoria,
+        };
+        document.getElementById('mdNombre').textContent = productoActual.nombre;
+        document.getElementById('mdPrecio').textContent = fmt(productoActual.precio);
+        document.getElementById('mdDescripcion').textContent = productoActual.descripcion || 'Sin descripción disponible.';
+        document.getElementById('mdCategoria').textContent = productoActual.categoria;
+        const img = document.getElementById('mdImagen');
+        if (productoActual.imagen) { img.src = productoActual.imagen; img.classList.remove('hidden'); }
+        else { img.classList.add('hidden'); }
+        document.getElementById('mdCantidad').value = 1;
+
+        const waText = `Hola! Me interesa el producto: *${productoActual.nombre}* (${fmt(productoActual.precio)}). ¿Está disponible? 🏍️`;
+        document.getElementById('mdWaBtn').href = 'https://wa.me/573144557602?text=' + encodeURIComponent(waText);
+
+        document.getElementById('modalDetalle').classList.remove('hidden');
+    }
+    function cerrarDetalle() { document.getElementById('modalDetalle').classList.add('hidden'); }
+
+    function cambiarCantidad(delta) {
+        const inp = document.getElementById('mdCantidad');
+        inp.value = Math.max(1, parseInt(inp.value || 1) + delta);
+    }
+
+    function agregarAlCarritoDesdeModal() {
+        if (!productoActual) return;
+        const qty = parseInt(document.getElementById('mdCantidad').value) || 1;
+        addToCart(productoActual, qty);
+        showToast(`${productoActual.nombre} añadido al carrito 🛒`);
+        cerrarDetalle();
+    }
+
+    // ── Zoom ──
+    function abrirZoom(src) {
+        document.getElementById('zoomImg').src = src;
+        document.getElementById('zoomModal').classList.remove('hidden');
+    }
+    function cerrarZoom() { document.getElementById('zoomModal').classList.add('hidden'); }
+
+    // ── Toast ──
+    let toastTimer;
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.remove('hidden');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.add('hidden'), 2800);
+    }
+
+    // ── Filtro categorías ──
+    function filtrarCat(cat) {
+        document.querySelectorAll('.cat-btn').forEach(btn => {
+            btn.classList.toggle('active-cat', btn.dataset.cat === cat);
+        });
+        document.querySelectorAll('.prod-card').forEach(card => {
+            if (cat === 'todos' || card.dataset.cat === cat) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // ── Init ──
+    document.addEventListener('DOMContentLoaded', syncUI);
 
     // ── Formulario contacto → WhatsApp ──────────────────────────────
     function enviarContacto() {
