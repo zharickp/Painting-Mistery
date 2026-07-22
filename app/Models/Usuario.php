@@ -78,6 +78,16 @@ class Usuario extends Authenticatable
         return $this->hasMany(Venta::class);
     }
 
+    public function resenas()
+    {
+        return $this->hasMany(Resena::class);
+    }
+
+    public function nombreCompleto(): string
+    {
+        return trim("{$this->primer_nombre} {$this->primer_apellido}");
+    }
+
     //  Ayudante para verificar roles
 
     public function tieneRol(string ...$nombres): bool

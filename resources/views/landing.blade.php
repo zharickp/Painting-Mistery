@@ -5,126 +5,7 @@
 @section('content')
 <div class="bg-white">
 
-    {{-- NAVBAR --}}
-    <nav class="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                {{-- Brand --}}
-                <a href="{{ route('inicio') }}" class="flex items-center gap-3 group">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG2lZPkThC_r_yCEWDX5xCRiDZiXel_ZbUnw&s"
-                         alt="Logo" class="h-10 w-10 rounded-full object-cover border-2 border-red-100 group-hover:border-red-400 transition">
-                    <span class="text-lg font-bold text-gray-900 group-hover:text-red-600 transition">
-                        Painting <span class="text-red-600">Mistery</span>
-                    </span>
-                </a>
-
-                {{-- Centro: links --}}
-                <div class="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
-                    <a href="{{ route('inicio') }}" class="hover:text-red-600 transition">Inicio</a>
-                    <a href="#productos" class="hover:text-red-600 transition">Tienda</a>
-                    <a href="#cursos" class="hover:text-red-600 transition">Academia</a>
-                    <a href="#sobre-nosotros" class="hover:text-red-600 transition">Nosotros</a>
-                    <a href="#contacto" class="hover:text-red-600 transition">Contacto</a>
-                </div>
-
-                {{-- Derecha: barra búsqueda + iconos --}}
-                <div class="flex items-center gap-2">
-
-                    {{-- Búsqueda expandible --}}
-                    <div class="relative hidden sm:flex items-center" id="searchWrapper">
-                        <input id="searchInput" type="text" placeholder="Buscar productos..."
-                               class="w-0 overflow-hidden opacity-0 transition-all duration-300 text-sm border border-gray-200 rounded-full px-4 py-1.5 focus:outline-none focus:border-red-400"
-                               style="transition: width 0.3s ease, opacity 0.3s ease;">
-                        <button onclick="toggleSearch()"
-                                class="ml-1 p-2 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                            </svg>
-                        </button>
-                    </div>
-
-                    {{-- Lista de deseos --}}
-                    <button onclick="abrirWishlist()"
-                       class="relative p-2 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition" title="Lista de deseos">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                        </svg>
-                        <span id="navWishBadge" class="hidden absolute -top-0.5 -right-0.5 bg-red-600 text-white text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center leading-none">0</span>
-                    </button>
-
-                    {{-- Carrito --}}
-                    <button onclick="abrirCarrito()"
-                       class="relative p-2 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition" title="Carrito">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                        </svg>
-                        <span id="navCartBadge" class="hidden absolute -top-0.5 -right-0.5 bg-red-600 text-white text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center leading-none">0</span>
-                    </button>
-
-                    @auth
-                    {{-- Icono usuario --}}
-                    <a href="{{ route('dashboard') }}"
-                       class="p-2 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition" title="Mi cuenta">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </a>
-                    @else
-                    {{-- Login icon --}}
-                    <a href="{{ route('login') }}"
-                       class="p-2 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition" title="Iniciar sesión">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-                        </svg>
-                    </a>
-                    {{-- Register icon --}}
-                    <a href="{{ route('register') }}"
-                       class="p-2 rounded-full bg-red-600 text-white hover:bg-red-700 transition" title="Registrarse">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                        </svg>
-                    </a>
-                    @endauth
-
-                    {{-- Mobile menu --}}
-                    <button class="md:hidden p-2 text-gray-500 hover:text-red-600" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            {{-- Mobile dropdown --}}
-            <div id="mobileMenu" class="hidden md:hidden pb-3 space-y-1 text-sm font-medium text-gray-600">
-                <a href="{{ route('inicio') }}" class="block px-2 py-2 hover:text-red-600">Inicio</a>
-                <a href="#productos" class="block px-2 py-2 hover:text-red-600">Tienda</a>
-                <a href="#cursos" class="block px-2 py-2 hover:text-red-600">Academia</a>
-                <a href="#sobre-nosotros" class="block px-2 py-2 hover:text-red-600">Nosotros</a>
-                <a href="#contacto" class="block px-2 py-2 hover:text-red-600">Contacto</a>
-                @guest
-                <a href="{{ route('login') }}" class="block px-2 py-2 hover:text-red-600">Iniciar sesión</a>
-                <a href="{{ route('register') }}" class="block px-2 py-2 text-red-600 font-semibold">Registrarse</a>
-                @endguest
-            </div>
-        </div>
-    </nav>
-
-    <script>
-    function toggleSearch() {
-        const input = document.getElementById('searchInput');
-        const isOpen = input.style.width === '200px';
-        input.style.width  = isOpen ? '0' : '200px';
-        input.style.opacity = isOpen ? '0' : '1';
-        if (!isOpen) input.focus();
-    }
-    </script>
+    @include('partials.nav')
 
     {{-- HERO --}}
     <section>
@@ -248,18 +129,16 @@
             @else
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-7" id="productosGrid">
                     @foreach ($productosDestacados as $producto)
+                        @php $resumen = $producto->resumenResenas(); @endphp
                         <div class="prod-card bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition group"
                              data-id="{{ $producto->id }}"
                              data-nombre="{{ $producto->nombre }}"
                              data-precio="{{ $producto->precio }}"
-                             data-descripcion="{{ addslashes($producto->descripcion ?? '') }}"
                              data-imagen="{{ $producto->imagen ?? '' }}"
-                             data-categoria="{{ $producto->categoria->nombre ?? '' }}"
                              data-cat="{{ $producto->categoria_producto_id ?? '' }}">
 
                             {{-- Imagen con lupa overlay --}}
-                            <div class="relative h-52 bg-gray-100 overflow-hidden cursor-pointer"
-                                 onclick="abrirDetalle(this.closest('.prod-card'))">
+                            <a href="{{ route('producto.show', $producto) }}" class="relative h-52 bg-gray-100 overflow-hidden block">
                                 @if ($producto->imagen)
                                     <img src="{{ $producto->imagen }}" alt="{{ $producto->nombre }}"
                                          class="h-full w-full object-cover group-hover:scale-105 transition duration-300">
@@ -279,26 +158,36 @@
                                     </div>
                                 </div>
                                 {{-- Botón wishlist corazón --}}
-                                <button onclick="event.stopPropagation(); toggleWish(this.closest('.prod-card'))"
+                                <button onclick="event.preventDefault(); event.stopPropagation(); toggleWish(this.closest('.prod-card'))"
                                     class="wish-btn absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-md hover:scale-110 transition"
                                     title="Agregar a lista de deseos">
                                     <svg class="h-4 w-4 text-gray-400 wish-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                                     </svg>
                                 </button>
-                            </div>
+                            </a>
 
                             <div class="p-5">
-                                <h3 class="font-semibold text-gray-800 mb-1">{{ $producto->nombre }}</h3>
+                                <a href="{{ route('producto.show', $producto) }}" class="font-semibold text-gray-800 mb-1 hover:text-red-600 transition block">{{ $producto->nombre }}</a>
                                 @if ($producto->categoria)
                                     <span class="inline-block bg-red-50 text-red-600 text-xs px-2 py-0.5 rounded-full mb-2">
                                         {{ $producto->categoria->nombre ?? '' }}
                                     </span>
                                 @endif
+                                @if ($resumen['total'] > 0)
+                                    <div class="flex items-center gap-0.5 mb-2">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <svg class="h-3 w-3 {{ $i <= round($resumen['promedio']) ? 'text-yellow-400' : 'text-gray-200' }}" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                            </svg>
+                                        @endfor
+                                        <span class="text-[11px] text-gray-400 ml-1">({{ $resumen['total'] }})</span>
+                                    </div>
+                                @endif
                                 <p class="text-gray-400 text-sm mb-3 line-clamp-2">{{ $producto->descripcion ?? '' }}</p>
                                 <div class="flex items-center justify-between">
                                     <p class="text-red-600 font-bold">${{ number_format($producto->precio, 0, ',', '.') }}</p>
-                                    <button onclick="abrirDetalle(this.closest('.prod-card'))"
+                                    <button onclick="addToCartDesdeCard(this.closest('.prod-card'))"
                                         class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">
                                         Agregar
                                     </button>
@@ -680,360 +569,9 @@
         </div>
     </section>
 
-    {{-- FOOTER --}}
-    <footer style="background: linear-gradient(135deg, #0f0f0f 0%, #1a0000 50%, #0f0f0f 100%);" class="pt-14 pb-6">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 pb-10 border-b border-red-900/30">
+    @include('partials.footer')
 
-                {{-- Marca --}}
-                <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG2lZPkThC_r_yCEWDX5xCRiDZiXel_ZbUnw&s"
-                             alt="Logo" class="h-12 w-12 rounded-full object-cover border-2 border-red-600 shadow-lg shadow-red-900/50">
-                        <div>
-                            <span class="text-white font-extrabold text-lg block">Painting <span class="text-red-500">Mistery</span></span>
-                            <span class="text-gray-500 text-xs">Melgar, Tolima 🇨🇴</span>
-                        </div>
-                    </div>
-                    <p class="text-gray-400 text-sm leading-relaxed mb-4">
-                        Especialistas en pintura automotriz, accesorios y formación profesional para motocicletas.
-                    </p>
-                    <div class="flex gap-1 items-center">
-                        <div class="h-1 w-8 bg-red-600 rounded-full"></div>
-                        <div class="h-1 w-4 bg-red-800 rounded-full"></div>
-                        <div class="h-1 w-2 bg-red-900 rounded-full"></div>
-                    </div>
-                </div>
-
-                {{-- Links --}}
-                <div>
-                    <h4 class="text-red-500 font-bold text-xs uppercase tracking-widest mb-5">Navegación</h4>
-                    <ul class="space-y-2.5 text-sm">
-                        <li><a href="{{ route('inicio') }}" class="text-gray-400 hover:text-red-400 transition flex items-center gap-2"><span class="text-red-700">›</span> Inicio</a></li>
-                        <li><a href="#productos" class="text-gray-400 hover:text-red-400 transition flex items-center gap-2"><span class="text-red-700">›</span> Tienda</a></li>
-                        <li><a href="#cursos" class="text-gray-400 hover:text-red-400 transition flex items-center gap-2"><span class="text-red-700">›</span> Cursos</a></li>
-                        <li><a href="#sobre-nosotros" class="text-gray-400 hover:text-red-400 transition flex items-center gap-2"><span class="text-red-700">›</span> Sobre nosotros</a></li>
-                        <li><a href="#contacto" class="text-gray-400 hover:text-red-400 transition flex items-center gap-2"><span class="text-red-700">›</span> Contacto</a></li>
-                        <li><a href="{{ route('login') }}" class="text-gray-400 hover:text-red-400 transition flex items-center gap-2"><span class="text-red-700">›</span> Iniciar sesión</a></li>
-                    </ul>
-                </div>
-
-                {{-- Redes sociales --}}
-                <div>
-                    <h4 class="text-red-500 font-bold text-xs uppercase tracking-widest mb-5">Síguenos</h4>
-
-                    {{-- Iconos con colores originales de cada red --}}
-                    <div class="flex flex-wrap gap-3 mb-5">
-
-                        {{-- WhatsApp - verde oficial #25D366 --}}
-                        <a href="https://wa.me/573144557602" target="_blank" rel="noopener"
-                           class="group relative h-11 w-11 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 hover:-translate-y-1 shadow-lg"
-                           style="background-color:#25D366;" title="WhatsApp">
-                            <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                            </svg>
-                        </a>
-
-                        {{-- Instagram - gradiente oficial --}}
-                        <a href="https://www.instagram.com/painting_mistery/" target="_blank" rel="noopener"
-                           class="group relative h-11 w-11 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 hover:-translate-y-1 shadow-lg"
-                           style="background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);"
-                           title="Instagram">
-                            <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                            </svg>
-                        </a>
-
-                        {{-- Facebook - azul oficial #1877F2 --}}
-                        <a href="https://www.facebook.com/Paintingmistery" target="_blank" rel="noopener"
-                           class="group relative h-11 w-11 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 hover:-translate-y-1 shadow-lg"
-                           style="background-color:#1877F2;" title="Facebook">
-                            <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                            </svg>
-                        </a>
-
-                        {{-- TikTok - negro con contraste --}}
-                        <a href="https://www.tiktok.com/@paintingmisteryoficial" target="_blank" rel="noopener"
-                           class="group relative h-11 w-11 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 hover:-translate-y-1 shadow-lg border border-gray-600"
-                           style="background-color:#010101;" title="TikTok">
-                            <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.28 6.28 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.2a8.16 8.16 0 004.77 1.52V7.27a4.85 4.85 0 01-1-.58z"/>
-                            </svg>
-                        </a>
-
-                        {{-- Email - rojo de marca --}}
-                        <a href="mailto:paintingmistery20@gmail.com"
-                           class="group relative h-11 w-11 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 hover:-translate-y-1 shadow-lg"
-                           style="background-color:#dc2626;" title="Email">
-                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                            </svg>
-                        </a>
-                    </div>
-
-                    <div class="space-y-1.5 text-xs text-gray-500">
-                        <p class="flex items-center gap-2">
-                            <svg class="h-3.5 w-3.5 text-green-500" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                            <a href="https://wa.me/573144557602" target="_blank" class="hover:text-green-400 transition">+57 314 455 7602</a>
-                        </p>
-                        <p class="flex items-center gap-2">
-                            <svg class="h-3.5 w-3.5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                            <a href="mailto:paintingmistery20@gmail.com" class="hover:text-red-400 transition">paintingmistery20@gmail.com</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Bottom bar --}}
-            <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600">
-                <p>&copy; {{ date('Y') }} Painting Mistery. Todos los derechos reservados.</p>
-                <p>Hecho con ❤️ en Melgar, Tolima — Colombia 🇨🇴</p>
-            </div>
-        </div>
-    </footer>
-
-    {{-- BOTÓN FLOTANTE INSTAGRAM (izquierda) --}}
-    <a href="https://www.instagram.com/painting_mistery/" target="_blank" rel="noopener"
-       class="fixed bottom-6 left-4 z-50 h-14 w-14 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 hover:-translate-y-1 transition-all duration-300"
-       style="background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);"
-       title="Síguenos en Instagram">
-        <svg class="h-7 w-7 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-        </svg>
-    </a>
-
-    {{-- BOTÓN FLOTANTE WHATSAPP (derecha) --}}
-    <a href="https://wa.me/573144557602?text=Hola!%20Vi%20tu%20página%20y%20me%20gustaría%20más%20información%20sobre%20Painting%20Mistery%20🏍️" target="_blank" rel="noopener"
-       class="fixed bottom-6 right-4 z-50 h-14 w-14 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 hover:-translate-y-1 transition-all duration-300"
-       style="background-color:#25D366;"
-       title="Chatea por WhatsApp">
-        <svg class="h-7 w-7 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-        </svg>
-    </a>
-
-    <style>
-    /* Pulso en los botones flotantes */
-    .fixed a, a.fixed {
-        animation: none;
-    }
-    @keyframes pulse-ring {
-        0% { box-shadow: 0 0 0 0 rgba(37,211,102,.6); }
-        70% { box-shadow: 0 0 0 12px rgba(37,211,102,0); }
-        100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); }
-    }
-    a[href*="wa.me"].fixed {
-        animation: pulse-ring 2.5s infinite;
-    }
-    </style>
-
-    {{-- ═══════════════ MODAL LISTA DE DESEOS ═══════════════ --}}
-    <div id="wishlistModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/50" onclick="cerrarWishlist()"></div>
-        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
-            <div class="flex items-center justify-between px-6 py-4 border-b">
-                <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
-                    <svg class="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                    </svg>
-                    Lista de deseos
-                </h3>
-                <button onclick="cerrarWishlist()" class="text-gray-400 hover:text-gray-600 transition">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-            <div id="wishlistBody" class="flex-1 overflow-y-auto px-6 py-4 space-y-4"></div>
-        </div>
-    </div>
-
-    {{-- ═══════════════ MODAL CARRITO ═══════════════ --}}
-    <div id="carritoModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/50" onclick="cerrarCarrito()"></div>
-        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
-            <div class="flex items-center justify-between px-6 py-4 border-b">
-                <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
-                    <svg class="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                    </svg>
-                    Mi carrito
-                </h3>
-                <button onclick="cerrarCarrito()" class="text-gray-400 hover:text-gray-600 transition">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-            <div id="carritoBody" class="flex-1 overflow-y-auto px-6 py-4 space-y-4"></div>
-            <div id="carritoFooter" class="hidden border-t px-6 py-4 space-y-3">
-                <div class="flex justify-between font-bold text-gray-800 text-base">
-                    <span>Total:</span>
-                    <span id="carritoTotal" class="text-red-600"></span>
-                </div>
-                <a id="carritoWaBtn" href="#" target="_blank"
-                   class="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-xl text-sm transition w-full">
-                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                    </svg>
-                    Pedir por WhatsApp
-                </a>
-            </div>
-        </div>
-    </div>
-
-    {{-- ═══════════════ MODAL DETALLE PRODUCTO ═══════════════ --}}
-    <div id="modalDetalle" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/60" onclick="cerrarDetalle()"></div>
-        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden">
-            {{-- Header --}}
-            <div class="flex items-center justify-between px-6 py-3 border-b flex-shrink-0">
-                <span id="mdCategoria" class="text-xs font-semibold text-red-600 uppercase tracking-widest"></span>
-                <button onclick="cerrarDetalle()" class="text-gray-400 hover:text-gray-600 transition">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-            {{-- Body --}}
-            <div class="flex-1 overflow-y-auto">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-0">
-                    {{-- Imagen --}}
-                    <div class="relative bg-gray-100 flex items-center justify-center" style="min-height:300px;">
-                        <img id="mdImagen" src="" alt=""
-                             class="w-full h-full object-contain cursor-zoom-in" style="max-height:420px;"
-                             onclick="abrirZoom(this.src)">
-                        <div class="absolute bottom-3 right-3 bg-white/80 rounded-full px-2 py-1 text-xs text-gray-500 flex items-center gap-1">
-                            <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                            </svg>
-                            Clic para ampliar
-                        </div>
-                    </div>
-                    {{-- Info --}}
-                    <div class="p-6 flex flex-col gap-4">
-                        <div>
-                            <h2 id="mdNombre" class="text-2xl font-extrabold text-gray-900 leading-tight mb-2"></h2>
-                            <div class="flex items-center gap-1 mb-3">
-                                @for($i=0;$i<5;$i++)
-                                <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                </svg>
-                                @endfor
-                                <span class="text-xs text-gray-400 ml-1">(18 reseñas)</span>
-                            </div>
-                            <p id="mdPrecio" class="text-3xl font-extrabold text-red-600 mb-3"></p>
-                            <p id="mdDescripcion" class="text-gray-500 text-sm leading-relaxed mb-4"></p>
-                        </div>
-                        {{-- Cantidad --}}
-                        <div class="flex items-center gap-3">
-                            <span class="text-sm font-medium text-gray-700">Cantidad:</span>
-                            <div class="flex items-center border border-gray-200 rounded-lg overflow-hidden">
-                                <button onclick="cambiarCantidad(-1)" class="px-3 py-2 text-gray-600 hover:bg-gray-100 transition font-bold text-lg leading-none">−</button>
-                                <input id="mdCantidad" type="number" value="1" min="1" max="99"
-                                       class="w-12 text-center border-0 text-sm font-semibold focus:outline-none">
-                                <button onclick="cambiarCantidad(1)" class="px-3 py-2 text-gray-600 hover:bg-gray-100 transition font-bold text-lg leading-none">+</button>
-                            </div>
-                        </div>
-                        {{-- Botones --}}
-                        <button onclick="agregarAlCarritoDesdeModal()"
-                            class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl text-sm transition flex items-center justify-center gap-2">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                            Agregar al carrito
-                        </button>
-                        <a id="mdWaBtn" href="#" target="_blank"
-                           class="w-full flex items-center justify-center gap-2 border-2 border-green-500 text-green-600 hover:bg-green-500 hover:text-white font-semibold py-2.5 rounded-xl text-sm transition">
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                            </svg>
-                            Consultar por WhatsApp
-                        </a>
-                        {{-- Garantías --}}
-                        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-gray-100">
-                            <div class="text-center">
-                                <svg class="h-5 w-5 text-green-500 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                                </svg>
-                                <p class="text-xs text-gray-500">Garantía</p>
-                            </div>
-                            <div class="text-center">
-                                <svg class="h-5 w-5 text-blue-500 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                                </svg>
-                                <p class="text-xs text-gray-500">Pago seguro</p>
-                            </div>
-                            <div class="text-center">
-                                <svg class="h-5 w-5 text-orange-500 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                                </svg>
-                                <p class="text-xs text-gray-500">Soporte</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Reseñas --}}
-                <div class="px-6 pb-6 border-t mt-2 pt-5">
-                    <h4 class="font-bold text-gray-800 mb-4">Reseñas de clientes</h4>
-                    {{-- Barras de rating --}}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
-                        <div class="space-y-1.5">
-                            @foreach([5,4,3,2,1] as $star)
-                            <div class="flex items-center gap-2 text-xs">
-                                <span class="text-gray-500 w-3">{{ $star }}</span>
-                                <svg class="h-3 w-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                </svg>
-                                <div class="flex-1 bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                                    <div class="bg-yellow-400 h-1.5 rounded-full" style="width:{{ $star == 5 ? 75 : ($star == 4 ? 15 : ($star == 3 ? 7 : 3)) }}%"></div>
-                                </div>
-                                <span class="text-gray-400 w-4">{{ $star == 5 ? 14 : ($star == 4 ? 3 : ($star == 3 ? 1 : 0)) }}</span>
-                            </div>
-                            @endforeach
-                        </div>
-                        <div class="space-y-3">
-                            @foreach([['Carlos M.','Excelente producto, llegó en perfectas condiciones y es de gran calidad.',5],['Daniela R.','Muy bueno, lo recomiendo a todos los que buscan calidad y precio justo.',5],['Andrés P.','Cumple lo que promete, la atención fue increíble también.',4]] as $rv)
-                            <div class="flex gap-3">
-                                <div class="h-8 w-8 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
-                                    {{ strtoupper(substr($rv[0],0,1)) }}
-                                </div>
-                                <div>
-                                    <div class="flex items-center gap-1 mb-0.5">
-                                        <span class="font-semibold text-gray-800 text-xs">{{ $rv[0] }}</span>
-                                        <div class="flex">
-                                            @for($s=0;$s<$rv[2];$s++)
-                                            <svg class="h-3 w-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                            </svg>
-                                            @endfor
-                                        </div>
-                                    </div>
-                                    <p class="text-gray-500 text-xs">{{ $rv[1] }}</p>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- ═══════════════ MODAL ZOOM IMAGEN ═══════════════ --}}
-    <div id="zoomModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/90 p-4" onclick="cerrarZoom()">
-        <img id="zoomImg" src="" alt="" class="max-w-full max-h-full object-contain rounded-xl shadow-2xl">
-        <button onclick="cerrarZoom()" class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white rounded-full p-2 transition">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-        </button>
-    </div>
-
-    {{-- Toast --}}
-    <div id="toast" class="hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-[70] bg-gray-900 text-white text-sm font-medium px-5 py-2.5 rounded-full shadow-xl transition-all duration-300 whitespace-nowrap"></div>
+    @include('partials.carrito-wishlist-modales')
 
     <style>
     .cat-btn { background:#fff; color:#6b7280; border-color:#e5e7eb; }
@@ -1075,236 +613,11 @@
         setInterval(() => goTo(current >= maxSlide ? 0 : current + 1), 5000);
     })();
 
-    // ── Carrito & Wishlist (localStorage) ───────────────────────────
-    const CART_KEY = 'pm_carrito';
-    const WISH_KEY = 'pm_wishlist';
+    </script>
 
-    function getCarrito() { try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch(e) { return []; } }
-    function saveCarrito(c) { localStorage.setItem(CART_KEY, JSON.stringify(c)); syncUI(); }
-    function getWish() { try { return JSON.parse(localStorage.getItem(WISH_KEY)) || []; } catch(e) { return []; } }
-    function saveWish(w) { localStorage.setItem(WISH_KEY, JSON.stringify(w)); syncUI(); }
+    @include('partials.tienda-scripts')
 
-    function fmt(n) { return '$' + Number(n).toLocaleString('es-CO'); }
-
-    function syncUI() {
-        const cart = getCarrito();
-        const wish = getWish();
-        const cartCount = cart.reduce((s,i) => s + i.qty, 0);
-        const wishCount = wish.length;
-
-        const cb = document.getElementById('navCartBadge');
-        const wb = document.getElementById('navWishBadge');
-        if (cb) { cb.textContent = cartCount; cb.classList.toggle('hidden', cartCount === 0); }
-        if (wb) { wb.textContent = wishCount; wb.classList.toggle('hidden', wishCount === 0); }
-
-        // Actualizar iconos de corazón en las tarjetas
-        document.querySelectorAll('.prod-card').forEach(card => {
-            const id = card.dataset.id;
-            const icon = card.querySelector('.wish-icon');
-            if (!icon) return;
-            const inWish = wish.some(w => w.id == id);
-            icon.setAttribute('fill', inWish ? '#dc2626' : 'none');
-            icon.setAttribute('stroke', inWish ? '#dc2626' : 'currentColor');
-        });
-    }
-
-    // ── Wishlist ──
-    function toggleWish(card) {
-        const id = card.dataset.id;
-        let wish = getWish();
-        const idx = wish.findIndex(w => w.id == id);
-        if (idx >= 0) {
-            wish.splice(idx, 1);
-            showToast('Eliminado de lista de deseos');
-        } else {
-            wish.push({ id: card.dataset.id, nombre: card.dataset.nombre, precio: card.dataset.precio, imagen: card.dataset.imagen });
-            showToast('Añadido a lista de deseos ❤️');
-        }
-        saveWish(wish);
-    }
-
-    function abrirWishlist() {
-        renderWishlist();
-        document.getElementById('wishlistModal').classList.remove('hidden');
-    }
-    function cerrarWishlist() { document.getElementById('wishlistModal').classList.add('hidden'); }
-
-    function renderWishlist() {
-        const wish = getWish();
-        const body = document.getElementById('wishlistBody');
-        if (wish.length === 0) {
-            body.innerHTML = '<div class="text-center py-12 text-gray-400"><svg class="h-12 w-12 mx-auto mb-3 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg><p class="text-sm">Tu lista de deseos está vacía</p></div>';
-            return;
-        }
-        body.innerHTML = wish.map(item => `
-            <div class="flex gap-4 items-center border border-gray-100 rounded-xl p-3">
-                <div class="h-16 w-16 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
-                    ${item.imagen ? `<img src="${item.imagen}" class="h-full w-full object-cover">` : '<div class="h-full w-full flex items-center justify-center"><svg class="h-6 w-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>'}
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="font-semibold text-gray-800 text-sm truncate">${item.nombre}</p>
-                    <p class="text-red-600 font-bold text-sm">${fmt(item.precio)}</p>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <button onclick="wishToCart('${item.id}'); renderWishlist();"
-                        class="text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition font-medium whitespace-nowrap">
-                        Al carrito
-                    </button>
-                    <button onclick="quitarDeWish('${item.id}'); renderWishlist();"
-                        class="text-xs border border-gray-200 text-gray-500 hover:border-red-300 hover:text-red-600 px-3 py-1.5 rounded-lg transition whitespace-nowrap">
-                        Quitar
-                    </button>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    function wishToCart(id) {
-        const wish = getWish();
-        const item = wish.find(w => w.id == id);
-        if (!item) return;
-        addToCart({ id: item.id, nombre: item.nombre, precio: item.precio, imagen: item.imagen }, 1);
-        showToast('Añadido al carrito 🛒');
-    }
-
-    function quitarDeWish(id) {
-        let wish = getWish();
-        wish = wish.filter(w => w.id != id);
-        saveWish(wish);
-    }
-
-    // ── Carrito ──
-    function addToCart(prod, qty) {
-        let cart = getCarrito();
-        const idx = cart.findIndex(c => c.id == prod.id);
-        if (idx >= 0) { cart[idx].qty += qty; }
-        else { cart.push({ id: prod.id, nombre: prod.nombre, precio: prod.precio, imagen: prod.imagen, qty }); }
-        saveCarrito(cart);
-    }
-
-    function abrirCarrito() {
-        renderCarrito();
-        document.getElementById('carritoModal').classList.remove('hidden');
-    }
-    function cerrarCarrito() { document.getElementById('carritoModal').classList.add('hidden'); }
-
-    function renderCarrito() {
-        const cart = getCarrito();
-        const body = document.getElementById('carritoBody');
-        const footer = document.getElementById('carritoFooter');
-        if (cart.length === 0) {
-            body.innerHTML = '<div class="text-center py-12 text-gray-400"><svg class="h-12 w-12 mx-auto mb-3 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg><p class="text-sm">El carrito está vacío</p></div>';
-            footer.classList.add('hidden');
-            return;
-        }
-        let total = 0;
-        body.innerHTML = cart.map(item => {
-            const sub = item.precio * item.qty;
-            total += sub;
-            return `
-            <div class="flex gap-4 items-center border border-gray-100 rounded-xl p-3">
-                <div class="h-16 w-16 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
-                    ${item.imagen ? `<img src="${item.imagen}" class="h-full w-full object-cover">` : ''}
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="font-semibold text-gray-800 text-sm truncate">${item.nombre}</p>
-                    <p class="text-red-600 font-bold text-sm">${fmt(item.precio)}</p>
-                    <div class="flex items-center gap-1 mt-1">
-                        <button onclick="cambiarQtyCarrito('${item.id}', -1)" class="h-6 w-6 rounded border border-gray-200 text-gray-600 hover:bg-gray-100 text-sm font-bold flex items-center justify-center transition">−</button>
-                        <span class="text-sm font-semibold w-6 text-center">${item.qty}</span>
-                        <button onclick="cambiarQtyCarrito('${item.id}', 1)" class="h-6 w-6 rounded border border-gray-200 text-gray-600 hover:bg-gray-100 text-sm font-bold flex items-center justify-center transition">+</button>
-                    </div>
-                </div>
-                <div class="text-right flex-shrink-0">
-                    <p class="font-bold text-gray-700 text-sm">${fmt(sub)}</p>
-                    <button onclick="quitarDelCarrito('${item.id}')" class="text-xs text-red-400 hover:text-red-600 mt-1 transition">Quitar</button>
-                </div>
-            </div>`;
-        }).join('');
-
-        footer.classList.remove('hidden');
-        document.getElementById('carritoTotal').textContent = fmt(total);
-
-        // Armar mensaje WhatsApp
-        let msg = '🛒 *Pedido Painting Mistery*\n\n';
-        cart.forEach(i => { msg += `• ${i.nombre} x${i.qty} = ${fmt(i.precio * i.qty)}\n`; });
-        msg += `\n*Total: ${fmt(total)}*`;
-        document.getElementById('carritoWaBtn').href = 'https://wa.me/573144557602?text=' + encodeURIComponent(msg);
-    }
-
-    function cambiarQtyCarrito(id, delta) {
-        let cart = getCarrito();
-        const idx = cart.findIndex(c => c.id == id);
-        if (idx < 0) return;
-        cart[idx].qty = Math.max(1, cart[idx].qty + delta);
-        saveCarrito(cart);
-        renderCarrito();
-    }
-
-    function quitarDelCarrito(id) {
-        let cart = getCarrito().filter(c => c.id != id);
-        saveCarrito(cart);
-        renderCarrito();
-    }
-
-    // ── Modal Detalle ──
-    let productoActual = null;
-
-    function abrirDetalle(card) {
-        productoActual = {
-            id: card.dataset.id,
-            nombre: card.dataset.nombre,
-            precio: parseFloat(card.dataset.precio),
-            descripcion: card.dataset.descripcion,
-            imagen: card.dataset.imagen,
-            categoria: card.dataset.categoria,
-        };
-        document.getElementById('mdNombre').textContent = productoActual.nombre;
-        document.getElementById('mdPrecio').textContent = fmt(productoActual.precio);
-        document.getElementById('mdDescripcion').textContent = productoActual.descripcion || 'Sin descripción disponible.';
-        document.getElementById('mdCategoria').textContent = productoActual.categoria;
-        const img = document.getElementById('mdImagen');
-        if (productoActual.imagen) { img.src = productoActual.imagen; img.classList.remove('hidden'); }
-        else { img.classList.add('hidden'); }
-        document.getElementById('mdCantidad').value = 1;
-
-        const waText = `Hola! Me interesa el producto: *${productoActual.nombre}* (${fmt(productoActual.precio)}). ¿Está disponible? 🏍️`;
-        document.getElementById('mdWaBtn').href = 'https://wa.me/573144557602?text=' + encodeURIComponent(waText);
-
-        document.getElementById('modalDetalle').classList.remove('hidden');
-    }
-    function cerrarDetalle() { document.getElementById('modalDetalle').classList.add('hidden'); }
-
-    function cambiarCantidad(delta) {
-        const inp = document.getElementById('mdCantidad');
-        inp.value = Math.max(1, parseInt(inp.value || 1) + delta);
-    }
-
-    function agregarAlCarritoDesdeModal() {
-        if (!productoActual) return;
-        const qty = parseInt(document.getElementById('mdCantidad').value) || 1;
-        addToCart(productoActual, qty);
-        showToast(`${productoActual.nombre} añadido al carrito 🛒`);
-        cerrarDetalle();
-    }
-
-    // ── Zoom ──
-    function abrirZoom(src) {
-        document.getElementById('zoomImg').src = src;
-        document.getElementById('zoomModal').classList.remove('hidden');
-    }
-    function cerrarZoom() { document.getElementById('zoomModal').classList.add('hidden'); }
-
-    // ── Toast ──
-    let toastTimer;
-    function showToast(msg) {
-        const t = document.getElementById('toast');
-        t.textContent = msg;
-        t.classList.remove('hidden');
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => t.classList.add('hidden'), 2800);
-    }
-
+    <script>
     // ── Filtro categorías ──
     function filtrarCat(cat) {
         document.querySelectorAll('.cat-btn').forEach(btn => {

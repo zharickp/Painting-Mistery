@@ -10,9 +10,9 @@ class LandingController extends Controller
     public function index()
     {
         $productosDestacados = Producto::where('estado', true)
-            ->with('categoria')
+            ->with(['categoria', 'imagenes', 'resenas.usuario'])
             ->orderBy('created_at', 'desc')
-            ->take(3)
+            ->take(12)
             ->get();
 
         $cursosDestacados = Curso::where('estado', true)
