@@ -45,17 +45,26 @@
                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de IVA</label>
-                <select name="tipo_iva_id" required
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
-                    <option value="">Selecciona...</option>
-                    @foreach ($tiposIva as $iva)
-                        <option value="{{ $iva->id }}" {{ old('tipo_iva_id') == $iva->id ? 'selected' : '' }}>
-                            {{ $iva->descripcion }} ({{ $iva->porcentaje }}%)
-                        </option>
-                    @endforeach
-                </select>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Precio anterior <span class="text-gray-400">(opcional, para mostrar descuento)</span>
+                </label>
+                <input type="number" name="precio_anterior" value="{{ old('precio_anterior') }}"
+                       min="0" step="0.01"
+                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
             </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de IVA</label>
+            <select name="tipo_iva_id" required
+                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
+                <option value="">Selecciona...</option>
+                @foreach ($tiposIva as $iva)
+                    <option value="{{ $iva->id }}" {{ old('tipo_iva_id') == $iva->id ? 'selected' : '' }}>
+                        {{ $iva->descripcion }} ({{ $iva->porcentaje }}%)
+                    </option>
+                @endforeach
+            </select>
         </div>
 
         <div>
@@ -73,10 +82,22 @@
 
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
-                Imagen <span class="text-gray-400">(opcional, máx. 2MB)</span>
+                Imagen principal <span class="text-gray-400">(opcional, máx. 8MB)</span>
             </label>
-            <input type="file" name="imagen" accept="image/jpg,image/jpeg,image/png,image/webp"
+            <input type="file" name="imagen" accept="image/jpg,image/jpeg,image/png,image/webp" data-preview="previewImagenPrincipal"
                    class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-red-50 file:text-red-600 hover:file:bg-red-100">
+            <p class="text-xs text-gray-400 mt-1">Es la foto de portada que aparece en el catálogo.</p>
+            <div id="previewImagenPrincipal" class="flex flex-wrap gap-2 mt-2"></div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+                Galería de fotos <span class="text-gray-400">(opcional, puedes elegir varias)</span>
+            </label>
+            <input type="file" name="imagenes[]" multiple accept="image/jpg,image/jpeg,image/png,image/webp" data-preview="previewGaleria"
+                   class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-red-50 file:text-red-600 hover:file:bg-red-100">
+            <p class="text-xs text-gray-400 mt-1">Se muestran en el detalle del producto para que el cliente navegue entre fotos. Puedes elegir varias a la vez o repetir la acción para agregar más.</p>
+            <div id="previewGaleria" class="flex flex-wrap gap-2 mt-2"></div>
         </div>
 
         <button type="submit"

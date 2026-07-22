@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CategoriaProducto;
 use App\Models\Inventario;
 use App\Models\Producto;
+use App\Models\ProductoImagen;
 use App\Models\TipoIva;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,9 +37,11 @@ class ProductoController extends Controller
             'nombre'                => 'required|string|max:150',
             'descripcion'           => 'nullable|string|max:500',
             'precio'                => 'required|numeric|min:0',
+            'precio_anterior'       => 'nullable|numeric|gt:precio',
             'categoria_producto_id' => 'required|exists:categoria_producto,id',
             'tipo_iva_id'           => 'required|exists:tipo_iva,id',
-            'imagen'                => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'imagen'                => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
+            'imagenes.*'            => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
         ]);
 
         $rutaImagen = null;
@@ -52,11 +55,14 @@ class ProductoController extends Controller
             'nombre'                => $request->nombre,
             'descripcion'           => $request->descripcion,
             'precio'                => $request->precio,
+            'precio_anterior'       => $request->precio_anterior,
             'categoria_producto_id' => $request->categoria_producto_id,
             'tipo_iva_id'           => $request->tipo_iva_id,
             'imagen'                => $rutaImagen,
             'estado'                => true,
         ]);
+
+        $this->guardarGaleria($request, $producto);
 
         Inventario::create([
             'producto_id'          => $producto->id,
@@ -69,10 +75,50 @@ class ProductoController extends Controller
             ->with('success', 'Producto creado correctamente.');
     }
 
+    private function guardarGaleria(Request $request, Producto $producto): void
+    {
+        if (!$request->hasFile('imagenes')) {
+            return;
+        }
+
+        $orden = (int) $producto->imagenes()->max('orden');
+
+        foreach ($request->file('imagenes') as $archivo) {
+            $orden++;
+            $nombreArchivo = time() . '_' . $orden . '_' . $archivo->getClientOriginalName();
+            $archivo->move(public_path('images/productos'), $nombreArchivo);
+
+            ProductoImagen::create([
+                'producto_id' => $producto->id,
+                'ruta'        => '/images/productos/' . $nombreArchivo,
+                'orden'       => $orden,
+            ]);
+        }
+    }
+
+    private function guardarColores(Request $request, Producto $producto): void
+    {
+        if (! $request->has('colores')) {
+            return;
+        }
+
+        foreach ($request->input('colores') as $imagenId => $datos) {
+            $nombre = trim((string) ($datos['nombre'] ?? ''));
+
+            ProductoImagen::where('id', $imagenId)
+                ->where('producto_id', $producto->id)
+                ->update([
+                    'color_nombre' => $nombre !== '' ? $nombre : null,
+                    'color_hex'    => $nombre !== '' ? ($datos['hex'] ?? null) : null,
+                ]);
+        }
+    }
+
     public function edit(Producto $producto): View
     {
         $categorias = CategoriaProducto::where('estado', true)->orderBy('nombre')->get();
         $tiposIva   = TipoIva::orderBy('porcentaje')->get();
+        $producto->load('imagenes');
 
         return view('admin.productos.edit', compact('producto', 'categorias', 'tiposIva'));
     }
@@ -83,9 +129,11 @@ class ProductoController extends Controller
             'nombre'                => 'required|string|max:150',
             'descripcion'           => 'nullable|string|max:500',
             'precio'                => 'required|numeric|min:0',
+            'precio_anterior'       => 'nullable|numeric|gt:precio',
             'categoria_producto_id' => 'required|exists:categoria_producto,id',
             'tipo_iva_id'           => 'required|exists:tipo_iva,id',
-            'imagen'                => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'imagen'                => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
+            'imagenes.*'            => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
         ]);
 
         if ($request->hasFile('imagen')) {
@@ -101,10 +149,27 @@ class ProductoController extends Controller
             'nombre'                => $request->nombre,
             'descripcion'           => $request->descripcion,
             'precio'                => $request->precio,
+            'precio_anterior'       => $request->precio_anterior,
             'categoria_producto_id' => $request->categoria_producto_id,
             'tipo_iva_id'           => $request->tipo_iva_id,
             'imagen'                => $producto->imagen,
         ]);
+
+        if ($request->filled('eliminar_imagenes')) {
+            $aEliminar = ProductoImagen::where('producto_id', $producto->id)
+                ->whereIn('id', $request->eliminar_imagenes)
+                ->get();
+
+            foreach ($aEliminar as $img) {
+                if (file_exists(public_path($img->ruta))) {
+                    unlink(public_path($img->ruta));
+                }
+                $img->delete();
+            }
+        }
+
+        $this->guardarColores($request, $producto);
+        $this->guardarGaleria($request, $producto);
 
         return redirect()->route('admin.productos.index')
             ->with('success', 'Producto actualizado correctamente.');

@@ -9,6 +9,8 @@ use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\TiendaController;
+use App\Http\Controllers\ProductoController as PublicProductoController;
 use App\Http\Controllers\Admin\RolesController;
 use App\Http\Controllers\Admin\CategoriaProductoController;
 use App\Http\Controllers\Admin\TipoIvaController;
@@ -17,8 +19,18 @@ use App\Http\Controllers\Admin\CursoController;
 use App\Http\Controllers\Admin\InventarioController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\CarritoController;
+use App\Http\Controllers\ResenaController;
 // ─── Landing ──────────────────────────────────────────────────────────────────
 Route::get('/', [LandingController::class, 'index'])->name('inicio');
+
+// ─── Tienda pública ───────────────────────────────────────────────────────────
+Route::get('/tienda', [TiendaController::class, 'index'])->name('tienda.index');
+Route::get('/productos/{producto}', [PublicProductoController::class, 'show'])->name('producto.show');
+
+// ── Reseñas de productos (usuarios logueados o invitados con nombre/correo) ───
+Route::post('/productos/{producto}/resenas', [ResenaController::class, 'store'])
+    ->middleware('throttle:10,1')
+    ->name('resenas.store');
 
 // ─── Invitados ────────────────────────────────────────────────────────────────
 Route::middleware('guest')->group(function () {
