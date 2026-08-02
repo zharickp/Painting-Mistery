@@ -4,15 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ProductoImagen extends Model
+class ProductoColor extends Model
 {
-    protected $table = 'producto_imagen';
+    protected $table = 'producto_color';
 
     protected $fillable = [
         'producto_id',
-        'ruta',
+        'nombre',
+        'hex',
+        'stock',
         'orden',
-        'producto_color_id',
     ];
 
     public function producto()
@@ -20,8 +21,8 @@ class ProductoImagen extends Model
         return $this->belongsTo(Producto::class);
     }
 
-    public function color()
+    public function imagenes()
     {
-        return $this->belongsTo(ProductoColor::class, 'producto_color_id');
+        return $this->hasMany(ProductoImagen::class, 'producto_color_id')->orderBy('orden');
     }
 }

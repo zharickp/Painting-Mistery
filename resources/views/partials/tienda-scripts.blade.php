@@ -1,3 +1,7 @@
+<style>
+@keyframes pulsoMicro { 0% { transform: scale(1); } 45% { transform: scale(1.3); } 100% { transform: scale(1); } }
+.animate-pulso { animation: pulsoMicro .35s ease; }
+</style>
 <script>
 // ── Carrito & Wishlist (localStorage, compartido en todas las páginas) ──
 const CART_KEY = 'pm_carrito';
@@ -9,6 +13,14 @@ function getWish() { try { return JSON.parse(localStorage.getItem(WISH_KEY)) || 
 function saveWish(w) { localStorage.setItem(WISH_KEY, JSON.stringify(w)); syncUI(); }
 
 function fmt(n) { return '$' + Number(n).toLocaleString('es-CO'); }
+
+// ── Microanimación genérica: pulso breve al agregar/quitar/seleccionar ──
+function pulso(el) {
+    if (!el) return;
+    el.classList.remove('animate-pulso');
+    void el.offsetWidth;
+    el.classList.add('animate-pulso');
+}
 
 function estrellasHTML(promedio, tamano) {
     const size = tamano || 'h-4 w-4';
@@ -38,6 +50,7 @@ function toggleAcordeon(id) {
     if (icon) icon.style.transform = abierto ? 'rotate(0deg)' : 'rotate(180deg)';
 }
 
+let prevCartCount = null, prevWishCount = null;
 function syncUI() {
     const cart = getCarrito();
     const wish = getWish();
@@ -46,8 +59,18 @@ function syncUI() {
 
     const cb = document.getElementById('navCartBadge');
     const wb = document.getElementById('navWishBadge');
-    if (cb) { cb.textContent = cartCount; cb.classList.toggle('hidden', cartCount === 0); }
-    if (wb) { wb.textContent = wishCount; wb.classList.toggle('hidden', wishCount === 0); }
+    if (cb) {
+        cb.textContent = cartCount;
+        cb.classList.toggle('hidden', cartCount === 0);
+        if (prevCartCount !== null && cartCount !== prevCartCount) pulso(cb);
+    }
+    if (wb) {
+        wb.textContent = wishCount;
+        wb.classList.toggle('hidden', wishCount === 0);
+        if (prevWishCount !== null && wishCount !== prevWishCount) pulso(wb);
+    }
+    prevCartCount = cartCount;
+    prevWishCount = wishCount;
 
     // Actualizar iconos de corazón en las tarjetas
     document.querySelectorAll('.prod-card').forEach(card => {
@@ -77,8 +100,9 @@ function toggleWishItem(id, nombre, precio, imagen) {
     saveWish(wish);
 }
 
-function toggleWish(card) {
+function toggleWish(card, btn) {
     toggleWishItem(card.dataset.id, card.dataset.nombre, card.dataset.precio, card.dataset.imagen);
+    pulso(btn || card.querySelector('.wish-icon'));
 }
 
 function abrirWishlist() {
@@ -140,9 +164,10 @@ function addToCart(prod, qty) {
     saveCarrito(cart);
 }
 
-function addToCartDesdeCard(card) {
+function addToCartDesdeCard(card, btn) {
     addToCart({ id: card.dataset.id, nombre: card.dataset.nombre, precio: parseFloat(card.dataset.precio), imagen: card.dataset.imagen }, 1);
     showToast('Añadido al carrito 🛒');
+    pulso(btn);
 }
 
 function abrirCarrito() {
