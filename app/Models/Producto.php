@@ -54,6 +54,18 @@ class Producto extends Model
         return $this->hasMany(Resena::class)->orderByDesc('created_at');
     }
 
+    public function relacionadosManual()
+    {
+        return $this->belongsToMany(Producto::class, 'producto_relacionado', 'producto_id', 'relacionado_id')
+            ->withPivot('orden')
+            ->orderBy('producto_relacionado.orden');
+    }
+
+    public function colores()
+    {
+        return $this->hasMany(ProductoColor::class)->orderBy('orden');
+    }
+
     public function galeria(): array
     {
         $rutas = $this->imagenes->pluck('ruta')->all();
@@ -66,26 +78,51 @@ class Producto extends Model
     }
 
     /**
-     * Colores únicos etiquetados en la galería, con el índice de su primera
-     * foto dentro de galeria() para que el frontend salte directo a ella.
+     * Variantes de color del producto (cada una con su propio stock),
+     * listas para pintar los círculos seleccionables en la ficha del producto.
      */
     public function coloresDisponibles(): array
     {
-        $colores = [];
+        return $this->colores->map(fn ($color) => [
+            'id'     => $color->id,
+            'nombre' => $color->nombre,
+            'hex'    => $color->hex ?: '#d1d5db',
+            'stock'  => (int) $color->stock,
+        ])->all();
+    }
 
-        foreach ($this->imagenes as $indice => $img) {
-            if (! $img->color_nombre || isset($colores[$img->color_nombre])) {
-                continue;
-            }
+    /**
+     * Fotos de la galería con el id de su color asociado (o null si es
+     * compartida entre todos los colores), en orden. Pensado para exportar
+     * tal cual a JS y filtrar la galería por color en el frontend.
+     */
+    public function imagenesConColor(): array
+    {
+        return $this->imagenes->map(fn ($img) => [
+            'ruta'     => $img->ruta,
+            'color_id' => $img->producto_color_id,
+        ])->all();
+    }
 
-            $colores[$img->color_nombre] = [
-                'nombre' => $img->color_nombre,
-                'hex'    => $img->color_hex ?: '#d1d5db',
-                'indice' => $indice,
-            ];
-        }
+    /**
+     * Fotos que no pertenecen a ninguna variante de color (grupo "compartidas").
+     * Se muestran junto a la portada cuando el cliente todavía no elige un color.
+     */
+    public function galeriaSinColor(): array
+    {
+        return $this->imagenes
+            ->whereNull('producto_color_id')
+            ->pluck('ruta')
+            ->all();
+    }
 
-        return array_values($colores);
+    /**
+     * Suma del stock de todas las variantes de color, para el badge de
+     * disponibilidad cuando el producto se vende por color.
+     */
+    public function stockTotalColores(): int
+    {
+        return (int) $this->colores->sum('stock');
     }
 
     public function resumenResenas(): array
@@ -118,6 +155,10 @@ class Producto extends Model
 
     public function estaAgotado(): bool
     {
+        if ($this->colores->isNotEmpty()) {
+            return $this->stockTotalColores() <= 0;
+        }
+
         return $this->stockActual() <= 0;
     }
 
@@ -138,5 +179,16 @@ class Producto extends Model
     public function esNuevo(): bool
     {
         return $this->created_at && $this->created_at->greaterThanOrEqualTo(now()->subDays(14));
+    }
+
+    /**
+     * Segunda foto distinta de la portada, para el efecto "cambia la imagen
+     * al pasar el mouse" en las tarjetas de producto. Null si no hay otra.
+     */
+    public function segundaImagen(): ?string
+    {
+        $otra = $this->imagenes->firstWhere('ruta', '!=', $this->imagen);
+
+        return $otra?->ruta;
     }
 }

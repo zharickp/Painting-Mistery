@@ -9,7 +9,8 @@
 
     {{-- HERO --}}
     <section>
-        {{-- Imagen sola, sin nada encima --}}
+    @if ($banners->isEmpty())
+        {{-- Sin banners configurados: imagen fija de siempre, sin cambios --}}
         <div style="height: 70vh; overflow: hidden;">
             <img src="/images/hero.jpeg"
                  alt="Painting Mistery"
@@ -34,6 +35,55 @@
                 </p>
             </div>
         </div>
+    @else
+        {{-- Slider administrable desde /admin/banners --}}
+        <div id="heroSlider" class="relative overflow-hidden" style="height: 70vh;">
+            @foreach ($banners as $i => $banner)
+                <div class="hero-slide absolute inset-0 transition-opacity duration-700 ease-in-out {{ $i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}">
+                    <img src="{{ $banner->imagen }}" alt="{{ $banner->titulo }}"
+                         class="w-full h-full object-cover object-center">
+                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent"></div>
+                    <div class="absolute inset-x-0 bottom-0 px-6 sm:px-10 pb-12 md:pb-16">
+                        <div class="max-w-7xl mx-auto">
+                            @if ($i === 0)
+                                <span class="inline-flex items-center gap-2 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full mb-4 uppercase tracking-widest">
+                                    <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                    Especialistas en pintura automotriz
+                                </span>
+                            @endif
+                            <h1 class="text-3xl md:text-5xl font-extrabold leading-tight mb-3 text-white max-w-2xl">{{ $banner->titulo }}</h1>
+                            @if ($banner->subtitulo)
+                                <p class="text-gray-200 text-base md:text-lg max-w-xl mb-5">{{ $banner->subtitulo }}</p>
+                            @endif
+                            @if ($banner->boton_texto && $banner->boton_enlace)
+                                <a href="{{ $banner->boton_enlace }}"
+                                   class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-2.5 rounded-full text-sm transition active:scale-95">
+                                    {{ $banner->boton_texto }}
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+
+            @if ($banners->count() > 1)
+                <button onclick="heroMover(-1)" aria-label="Anterior"
+                    class="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-white/90 hover:bg-white shadow-lg hover:shadow-xl flex items-center justify-center text-gray-800 transition-all duration-200 hover:scale-110">
+                    <svg class="h-6 w-6 sm:h-7 sm:w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button onclick="heroMover(1)" aria-label="Siguiente"
+                    class="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-white/90 hover:bg-white shadow-lg hover:shadow-xl flex items-center justify-center text-gray-800 transition-all duration-200 hover:scale-110">
+                    <svg class="h-6 w-6 sm:h-7 sm:w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2" id="heroDots">
+                    @foreach ($banners as $i => $banner)
+                        <button onclick="heroIrA({{ $i }})" aria-label="Ir al banner {{ $i + 1 }}"
+                            class="hero-dot h-2 rounded-full transition-all duration-300 {{ $i === 0 ? 'w-6 bg-white' : 'w-2 bg-white/40' }}"></button>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    @endif
     </section>
 
     {{-- NOSOTROS --}}
@@ -129,71 +179,7 @@
             @else
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-7" id="productosGrid">
                     @foreach ($productosDestacados as $producto)
-                        @php $resumen = $producto->resumenResenas(); @endphp
-                        <div class="prod-card bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition group"
-                             data-id="{{ $producto->id }}"
-                             data-nombre="{{ $producto->nombre }}"
-                             data-precio="{{ $producto->precio }}"
-                             data-imagen="{{ $producto->imagen ?? '' }}"
-                             data-cat="{{ $producto->categoria_producto_id ?? '' }}">
-
-                            {{-- Imagen con lupa overlay --}}
-                            <a href="{{ route('producto.show', $producto) }}" class="relative h-52 bg-gray-100 overflow-hidden block">
-                                @if ($producto->imagen)
-                                    <img src="{{ $producto->imagen }}" alt="{{ $producto->nombre }}"
-                                         class="h-full w-full object-cover group-hover:scale-105 transition duration-300">
-                                @else
-                                    <div class="h-full w-full flex items-center justify-center">
-                                        <svg class="h-14 w-14 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                        </svg>
-                                    </div>
-                                @endif
-                                {{-- Overlay lupa --}}
-                                <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                                    <div class="bg-white/90 rounded-full p-3 shadow-lg">
-                                        <svg class="h-6 w-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zm-3 0v3m0 0v3m0-3h3m-3 0H9"/>
-                                        </svg>
-                                    </div>
-                                </div>
-                                {{-- Botón wishlist corazón --}}
-                                <button onclick="event.preventDefault(); event.stopPropagation(); toggleWish(this.closest('.prod-card'))"
-                                    class="wish-btn absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-md hover:scale-110 transition"
-                                    title="Agregar a lista de deseos">
-                                    <svg class="h-4 w-4 text-gray-400 wish-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                                    </svg>
-                                </button>
-                            </a>
-
-                            <div class="p-5">
-                                <a href="{{ route('producto.show', $producto) }}" class="font-semibold text-gray-800 mb-1 hover:text-red-600 transition block">{{ $producto->nombre }}</a>
-                                @if ($producto->categoria)
-                                    <span class="inline-block bg-red-50 text-red-600 text-xs px-2 py-0.5 rounded-full mb-2">
-                                        {{ $producto->categoria->nombre ?? '' }}
-                                    </span>
-                                @endif
-                                @if ($resumen['total'] > 0)
-                                    <div class="flex items-center gap-0.5 mb-2">
-                                        @for ($i = 1; $i <= 5; $i++)
-                                            <svg class="h-3 w-3 {{ $i <= round($resumen['promedio']) ? 'text-yellow-400' : 'text-gray-200' }}" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                            </svg>
-                                        @endfor
-                                        <span class="text-[11px] text-gray-400 ml-1">({{ $resumen['total'] }})</span>
-                                    </div>
-                                @endif
-                                <p class="text-gray-400 text-sm mb-3 line-clamp-2">{{ $producto->descripcion ?? '' }}</p>
-                                <div class="flex items-center justify-between">
-                                    <p class="text-red-600 font-bold">${{ number_format($producto->precio, 0, ',', '.') }}</p>
-                                    <button onclick="addToCartDesdeCard(this.closest('.prod-card'))"
-                                        class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">
-                                        Agregar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        @include('partials.producto-card', ['producto' => $producto])
                     @endforeach
                 </div>
             @endif
@@ -579,6 +565,56 @@
     </style>
 
     <script>
+    // ── Slider del hero (banners administrables) ──────────────────────
+    (function() {
+        const slider = document.getElementById('heroSlider');
+        if (!slider) return;
+
+        const slides = slider.querySelectorAll('.hero-slide');
+        const dots   = slider.querySelectorAll('.hero-dot');
+        const total  = slides.length;
+        let actual = 0;
+        let temporizador = null;
+
+        function pintar() {
+            slides.forEach((s, i) => {
+                s.classList.toggle('opacity-100', i === actual);
+                s.classList.toggle('z-10', i === actual);
+                s.classList.toggle('opacity-0', i !== actual);
+                s.classList.toggle('z-0', i !== actual);
+                s.classList.toggle('pointer-events-none', i !== actual);
+            });
+            dots.forEach((d, i) => {
+                d.classList.toggle('w-6', i === actual);
+                d.classList.toggle('bg-white', i === actual);
+                d.classList.toggle('w-2', i !== actual);
+                d.classList.toggle('bg-white/40', i !== actual);
+            });
+        }
+
+        function irA(idx) {
+            actual = (idx + total) % total;
+            pintar();
+        }
+
+        window.heroIrA = function(idx) { irA(idx); reiniciarAutoplay(); };
+        window.heroMover = function(dir) { irA(actual + dir); reiniciarAutoplay(); };
+
+        function iniciarAutoplay() {
+            if (total <= 1) return;
+            temporizador = setInterval(() => irA(actual + 1), 5000);
+        }
+        function reiniciarAutoplay() {
+            clearInterval(temporizador);
+            iniciarAutoplay();
+        }
+
+        slider.addEventListener('mouseenter', () => clearInterval(temporizador));
+        slider.addEventListener('mouseleave', iniciarAutoplay);
+
+        iniciarAutoplay();
+    })();
+
     // ── Carrusel de reseñas ──────────────────────────────────────────
     (function() {
         const track  = document.getElementById('reviewsTrack');

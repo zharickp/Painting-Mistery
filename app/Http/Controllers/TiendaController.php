@@ -21,7 +21,7 @@ class TiendaController extends Controller
         }
 
         $productos = Producto::where('estado', true)
-            ->with(['categoria', 'imagenes', 'inventario'])
+            ->with(['categoria', 'imagenes', 'inventario', 'resenas', 'colores'])
             ->when($buscar !== '', function ($query) use ($buscar) {
                 $query->where(function ($sub) use ($buscar) {
                     $sub->where('nombre', 'ilike', "%{$buscar}%")

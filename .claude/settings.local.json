@@ -4,7 +4,16 @@
       "Bash(php artisan *)",
       "Bash(New-Item -ItemType File -Path \"resources\\\\views\\\\emails\\\\test_mail.blade.php\" -Force)",
       "Bash(Out-Null)",
-      "Bash(Set-Content -Path 'resources\\\\views\\\\emails\\\\test_mail.blade.php' -Encoding utf8 -Value '<!DOCTYPE html> *)"
+      "Bash(Set-Content -Path 'resources\\\\views\\\\emails\\\\test_mail.blade.php' -Encoding utf8 -Value '<!DOCTYPE html> *)",
+      "Bash(cd \"c:\\\\Users\\\\Nauro\\\\Painting_mistery\" && grep -n -i \"error\\\\|exception\\\\|whoops\" /tmp/landing.html | head -20; echo \"---counts---\"; grep -c \"data-imagenes\\\\|data-resenas\\\\|mdListaResenas\\\\|enviarResena\\\\|renderGaleria\" /tmp/landing.html)",
+      "Read(//tmp/**)",
+      "Bash(php -l app/Models/Producto.php)",
+      "Bash(php -l app/Models/Resena.php)",
+      "Bash(php -l app/Http/Controllers/ResenaController.php)",
+      "Bash(php -l app/Http/Controllers/TiendaController.php)",
+      "Bash(php -l app/Http/Controllers/ProductoController.php)",
+      "Bash(php -l routes/web.php)",
+      "Bash(php -l resources/views/partials/nav.blade.php)"
     ]
   }
 }

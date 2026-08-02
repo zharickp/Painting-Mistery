@@ -11,15 +11,22 @@ class ProductoController extends Controller
     {
         abort_if(! $producto->estado, 404);
 
-        $producto->load(['categoria', 'imagenes', 'resenas.usuario', 'inventario']);
+        $producto->load(['categoria', 'imagenes', 'resenas.usuario', 'inventario', 'colores']);
 
-        $recomendados = Producto::where('estado', true)
-            ->where('id', '!=', $producto->id)
-            ->with(['categoria', 'imagenes', 'inventario'])
-            ->orderByRaw('CASE WHEN categoria_producto_id = ? THEN 0 ELSE 1 END', [$producto->categoria_producto_id])
-            ->orderByDesc('created_at')
-            ->take(8)
+        $recomendados = $producto->relacionadosManual()
+            ->where('estado', true)
+            ->with(['categoria', 'imagenes', 'inventario', 'resenas', 'colores'])
             ->get();
+
+        if ($recomendados->isEmpty()) {
+            $recomendados = Producto::where('estado', true)
+                ->where('id', '!=', $producto->id)
+                ->with(['categoria', 'imagenes', 'inventario', 'resenas', 'colores'])
+                ->orderByRaw('CASE WHEN categoria_producto_id = ? THEN 0 ELSE 1 END', [$producto->categoria_producto_id])
+                ->orderByDesc('created_at')
+                ->take(8)
+                ->get();
+        }
 
         return view('productos.show', compact('producto', 'recomendados'));
     }

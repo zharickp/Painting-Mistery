@@ -14,6 +14,7 @@ use App\Http\Controllers\ProductoController as PublicProductoController;
 use App\Http\Controllers\Admin\RolesController;
 use App\Http\Controllers\Admin\CategoriaProductoController;
 use App\Http\Controllers\Admin\TipoIvaController;
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\CursoController;
 use App\Http\Controllers\Admin\InventarioController;
@@ -81,6 +82,9 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::post('categorias/{categoria}/toggle', [CategoriaProductoController::class, 'toggleEstado'])->name('categorias.toggle');
 
         Route::resource('tipo-iva', TipoIvaController::class)->except(['show', 'destroy']);
+
+        Route::resource('banners', BannerController::class)->except(['show']);
+        Route::post('banners/{banner}/toggle', [BannerController::class, 'toggleEstado'])->name('banners.toggle');
     });
 
     // ── Admin + Asesor + Gerente: catálogo e inventario ───────────────────────

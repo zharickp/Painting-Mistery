@@ -2,26 +2,30 @@ import './bootstrap';
 
 // Vista previa de imágenes seleccionadas en inputs type=file
 // Uso: <input type="file" data-preview="idDelContenedor"> + <div id="idDelContenedor"></div>
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('input[type="file"][data-preview]').forEach(input => {
-        const contenedor = document.getElementById(input.dataset.preview);
-        if (!contenedor) return;
+// Expuesta en window para poder engancharla también a inputs creados dinámicamente (ej. grupos de color en el admin).
+function attachFilePreview(input) {
+    const contenedor = input.dataset.preview ? document.getElementById(input.dataset.preview) : null;
+    if (!contenedor) return;
 
-        input.addEventListener('change', () => {
-            contenedor.innerHTML = '';
-            const archivos = Array.from(input.files || []);
-            if (!archivos.length) return;
+    input.addEventListener('change', () => {
+        contenedor.innerHTML = '';
+        const archivos = Array.from(input.files || []);
+        if (!archivos.length) return;
 
-            archivos.forEach(archivo => {
-                if (!archivo.type.startsWith('image/')) return;
-                const url = URL.createObjectURL(archivo);
-                const fig = document.createElement('div');
-                fig.className = 'relative h-20 w-20 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0';
-                fig.innerHTML = `<img src="${url}" class="h-full w-full object-cover">`;
-                contenedor.appendChild(fig);
-            });
+        archivos.forEach(archivo => {
+            if (!archivo.type.startsWith('image/')) return;
+            const url = URL.createObjectURL(archivo);
+            const fig = document.createElement('div');
+            fig.className = 'relative h-20 w-20 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0';
+            fig.innerHTML = `<img src="${url}" class="h-full w-full object-cover">`;
+            contenedor.appendChild(fig);
         });
     });
+}
+window.attachFilePreview = attachFilePreview;
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('input[type="file"][data-preview]').forEach(attachFilePreview);
 });
 
 // Prevenir doble envío en todos los formularios
