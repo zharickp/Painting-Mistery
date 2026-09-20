@@ -5,33 +5,49 @@
 @section('content')
 
 {{-- ══════════════════════════════════════════════════════
-     CABECERA DEL DASHBOARD
+     CABECERA + BANNER DECORATIVO
 ══════════════════════════════════════════════════════ --}}
-<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <div class="flex items-center gap-3">
-        <div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-slate-900 to-slate-800 border border-slate-700/60 flex items-center justify-center text-white shadow-sm shrink-0">
-            <svg class="h-6 w-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
-            </svg>
+<div class="mb-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+    {{-- Título --}}
+    <div class="lg:col-span-2">
+        <div class="flex items-center gap-3">
+            <div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-red-600 to-red-800 flex items-center justify-center text-white shadow-lg shadow-red-950/20 shrink-0">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 rest:text-stone-800 tracking-tight">Panel de Control</h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400 rest:text-stone-600 mt-0.5">Resumen general del sistema</p>
+            </div>
         </div>
-        <div>
-            <h1 class="text-xl sm:text-2xl font-extrabold text-slate-800 tracking-tight">Panel Principal</h1>
-            <p class="text-xs text-slate-400 mt-0.5">Visión general y métricas operativas de Painting Mistery</p>
+        <div class="mt-4 flex flex-wrap items-center gap-2">
+            <div class="flex items-center gap-2 bg-white dark:bg-slate-800 rest:bg-amber-100 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 rest:border-amber-200 text-xs text-slate-500 dark:text-slate-300 rest:text-stone-700">
+                <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <span class="font-medium">{{ now()->translatedFormat('d \d\e F, Y') }}</span>
+            </div>
+            <span class="inline-flex items-center gap-1.5 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900 text-red-700 dark:text-red-400 text-xs font-bold px-3 py-1.5 rounded-xl">
+                <span class="h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
+                {{ auth()->user()->roles->pluck('nombre')->join(' · ') }}
+            </span>
         </div>
     </div>
 
-    <div class="flex items-center gap-2 self-start sm:self-auto">
-        <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200/80 shadow-xs text-xs text-slate-500">
-            <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-            <span class="font-medium text-slate-700">{{ now()->translatedFormat('d \d\e F, Y') }}</span>
+    {{-- Banner decorativo "Ideas que se convierten en arte" --}}
+    <div class="relative rounded-2xl overflow-hidden bg-gradient-to-br from-red-600 via-red-700 to-slate-900 dark:from-red-700 dark:via-red-900 dark:to-black rest:from-amber-600 rest:via-amber-800 rest:to-stone-900 p-6 flex items-center justify-between shadow-lg">
+        <div class="absolute -right-6 -bottom-6 w-40 h-40 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-4 -top-4 w-32 h-32 bg-red-400/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="relative">
+            <p class="text-white/70 text-[10px] font-bold uppercase tracking-widest">Painting Mistery</p>
+            <p class="text-white font-bold text-lg leading-tight mt-1">Ideas que se</p>
+            <p class="text-white font-bold text-lg leading-tight italic">convierten en arte</p>
         </div>
-        <span class="inline-flex items-center gap-1.5 bg-red-50 border border-red-100 text-red-700 text-xs font-bold px-3 py-1.5 rounded-xl shadow-xs">
-            <span class="h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
-            {{ auth()->user()->roles->pluck('nombre')->join(' · ') }}
-        </span>
+        <div class="relative h-16 w-16 shrink-0 rounded-2xl overflow-hidden ring-2 ring-white/20">
+            <img src="{{ asset('images/logo-painting-mistery.png') }}" alt="PM" class="w-full h-full object-cover">
+        </div>
     </div>
 </div>
 
@@ -51,9 +67,9 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
 
     {{-- 1. PRODUCTOS --}}
-    <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs hover:shadow-md transition-all duration-200 group flex flex-col justify-between">
+    <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 p-5 shadow-xs hover:shadow-md transition-all duration-200 group flex flex-col justify-between">
         <div class="flex items-start justify-between mb-3">
-            <div class="h-11 w-11 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-red-600 group-hover:scale-105 transition">
+            <div class="h-11 w-11 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-100 dark:border-red-800/40 flex items-center justify-center text-red-600 dark:text-red-400 group-hover:scale-105 transition">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
                 </svg>
