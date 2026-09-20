@@ -350,25 +350,6 @@
             </div>
         </div>
 
-        {{-- Tarjeta Módulo Mayorista --}}
-        <div class="rounded-2xl overflow-hidden border border-slate-800 bg-[#0c1322] p-5 text-white relative shadow-sm">
-            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-red-600/10 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="flex items-center justify-between mb-3">
-                <span class="inline-flex items-center gap-1.5 bg-red-600/20 text-red-400 text-[10px] font-bold px-2.5 py-1 rounded-full border border-red-500/30">
-                    <span class="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse"></span>
-                    Módulo Exclusivo
-                </span>
-            </div>
-            <h4 class="text-sm font-bold text-white">Módulo Mayorista</h4>
-            <p class="text-xs text-slate-400 mt-1 mb-4 leading-relaxed">
-                Gestión comercial para ventas al por mayor, precios especiales y clientes corporativos.
-            </p>
-            <a href="{{ route('mayorista.index') }}"
-               class="inline-flex items-center justify-center w-full bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-md shadow-red-950/40">
-                Acceder al Módulo →
-            </a>
-        </div>
-
     </div>
 
 </div>

@@ -8,6 +8,7 @@ use App\Models\Inventario;
 use App\Models\Producto;
 use App\Models\Usuario;
 use App\Models\Venta;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -19,8 +20,16 @@ class DashboardController extends Controller
         $esAsesor = $usuario->tieneRol('Asesor');
         $esGerente = $usuario->tieneRol('Gerente');
 
-        $stats           = $this->buildStats($esAdmin, $esAsesor, $esGerente, $usuario);
-        $ventasMensuales = $esAdmin ? $this->ventasMensuales() : collect();
+        // Cache corto por rol para evitar recalcular las mismas ~10 agregaciones
+        // en cada recarga del dashboard. Se invalida en 60s.
+        $rolKey = $esAdmin ? 'admin' : ($esAsesor ? 'asesor' : ($esGerente ? 'gerente' : 'cliente'));
+        $stats  = Cache::remember("dashboard_stats_{$rolKey}_{$usuario->id}", 60,
+            fn() => $this->buildStats($esAdmin, $esAsesor, $esGerente, $usuario));
+
+        $ventasMensuales = $esAdmin
+            ? Cache::remember('dashboard_ventas_mensuales_' . now()->year, 300, fn() => $this->ventasMensuales())
+            : collect();
+
         $ventasRecientes = ($esAdmin || $esAsesor) ? $this->ventasRecientes() : collect();
         $misVentas       = $usuario->ventas()->with('detalleProductos')->latest('fecha')->limit(5)->get();
 
