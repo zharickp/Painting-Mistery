@@ -14,7 +14,7 @@
         <div style="height: 70vh; overflow: hidden;">
             <img src="/images/hero.jpeg"
                  alt="Painting Mistery"
-                 style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;">
+                 style="width: 100%; height: 100%; object-fit: cover; object-position: center 35%; display: block;">
         </div>
 
         {{-- Texto completamente separado, debajo --}}
@@ -37,23 +37,35 @@
         </div>
     @else
         {{-- Slider administrable desde /admin/banners --}}
-        <div id="heroSlider" class="relative overflow-hidden" style="height: 70vh;">
+        <div id="heroSlider" class="relative overflow-hidden bg-gray-900" style="height: 70vh;">
             @foreach ($banners as $i => $banner)
+                @php
+                    // Solo mostramos el título grande cuando "vale la pena":
+                    // más de 4 caracteres y no es solo un número (evita ver "3" o "principal" gigantes).
+                    $mostrarTitulo = $banner->titulo
+                        && mb_strlen(trim($banner->titulo)) > 4
+                        && !is_numeric(trim($banner->titulo));
+                @endphp
                 <div class="hero-slide absolute inset-0 transition-opacity duration-700 ease-in-out {{ $i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}">
-                    <img src="{{ $banner->imagen }}" alt="{{ $banner->titulo }}"
-                         class="w-full h-full object-cover object-center">
-                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent"></div>
-                    <div class="absolute inset-x-0 bottom-0 px-6 sm:px-10 pb-12 md:pb-16">
+                    <img src="{{ $banner->imagen }}" alt="Painting Mistery"
+                         class="w-full h-full object-cover" style="object-position: center 35%;">
+                    {{-- Overlay más sutil (antes era casi negro) --}}
+                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900/70 via-gray-900/10 to-transparent"></div>
+
+                    @if ($mostrarTitulo || $banner->subtitulo || ($banner->boton_texto && $banner->boton_enlace))
+                    <div class="absolute inset-x-0 bottom-0 px-6 sm:px-10 pb-10 md:pb-14">
                         <div class="max-w-7xl mx-auto">
-                            @if ($i === 0)
+                            @if ($i === 0 && $mostrarTitulo)
                                 <span class="inline-flex items-center gap-2 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full mb-4 uppercase tracking-widest">
                                     <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                                     Especialistas en pintura automotriz
                                 </span>
                             @endif
-                            <h1 class="text-3xl md:text-5xl font-extrabold leading-tight mb-3 text-white max-w-2xl">{{ $banner->titulo }}</h1>
+                            @if ($mostrarTitulo)
+                                <h1 class="text-3xl md:text-5xl font-extrabold leading-tight mb-3 text-white max-w-2xl drop-shadow-lg">{{ $banner->titulo }}</h1>
+                            @endif
                             @if ($banner->subtitulo)
-                                <p class="text-gray-200 text-base md:text-lg max-w-xl mb-5">{{ $banner->subtitulo }}</p>
+                                <p class="text-gray-100 text-base md:text-lg max-w-xl mb-5 drop-shadow">{{ $banner->subtitulo }}</p>
                             @endif
                             @if ($banner->boton_texto && $banner->boton_enlace)
                                 <a href="{{ $banner->boton_enlace }}"
@@ -63,6 +75,7 @@
                             @endif
                         </div>
                     </div>
+                    @endif
                 </div>
             @endforeach
 
@@ -75,10 +88,10 @@
                     class="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-white/90 hover:bg-white shadow-lg hover:shadow-xl flex items-center justify-center text-gray-800 transition-all duration-200 hover:scale-110">
                     <svg class="h-6 w-6 sm:h-7 sm:w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                 </button>
-                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2" id="heroDots">
+                {{-- Dots ocultos por solicitud: mantenidos en el DOM para que el JS del slider funcione --}}
+                <div class="hidden" id="heroDots">
                     @foreach ($banners as $i => $banner)
-                        <button onclick="heroIrA({{ $i }})" aria-label="Ir al banner {{ $i + 1 }}"
-                            class="hero-dot h-2 rounded-full transition-all duration-300 {{ $i === 0 ? 'w-6 bg-white' : 'w-2 bg-white/40' }}"></button>
+                        <button onclick="heroIrA({{ $i }})" class="hero-dot"></button>
                     @endforeach
                 </div>
             @endif
@@ -491,8 +504,9 @@
                 <div class="grid grid-cols-1 md:grid-cols-2">
                     {{-- Lado izquierdo: imagen/logo --}}
                     <div class="bg-gray-900 flex flex-col items-center justify-center p-12 gap-4">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG2lZPkThC_r_yCEWDX5xCRiDZiXel_ZbUnw&s"
-                             alt="Logo" class="h-28 w-28 rounded-full object-cover border-4 border-red-600 shadow-2xl">
+                        <img src="{{ asset('images/logo-painting-mistery.png') }}"
+                             onerror="this.onerror=null;this.src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG2lZPkThC_r_yCEWDX5xCRiDZiXel_ZbUnw&s';"
+                             alt="Painting Mistery" class="h-28 w-28 rounded-full object-cover border-4 border-red-600 shadow-2xl">
                         <div class="text-center">
                             <p class="text-white font-extrabold text-xl">Painting <span class="text-red-500">Mistery</span></p>
                             <p class="text-gray-400 text-sm mt-1">Melgar, Tolima – Colombia</p>
@@ -602,7 +616,7 @@
 
         function iniciarAutoplay() {
             if (total <= 1) return;
-            temporizador = setInterval(() => irA(actual + 1), 5000);
+            temporizador = setInterval(() => irA(actual + 1), 7000);
         }
         function reiniciarAutoplay() {
             clearInterval(temporizador);

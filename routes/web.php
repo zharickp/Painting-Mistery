@@ -19,7 +19,10 @@ use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\CursoController;
 use App\Http\Controllers\Admin\InventarioController;
 use App\Http\Controllers\Admin\UsuarioController;
+use App\Http\Controllers\Admin\AuditoriaController;
+use App\Http\Controllers\Admin\RespaldoController;
 use App\Http\Controllers\CarritoController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ResenaController;
 // ─── Landing ──────────────────────────────────────────────────────────────────
 Route::get('/', [LandingController::class, 'index'])->name('inicio');
@@ -85,25 +88,46 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
 
         Route::resource('banners', BannerController::class)->except(['show']);
         Route::post('banners/{banner}/toggle', [BannerController::class, 'toggleEstado'])->name('banners.toggle');
+
+        // Copias de seguridad — solo Administrador
+        Route::get('/respaldos',            [RespaldoController::class, 'index'])->name('respaldos.index');
+        Route::post('/respaldos',           [RespaldoController::class, 'store'])->name('respaldos.store');
+        Route::get('/respaldos/{nombre}',   [RespaldoController::class, 'download'])->name('respaldos.download');
+        Route::delete('/respaldos/{nombre}',[RespaldoController::class, 'destroy'])->name('respaldos.destroy');
     });
 
-    // ── Admin + Asesor + Gerente: catálogo e inventario ───────────────────────
-    // Todos ven, Admin y Asesor pueden modificar (controlado en vistas/controladores)
-    Route::prefix('admin')->name('admin.')->middleware('role:Administrador,Asesor,Gerente')->group(function () {
-        Route::resource('productos', ProductoController::class)->except(['show', 'destroy']);
-        Route::post('productos/{producto}/toggle', [ProductoController::class, 'toggleEstado'])->name('productos.toggle');
+    // ── Admin + Gerente + Asesor: AUDITORÍA (solo consulta) ───────────────────
+    Route::prefix('admin')->name('admin.')->middleware('role:Administrador,Gerente')->group(function () {
+        Route::get('/auditoria',              [AuditoriaController::class, 'index'])->name('auditoria.index');
+        Route::get('/auditoria/{auditoria}',  [AuditoriaController::class, 'show'])->name('auditoria.show');
+    });
 
-        Route::resource('cursos', CursoController::class)->except(['show', 'destroy']);
-        Route::post('cursos/{curso}/toggle', [CursoController::class, 'toggleEstado'])->name('cursos.toggle');
+    // ── Escritura de catálogo e inventario: SOLO Administrador y Asesor ───────
+    Route::prefix('admin')->name('admin.')->middleware('role:Administrador,Asesor')->group(function () {
+        Route::get('productos/create',            [ProductoController::class, 'create'])->name('productos.create');
+        Route::post('productos',                  [ProductoController::class, 'store'])->name('productos.store');
+        Route::get('productos/{producto}/edit',   [ProductoController::class, 'edit'])->name('productos.edit');
+        Route::put('productos/{producto}',        [ProductoController::class, 'update'])->name('productos.update');
+        Route::patch('productos/{producto}',      [ProductoController::class, 'update']);
+        Route::post('productos/{producto}/toggle',[ProductoController::class, 'toggleEstado'])->name('productos.toggle');
 
-        Route::get('/inventario', [InventarioController::class, 'index'])->name('inventario');
+        Route::get('cursos/create',            [CursoController::class, 'create'])->name('cursos.create');
+        Route::post('cursos',                  [CursoController::class, 'store'])->name('cursos.store');
+        Route::get('cursos/{curso}/edit',      [CursoController::class, 'edit'])->name('cursos.edit');
+        Route::put('cursos/{curso}',           [CursoController::class, 'update'])->name('cursos.update');
+        Route::patch('cursos/{curso}',         [CursoController::class, 'update']);
+        Route::post('cursos/{curso}/toggle',   [CursoController::class, 'toggleEstado'])->name('cursos.toggle');
+
         Route::post('/inventario/{inventario}/actualizar', [InventarioController::class, 'actualizar'])->name('inventario.actualizar');
     });
 
-    // ── Admin + Asesor + Gerente: ventas y reportes ───────────────────────────
+    // ── Consulta de catálogo, inventario, ventas y reportes (Admin + Asesor + Gerente) ─
     Route::prefix('admin')->name('admin.')->middleware('role:Administrador,Asesor,Gerente')->group(function () {
-        Route::get('/ventas',   fn() => view('admin.ventas'))->name('ventas');
-        Route::get('/reportes', fn() => view('admin.reportes'))->name('reportes');
+        Route::get('productos',              [ProductoController::class, 'index'])->name('productos.index');
+        Route::get('cursos',                 [CursoController::class, 'index'])->name('cursos.index');
+        Route::get('/inventario',            [InventarioController::class, 'index'])->name('inventario');
+        Route::get('/ventas',                fn() => view('admin.ventas'))->name('ventas');
+        Route::get('/reportes',              fn() => view('admin.reportes'))->name('reportes');
     });
 
     // ── Mayorista: informativo (Admin + Gerente) ──────────────────────────────
@@ -118,6 +142,12 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::post('/actualizar/{detalle}', [CarritoController::class, 'actualizar'])->name('actualizar');
         Route::delete('/eliminar/{detalle}', [CarritoController::class, 'eliminar'])->name('eliminar');
         Route::post('/vaciar',               [CarritoController::class, 'vaciar'])->name('vaciar');
+    });
+
+    // ── Checkout (pago SIMULADO — solo Clientes) ─────────────────────────────
+    Route::middleware('role:Cliente')->group(function () {
+        Route::get('/checkout',   [CheckoutController::class, 'mostrar'])->name('checkout.mostrar');
+        Route::post('/checkout',  [CheckoutController::class, 'procesar'])->name('checkout.procesar');
     });
 
     // ── Cliente ───────────────────────────────────────────────────────────────

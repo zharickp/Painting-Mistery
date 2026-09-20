@@ -2,10 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 
 class CategoriaProducto extends Model
 {
+    use Auditable;
+
+    protected string $auditoriaTipo = 'Categoría';
+
     protected $table = 'categoria_producto';
 
     protected $fillable = [
