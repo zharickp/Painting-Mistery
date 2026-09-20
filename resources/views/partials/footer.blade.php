@@ -11,8 +11,9 @@
             {{-- Marca --}}
             <div>
                 <div class="flex items-center gap-3 mb-4">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG2lZPkThC_r_yCEWDX5xCRiDZiXel_ZbUnw&s"
-                         alt="Logo" class="h-12 w-12 rounded-full object-cover border-2 border-red-600 shadow-lg shadow-red-900/50">
+                    <img src="{{ asset('images/logo-painting-mistery.png') }}"
+                         onerror="this.onerror=null;this.src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG2lZPkThC_r_yCEWDX5xCRiDZiXel_ZbUnw&s';"
+                         alt="Painting Mistery" class="h-12 w-12 rounded-full object-cover border-2 border-red-600 shadow-lg shadow-red-900/50">
                     <div>
                         <span class="text-white font-extrabold text-lg block">Painting <span class="text-red-500">Mistery</span></span>
                         <span class="text-gray-500 text-xs">Melgar, Tolima 🇨🇴</span>

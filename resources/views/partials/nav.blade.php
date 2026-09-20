@@ -10,8 +10,9 @@
         <div class="flex justify-between h-16 items-center">
             {{-- Brand --}}
             <a href="{{ route('inicio') }}" class="flex items-center gap-3 group">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG2lZPkThC_r_yCEWDX5xCRiDZiXel_ZbUnw&s"
-                     alt="Logo" class="h-10 w-10 rounded-full object-cover border-2 border-red-100 group-hover:border-red-400 transition">
+                <img src="{{ asset('images/logo-painting-mistery.png') }}"
+                     onerror="this.onerror=null;this.src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG2lZPkThC_r_yCEWDX5xCRiDZiXel_ZbUnw&s';"
+                     alt="Painting Mistery" class="h-10 w-10 rounded-full object-cover border-2 border-red-100 group-hover:border-red-400 transition">
                 <span class="text-lg font-bold text-gray-900 group-hover:text-red-600 transition">
                     Painting <span class="text-red-600">Mistery</span>
                 </span>
@@ -64,9 +65,19 @@
                 </button>
 
                 @auth
-                {{-- Icono usuario --}}
+                {{-- Usuario autenticado: avatar + nombre --}}
                 <a href="{{ route('dashboard') }}"
-                   class="p-2 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition" title="Mi cuenta">
+                   class="hidden sm:flex items-center gap-2 px-2 py-1 rounded-full hover:bg-red-50 transition group" title="Ir a mi cuenta">
+                    <div class="h-8 w-8 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                        {{ strtoupper(substr(auth()->user()->primer_nombre, 0, 1)) }}{{ strtoupper(substr(auth()->user()->primer_apellido, 0, 1)) }}
+                    </div>
+                    <span class="text-sm font-semibold text-gray-700 group-hover:text-red-600 max-w-[140px] truncate">
+                        Hola, {{ auth()->user()->primer_nombre }}
+                    </span>
+                </a>
+                {{-- Icono compacto (móvil) --}}
+                <a href="{{ route('dashboard') }}"
+                   class="sm:hidden p-2 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition" title="Mi cuenta">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>

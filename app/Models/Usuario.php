@@ -2,12 +2,21 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class Usuario extends Authenticatable
 {
-    use Notifiable;
+    use Auditable, Notifiable;
+
+    protected string $auditoriaTipo = 'Usuario';
+
+    public function auditoriaEtiqueta(): ?string
+    {
+        $nombre = trim(($this->primer_nombre ?? '') . ' ' . ($this->primer_apellido ?? ''));
+        return $nombre !== '' ? $nombre : ($this->correo ?? null);
+    }
 
     protected $table = 'usuario';
 

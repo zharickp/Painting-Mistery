@@ -2,11 +2,18 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Banner extends Model
 {
+    use Auditable;
+
+    protected string $auditoriaTipo = 'Banner';
+
+    protected array $auditoriaCandidatos = ['titulo', 'subtitulo'];
+
     protected $table = 'banners';
 
     protected $fillable = [

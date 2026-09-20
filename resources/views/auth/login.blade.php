@@ -8,7 +8,8 @@
 
         <!-- Header con degradado y logo -->
         <div class="bg-gradient-to-r from-red-600 to-red-800 h-36 flex flex-col items-center justify-center gap-2">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG2lZPkThC_r_yCEWDX5xCRiDZiXel_ZbUnw&s"
+            <img src="{{ asset('images/logo-painting-mistery.png') }}"
+                 onerror="this.onerror=null;this.src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG2lZPkThC_r_yCEWDX5xCRiDZiXel_ZbUnw&s';"
                  alt="Painting Mistery"
                  class="h-16 w-16 rounded-full object-cover border-2 border-white shadow">
             <h2 class="text-xl font-bold text-white">Iniciar Sesión</h2>

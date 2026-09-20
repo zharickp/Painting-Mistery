@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CategoriaProducto;
 use App\Models\Curso;
+use App\Models\Inventario;
 use App\Models\Producto;
 use App\Models\Usuario;
 use App\Models\Venta;
@@ -33,39 +34,45 @@ class DashboardController extends Controller
     {
         if ($esAdmin) {
             return [
-                'productos'   => Producto::count(),
-                'cursos'      => Curso::count(),
-                'categorias'  => CategoriaProducto::where('estado', true)->count(),
-                'usuarios'    => Usuario::count(),
-                'ventas_hoy'  => Venta::whereDate('fecha', today())->sum('total'),
-                'ventas_mes'  => Venta::whereYear('fecha', now()->year)
+                'productos'       => Producto::count(),
+                'cursos'          => Curso::count(),
+                'categorias'      => CategoriaProducto::where('estado', true)->count(),
+                'usuarios'        => Usuario::count(),
+                'inventario'      => (int) Inventario::sum('stock_actual'),
+                'inventario_bajo' => Inventario::whereColumn('stock_actual', '<=', 'stock_minimo')->count(),
+                'ventas_hoy'      => Venta::whereDate('fecha', today())->sum('total'),
+                'ventas_mes'      => Venta::whereYear('fecha', now()->year)
                                       ->whereMonth('fecha', now()->month)->sum('total'),
-                'ventas_anio' => Venta::whereYear('fecha', now()->year)->sum('total'),
-                'ordenes_mes' => Venta::whereYear('fecha', now()->year)
+                'ventas_anio'     => Venta::whereYear('fecha', now()->year)->sum('total'),
+                'ordenes_mes'     => Venta::whereYear('fecha', now()->year)
                                       ->whereMonth('fecha', now()->month)->count(),
             ];
         }
 
         if ($esAsesor) {
             return [
-                'productos'   => Producto::where('estado', true)->count(),
-                'cursos'      => Curso::where('estado', true)->count(),
-                'categorias'  => CategoriaProducto::where('estado', true)->count(),
-                'ventas_mes'  => Venta::whereYear('fecha', now()->year)
+                'productos'       => Producto::where('estado', true)->count(),
+                'cursos'          => Curso::where('estado', true)->count(),
+                'categorias'      => CategoriaProducto::where('estado', true)->count(),
+                'inventario'      => (int) Inventario::sum('stock_actual'),
+                'inventario_bajo' => Inventario::whereColumn('stock_actual', '<=', 'stock_minimo')->count(),
+                'ventas_mes'      => Venta::whereYear('fecha', now()->year)
                                       ->whereMonth('fecha', now()->month)->sum('total'),
-                'ordenes_mes' => Venta::whereYear('fecha', now()->year)
+                'ordenes_mes'     => Venta::whereYear('fecha', now()->year)
                                       ->whereMonth('fecha', now()->month)->count(),
             ];
         }
 
         if ($esGerente) {
             return [
-                'productos'   => Producto::where('estado', true)->count(),
-                'cursos'      => Curso::where('estado', true)->count(),
-                'ventas_mes'  => Venta::whereYear('fecha', now()->year)
+                'productos'       => Producto::where('estado', true)->count(),
+                'cursos'          => Curso::where('estado', true)->count(),
+                'inventario'      => (int) Inventario::sum('stock_actual'),
+                'inventario_bajo' => Inventario::whereColumn('stock_actual', '<=', 'stock_minimo')->count(),
+                'ventas_mes'      => Venta::whereYear('fecha', now()->year)
                                       ->whereMonth('fecha', now()->month)->sum('total'),
-                'ventas_anio' => Venta::whereYear('fecha', now()->year)->sum('total'),
-                'ordenes_mes' => Venta::whereYear('fecha', now()->year)
+                'ventas_anio'     => Venta::whereYear('fecha', now()->year)->sum('total'),
+                'ordenes_mes'     => Venta::whereYear('fecha', now()->year)
                                       ->whereMonth('fecha', now()->month)->count(),
             ];
         }
