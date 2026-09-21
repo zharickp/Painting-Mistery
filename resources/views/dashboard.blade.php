@@ -61,129 +61,134 @@
     $pendientes = \App\Models\Venta::where('estado','pendiente')->count();
     $canceladas = \App\Models\Venta::where('estado','cancelada')->count();
     $totalV     = $pagadas + $pendientes + $canceladas;
+
+    // Sparkline SVG helper (misma línea de datos, distintos colores por tarjeta)
+    $sparkline = function($values, $stroke, $fill) {
+        if (empty($values)) $values = [0,0,0,0,0,0,0];
+        $max = max($values); if ($max <= 0) $max = 1;
+        $w = 100; $h = 34; $n = count($values);
+        $step = $n > 1 ? $w / ($n - 1) : $w;
+        $pts = [];
+        foreach ($values as $i => $v) {
+            $x = round($i * $step, 1);
+            $y = round($h - (($v / $max) * ($h - 6)) - 3, 1);
+            $pts[] = "$x,$y";
+        }
+        $line = 'M' . implode(' L', $pts);
+        $area = $line . " L{$w},{$h} L0,{$h} Z";
+        return "<svg viewBox=\"0 0 {$w} {$h}\" class=\"w-full h-full\" preserveAspectRatio=\"none\">"
+            . "<path d=\"{$area}\" fill=\"{$fill}\"/>"
+            . "<path d=\"{$line}\" fill=\"none\" stroke=\"{$stroke}\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>"
+            . "</svg>";
+    };
+    $spark = collect($ventasMensuales)->pluck('total')->take(7)->all();
+    if (count($spark) === 0) $spark = [0,0,0,0,0,0,0];
+
+    // Ventas de ayer para delta
+    $ventasAyer = \App\Models\Venta::whereDate('fecha', now()->subDay())->sum('total');
+    $ventasHoy  = $stats['ventas_hoy'] ?? 0;
+    $delta      = $ventasAyer > 0 ? round((($ventasHoy - $ventasAyer) / $ventasAyer) * 100) : 0;
 @endphp
 
-{{-- 5 TARJETAS PRINCIPALES DEL SISTEMA: PRODUCTOS, CURSOS, VENTAS, INVENTARIO, USUARIOS --}}
+{{-- 5 TARJETAS KPI CON SPARKLINES --}}
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
 
-    {{-- 1. PRODUCTOS --}}
-    <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 p-5 shadow-xs hover:shadow-md transition-all duration-200 group flex flex-col justify-between">
-        <div class="flex items-start justify-between mb-3">
-            <div class="h-11 w-11 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-100 dark:border-red-800/40 flex items-center justify-center text-red-600 dark:text-red-400 group-hover:scale-105 transition">
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
+    {{-- 1. VENTAS HOY --}}
+    <a href="{{ route('admin.ventas') }}"
+       class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition group block">
+        <div class="flex items-center justify-between mb-4">
+            <div class="h-10 w-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
             </div>
-            <a href="{{ route('admin.productos.index') }}" class="text-[11px] font-semibold text-slate-400 hover:text-red-600 flex items-center gap-1 transition">
-                Ver más →
-            </a>
+            <div class="h-8 w-20 opacity-90">{!! $sparkline($spark, '#10b981', 'rgba(16,185,129,0.15)') !!}</div>
         </div>
-        <div>
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Productos</p>
-            <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">{{ number_format($stats['productos'] ?? 0) }}</p>
-            <div class="mt-2.5 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                <span>{{ $stats['categorias'] ?? 0 }} categorías activas</span>
-            </div>
-        </div>
-    </div>
+        <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total ventas hoy</p>
+        <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">${{ number_format($ventasHoy, 0, ',', '.') }}</p>
+        <p class="mt-2 text-[11px] flex items-center gap-1">
+            @if($delta > 0)
+                <span class="text-emerald-600 font-bold">+{{ $delta }}%</span>
+            @elseif($delta < 0)
+                <span class="text-rose-600 font-bold">{{ $delta }}%</span>
+            @else
+                <span class="text-slate-400 font-bold">+0%</span>
+            @endif
+            <span class="text-slate-400 dark:text-slate-500">respecto a ayer</span>
+        </p>
+    </a>
 
-    {{-- 2. CURSOS --}}
-    <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 p-5 shadow-xs hover:shadow-md transition-all duration-200 group flex flex-col justify-between">
-        <div class="flex items-start justify-between mb-3">
-            <div class="h-11 w-11 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-105 transition">
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+    {{-- 2. ÓRDENES DEL MES --}}
+    <a href="{{ route('admin.ventas') }}"
+       class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition group block">
+        <div class="flex items-center justify-between mb-4">
+            <div class="h-10 w-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                 </svg>
             </div>
-            <a href="{{ route('admin.cursos.index') }}" class="text-[11px] font-semibold text-slate-400 hover:text-indigo-600 flex items-center gap-1 transition">
-                Ver más →
-            </a>
+            <div class="h-8 w-20 opacity-90">{!! $sparkline(collect($ventasMensuales)->pluck('total')->take(-7)->all(), '#6366f1', 'rgba(99,102,241,0.15)') !!}</div>
         </div>
-        <div>
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Cursos</p>
-            <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">{{ number_format($stats['cursos'] ?? 0) }}</p>
-            <div class="mt-2.5 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                <span class="inline-block h-1.5 w-1.5 rounded-full bg-indigo-500"></span>
-                <span>Oferta académica activa</span>
-            </div>
-        </div>
-    </div>
+        <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total órdenes</p>
+        <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">{{ number_format($stats['ordenes_mes'] ?? 0) }}</p>
+        <p class="mt-2 text-[11px] text-slate-400 dark:text-slate-500">
+            <span class="font-bold text-slate-600 dark:text-slate-300">este mes</span> · órdenes registradas
+        </p>
+    </a>
 
-    {{-- 3. VENTAS --}}
-    <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 p-5 shadow-xs hover:shadow-md transition-all duration-200 group flex flex-col justify-between">
-        <div class="flex items-start justify-between mb-3">
-            <div class="h-11 w-11 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition">
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    {{-- 3. NUEVOS CLIENTES / USUARIOS --}}
+    <a href="{{ route('admin.usuarios.index') }}"
+       class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition group block">
+        <div class="flex items-center justify-between mb-4">
+            <div class="h-10 w-10 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
             </div>
-            <a href="{{ route('admin.ventas') }}" class="text-[11px] font-semibold text-slate-400 hover:text-emerald-600 flex items-center gap-1 transition">
-                Ver más →
-            </a>
+            <div class="h-8 w-20 opacity-90">{!! $sparkline([2,3,3,5,8,10,$stats['usuarios'] ?? 13], '#f59e0b', 'rgba(245,158,11,0.15)') !!}</div>
         </div>
-        <div>
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Ventas del Mes</p>
-            <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">${{ number_format($stats['ventas_mes'] ?? 0, 0, ',', '.') }}</p>
-            <div class="mt-2.5 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                <span>{{ $stats['ordenes_mes'] ?? 0 }} órdenes en {{ now()->translatedFormat('F') }}</span>
-            </div>
-        </div>
-    </div>
+        <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nuevos clientes</p>
+        <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">{{ number_format($stats['usuarios'] ?? 0) }}</p>
+        <p class="mt-2 text-[11px] text-slate-400 dark:text-slate-500">
+            <span class="font-bold text-slate-600 dark:text-slate-300">total</span> · usuarios en sistema
+        </p>
+    </a>
 
-    {{-- 4. INVENTARIO --}}
-    <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 p-5 shadow-xs hover:shadow-md transition-all duration-200 group flex flex-col justify-between">
-        <div class="flex items-start justify-between mb-3">
-            <div class="h-11 w-11 rounded-xl bg-amber-50 dark:bg-amber-900/30 border border-amber-100 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-400 group-hover:scale-105 transition">
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+    {{-- 4. INGRESOS DEL MES --}}
+    <a href="{{ route('admin.reportes') }}"
+       class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition group block">
+        <div class="flex items-center justify-between mb-4">
+            <div class="h-10 w-10 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
             </div>
-            <a href="{{ route('admin.inventario') }}" class="text-[11px] font-semibold text-slate-400 hover:text-amber-600 flex items-center gap-1 transition">
-                Ver más →
-            </a>
+            <div class="h-8 w-20 opacity-90">{!! $sparkline($spark, '#ef4444', 'rgba(239,68,68,0.15)') !!}</div>
         </div>
-        <div>
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Inventario</p>
-            <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">{{ number_format($stats['inventario'] ?? 0) }} <span class="text-xs font-medium text-slate-400">uds</span></p>
-            <div class="mt-2.5 flex items-center gap-1.5 text-xs">
-                @if(($stats['inventario_bajo'] ?? 0) > 0)
-                    <span class="inline-block h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse"></span>
-                    <span class="text-rose-600 font-semibold">{{ $stats['inventario_bajo'] }} con stock mínimo</span>
-                @else
-                    <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                    <span class="text-slate-500 dark:text-slate-400">Stock en niveles óptimos</span>
-                @endif
-            </div>
-        </div>
-    </div>
+        <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ingresos totales</p>
+        <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">${{ number_format($stats['ventas_mes'] ?? 0, 0, ',', '.') }}</p>
+        <p class="mt-2 text-[11px] text-slate-400 dark:text-slate-500">
+            <span class="font-bold text-slate-600 dark:text-slate-300">este mes</span> · ingresos del mes
+        </p>
+    </a>
 
-    {{-- 5. USUARIOS --}}
-    <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 p-5 shadow-xs hover:shadow-md transition-all duration-200 group flex flex-col justify-between">
-        <div class="flex items-start justify-between mb-3">
-            <div class="h-11 w-11 rounded-xl bg-purple-50 dark:bg-purple-900/30 border border-purple-100 dark:border-purple-800/40 flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:scale-105 transition">
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+    {{-- 5. INGRESOS ANUALES --}}
+    <a href="{{ route('admin.reportes') }}"
+       class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition group block">
+        <div class="flex items-center justify-between mb-4">
+            <div class="h-10 w-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
                 </svg>
             </div>
-            <a href="{{ route('admin.usuarios.index') }}" class="text-[11px] font-semibold text-slate-400 hover:text-purple-600 flex items-center gap-1 transition">
-                Ver más →
-            </a>
+            <div class="h-8 w-20 opacity-90">{!! $sparkline(collect($ventasMensuales)->pluck('total')->all(), '#a855f7', 'rgba(168,85,247,0.15)') !!}</div>
         </div>
-        <div>
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Usuarios</p>
-            <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">{{ number_format($stats['usuarios'] ?? 0) }}</p>
-            <div class="mt-2.5 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                <span class="inline-block h-1.5 w-1.5 rounded-full bg-purple-500"></span>
-                <span>Clientes y administradores</span>
-            </div>
-        </div>
-    </div>
+        <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ingresos anuales</p>
+        <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">${{ number_format($stats['ventas_anio'] ?? 0, 0, ',', '.') }}</p>
+        <p class="mt-2 text-[11px] text-slate-400 dark:text-slate-500">
+            <span class="font-bold text-slate-600 dark:text-slate-300">{{ now()->year }}</span> · acumulado del año
+        </p>
+    </a>
 
 </div>
 

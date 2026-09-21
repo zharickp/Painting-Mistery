@@ -74,19 +74,19 @@
                   border-r border-slate-800/60"
            :class="sidebarMobile ? 'translate-x-0' : '-translate-x-full md:translate-x-0'">
 
-        {{-- Logo (integrado al sidebar, sin fondo blanco) --}}
-        <div class="px-5 py-4 flex items-center gap-3">
+        {{-- Logo + marca (integrado al sidebar) --}}
+        <div class="px-5 py-4 border-b border-slate-800/60">
             <a href="{{ route('inicio') }}" class="flex items-center gap-3 min-w-0 group">
-                <div class="h-11 w-11 rounded-2xl overflow-hidden bg-gradient-to-br from-red-600 to-red-800 shadow-lg shadow-red-950/40 flex items-center justify-center shrink-0 ring-1 ring-red-500/30">
+                <div class="h-10 w-10 rounded-full overflow-hidden bg-slate-900 ring-2 ring-red-500/40 shrink-0">
                     <img src="{{ asset('images/logo-painting-mistery.png') }}"
                          alt="Painting Mistery" class="w-full h-full object-cover">
                 </div>
-                <div class="min-w-0 leading-tight">
+                <div class="min-w-0 leading-none">
                     <p class="text-[15px] font-extrabold text-white truncate">
-                        Painting
+                        Painting <span class="text-red-500">Mistery</span>
                     </p>
-                    <p class="text-[13px] font-semibold text-red-400 -mt-0.5 truncate">
-                        Mistery
+                    <p class="text-[9px] font-semibold text-slate-500 tracking-[0.22em] uppercase mt-1.5 truncate">
+                        Panel Administrativo
                     </p>
                 </div>
             </a>
