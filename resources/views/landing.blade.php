@@ -37,14 +37,16 @@
         </div>
     @else
         {{-- Slider administrable desde /admin/banners.
-             Sin overlay de texto: los banners se ven completos y limpios. --}}
-        <div id="heroSlider" class="relative overflow-hidden bg-gray-900" style="height: 60vh;">
+             Sin overlay de texto: los banners se ven completos y limpios.
+             La altura es responsiva por breakpoint para que la imagen respire. --}}
+        <div id="heroSlider" class="relative overflow-hidden bg-gray-900 h-[50vh] sm:h-[65vh] md:h-[75vh] lg:h-[85vh] max-h-[720px]">
             @foreach ($banners as $i => $banner)
                 <div class="hero-slide absolute inset-0 transition-opacity duration-1000 ease-in-out {{ $i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}">
                     <img src="{{ $banner->imagen }}" alt="Painting Mistery"
-                         class="w-full h-full object-cover" style="object-position: center 35%;">
-                    {{-- Overlay muy sutil solo para dar contraste a los controles --}}
-                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900/40 via-transparent to-transparent"></div>
+                         class="w-full h-full object-cover object-center">
+                    {{-- Vignette sutil solo alrededor para dar profundidad, sin oscurecer el centro --}}
+                    <div class="absolute inset-0 pointer-events-none"
+                         style="background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.4) 100%);"></div>
                 </div>
             @endforeach
 
@@ -68,70 +70,145 @@
     @endif
 
     {{-- ══════════════════════════════════════════════════════
-         FRANJA DE ESTADÍSTICAS BAJO EL HERO
+         FRANJA DE ESTADÍSTICAS BAJO EL HERO (premium)
     ══════════════════════════════════════════════════════ --}}
-    <div class="bg-gradient-to-r from-gray-900 via-black to-gray-900 border-t border-red-950/60 relative overflow-hidden">
-        <div class="absolute -right-20 top-1/2 -translate-y-1/2 w-96 h-96 bg-red-600/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -left-20 top-1/2 -translate-y-1/2 w-96 h-96 bg-red-800/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="relative bg-black overflow-hidden">
+        {{-- Fondo con textura sutil de "puntos" y glow --}}
+        <div class="absolute inset-0 opacity-40 pointer-events-none"
+             style="background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.08) 1px, transparent 0); background-size: 24px 24px;"></div>
+        <div class="absolute -right-40 top-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-red-600/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-40 top-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-red-800/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-500/60 to-transparent"></div>
+        <div class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-red-500/40 to-transparent"></div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 items-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 relative">
 
-                {{-- Clientes satisfechos --}}
-                <div class="text-center md:text-left flex md:flex-row flex-col items-center md:items-center gap-4">
-                    <div class="h-12 w-12 rounded-2xl bg-red-600/20 border border-red-500/30 flex items-center justify-center text-red-400 shrink-0">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-3xl md:text-4xl font-black text-white tracking-tight">+500</p>
-                        <p class="text-red-400 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1">Clientes satisfechos</p>
+            {{-- Micro-cabecera opcional (le da contexto y "profesionalidad") --}}
+            <div class="text-center mb-10">
+                <span class="inline-flex items-center gap-2 text-red-400 text-[10px] font-bold uppercase tracking-[0.3em]">
+                    <span class="h-px w-6 bg-red-500/60"></span>
+                    Nuestros números
+                    <span class="h-px w-6 bg-red-500/60"></span>
+                </span>
+                <h2 class="text-2xl md:text-3xl font-black text-white mt-3 tracking-tight">
+                    Detrás de cada trazo, <span class="text-red-500">años de arte y pasión</span>
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+
+                {{-- Card 1: Clientes --}}
+                <div class="stat-card group relative rounded-2xl border border-white/10 bg-gradient-to-br from-gray-900/80 via-gray-950 to-black p-5 md:p-6 overflow-hidden transition-all duration-300 hover:border-red-500/50 hover:-translate-y-1">
+                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-red-600/10 rounded-full blur-2xl group-hover:bg-red-600/25 transition-colors pointer-events-none"></div>
+
+                    <div class="relative flex flex-col items-start">
+                        <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-white shadow-lg shadow-red-950/50 group-hover:scale-110 transition-transform">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <div class="mt-4 flex items-baseline gap-1">
+                            <span class="text-red-500 text-2xl md:text-3xl font-black">+</span>
+                            <span class="text-4xl md:text-5xl font-black text-white tracking-tighter count-up" data-target="500">0</span>
+                        </div>
+                        <p class="text-white font-bold text-sm mt-2">Clientes satisfechos</p>
+                        <p class="text-gray-400 text-xs mt-1 leading-relaxed">Motos personalizadas para amantes del arte automotriz.</p>
                     </div>
                 </div>
 
-                {{-- Trabajos realizados --}}
-                <div class="text-center md:text-left flex md:flex-row flex-col items-center md:items-center gap-4">
-                    <div class="h-12 w-12 rounded-2xl bg-red-600/20 border border-red-500/30 flex items-center justify-center text-red-400 shrink-0">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                        </svg>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-3xl md:text-4xl font-black text-white tracking-tight">+800</p>
-                        <p class="text-red-400 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1">Trabajos realizados</p>
+                {{-- Card 2: Trabajos --}}
+                <div class="stat-card group relative rounded-2xl border border-white/10 bg-gradient-to-br from-gray-900/80 via-gray-950 to-black p-5 md:p-6 overflow-hidden transition-all duration-300 hover:border-red-500/50 hover:-translate-y-1">
+                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-red-600/10 rounded-full blur-2xl group-hover:bg-red-600/25 transition-colors pointer-events-none"></div>
+
+                    <div class="relative flex flex-col items-start">
+                        <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-white shadow-lg shadow-red-950/50 group-hover:scale-110 transition-transform">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                            </svg>
+                        </div>
+                        <div class="mt-4 flex items-baseline gap-1">
+                            <span class="text-red-500 text-2xl md:text-3xl font-black">+</span>
+                            <span class="text-4xl md:text-5xl font-black text-white tracking-tighter count-up" data-target="800">0</span>
+                        </div>
+                        <p class="text-white font-bold text-sm mt-2">Trabajos realizados</p>
+                        <p class="text-gray-400 text-xs mt-1 leading-relaxed">Diseños únicos entregados desde nuestro taller.</p>
                     </div>
                 </div>
 
-                {{-- Años de experiencia --}}
-                <div class="text-center md:text-left flex md:flex-row flex-col items-center md:items-center gap-4">
-                    <div class="h-12 w-12 rounded-2xl bg-red-600/20 border border-red-500/30 flex items-center justify-center text-red-400 shrink-0">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-3xl md:text-4xl font-black text-white tracking-tight">+5</p>
-                        <p class="text-red-400 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1">Años de experiencia</p>
+                {{-- Card 3: Experiencia --}}
+                <div class="stat-card group relative rounded-2xl border border-white/10 bg-gradient-to-br from-gray-900/80 via-gray-950 to-black p-5 md:p-6 overflow-hidden transition-all duration-300 hover:border-red-500/50 hover:-translate-y-1">
+                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-red-600/10 rounded-full blur-2xl group-hover:bg-red-600/25 transition-colors pointer-events-none"></div>
+
+                    <div class="relative flex flex-col items-start">
+                        <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-white shadow-lg shadow-red-950/50 group-hover:scale-110 transition-transform">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="mt-4 flex items-baseline gap-1">
+                            <span class="text-red-500 text-2xl md:text-3xl font-black">+</span>
+                            <span class="text-4xl md:text-5xl font-black text-white tracking-tighter count-up" data-target="5">0</span>
+                            <span class="text-red-500 text-xl md:text-2xl font-black ml-1">años</span>
+                        </div>
+                        <p class="text-white font-bold text-sm mt-2">De experiencia</p>
+                        <p class="text-gray-400 text-xs mt-1 leading-relaxed">Perfeccionando técnicas de pintura automotriz.</p>
                     </div>
                 </div>
 
-                {{-- Ubicación --}}
-                <div class="text-center md:text-left flex md:flex-row flex-col items-center md:items-center gap-4">
-                    <div class="h-12 w-12 rounded-2xl bg-red-600/20 border border-red-500/30 flex items-center justify-center text-red-400 shrink-0">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-2xl md:text-3xl font-black text-white tracking-tight">Melgar</p>
-                        <p class="text-red-400 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1">Tolima · Colombia</p>
+                {{-- Card 4: Ubicación --}}
+                <div class="stat-card group relative rounded-2xl border border-white/10 bg-gradient-to-br from-gray-900/80 via-gray-950 to-black p-5 md:p-6 overflow-hidden transition-all duration-300 hover:border-red-500/50 hover:-translate-y-1">
+                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-red-600/10 rounded-full blur-2xl group-hover:bg-red-600/25 transition-colors pointer-events-none"></div>
+
+                    <div class="relative flex flex-col items-start">
+                        <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center text-white shadow-lg shadow-red-950/50 group-hover:scale-110 transition-transform">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <div class="mt-4 flex items-baseline gap-1">
+                            <span class="text-4xl md:text-5xl font-black text-white tracking-tighter">Melgar</span>
+                        </div>
+                        <p class="text-white font-bold text-sm mt-2">Tolima · Colombia</p>
+                        <p class="text-gray-400 text-xs mt-1 leading-relaxed">
+                            <a href="https://wa.me/573144557602" target="_blank" class="hover:text-red-400 transition">
+                                Visítanos o escríbenos por WhatsApp →
+                            </a>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        // Contador animado con Intersection Observer (solo se dispara cuando entra a la vista)
+        (function() {
+            const els = document.querySelectorAll('.count-up');
+            if (!els.length || !('IntersectionObserver' in window)) return;
+
+            const anim = (el) => {
+                const target = parseInt(el.dataset.target, 10) || 0;
+                const dur = 1400;
+                const start = performance.now();
+                const tick = (now) => {
+                    const p = Math.min(1, (now - start) / dur);
+                    const eased = 1 - Math.pow(1 - p, 3);
+                    el.textContent = Math.floor(target * eased).toLocaleString('es-CO');
+                    if (p < 1) requestAnimationFrame(tick);
+                };
+                requestAnimationFrame(tick);
+            };
+
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach(e => {
+                    if (e.isIntersecting) { anim(e.target); obs.unobserve(e.target); }
+                });
+            }, { threshold: 0.4 });
+
+            els.forEach(el => obs.observe(el));
+        })();
+    </script>
     </section>
 
     {{-- NOSOTROS --}}
