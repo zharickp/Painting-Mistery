@@ -74,15 +74,8 @@
                                     {{ $banner->activo ? 'Desactivar' : 'Activar' }}
                                 </button>
                             </form>
-                            <form method="POST" action="{{ route('admin.banners.destroy', $banner) }}"
-                                  onsubmit="return confirm('¿Eliminar este banner? Esta acción no se puede deshacer.');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit"
-                                        class="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 text-xs rounded-md transition">
-                                    Eliminar
-                                </button>
-                            </form>
+                            {{-- Botón eliminar retirado: los banners solo se activan o desactivan
+                                 para conservar el historial y la integridad referencial. --}}
                         </div>
                     </td>
                 </tr>
