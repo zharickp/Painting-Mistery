@@ -24,7 +24,9 @@ use App\Http\Controllers\Admin\RespaldoController;
 use App\Http\Controllers\Admin\TarifaEnvioController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ClienteDashboardController;
 use App\Http\Controllers\ResenaController;
+use App\Http\Controllers\WompiWebhookController;
 // ─── Landing ──────────────────────────────────────────────────────────────────
 Route::get('/', [LandingController::class, 'index'])->name('inicio');
 
@@ -153,10 +155,21 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::post('/vaciar',               [CarritoController::class, 'vaciar'])->name('vaciar');
     });
 
-    // ── Checkout (pago SIMULADO — solo Clientes) ─────────────────────────────
+    // ── Checkout con Wompi (solo Clientes) ────────────────────────────────────
     Route::middleware('role:Cliente')->group(function () {
-        Route::get('/checkout',   [CheckoutController::class, 'mostrar'])->name('checkout.mostrar');
-        Route::post('/checkout',  [CheckoutController::class, 'procesar'])->name('checkout.procesar');
+        Route::get('/checkout',                        [CheckoutController::class, 'mostrar'])->name('checkout.mostrar');
+        Route::post('/checkout',                       [CheckoutController::class, 'procesar'])->name('checkout.procesar');
+        Route::post('/checkout/calcular-envio',        [CheckoutController::class, 'calcularEnvio'])->name('checkout.calcular-envio');
+        Route::get('/checkout/{numero}/resultado',     [CheckoutController::class, 'resultado'])->name('checkout.resultado');
+        Route::get('/checkout/{numero}/demo',          [CheckoutController::class, 'demo'])->name('checkout.demo');
+        Route::post('/checkout/{numero}/demo/confirmar',[CheckoutController::class, 'demoConfirmar'])->name('checkout.demo.confirmar');
+
+        // Dashboard cliente
+        Route::prefix('mi-cuenta')->name('mi-cuenta.')->group(function () {
+            Route::get('/',                    [ClienteDashboardController::class, 'index'])->name('inicio');
+            Route::get('/pedidos',             [ClienteDashboardController::class, 'pedidos'])->name('pedidos');
+            Route::get('/pedidos/{venta}',     [ClienteDashboardController::class, 'pedido'])->name('pedido');
+        });
     });
 
     // ── Cliente ───────────────────────────────────────────────────────────────
@@ -165,6 +178,9 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::get('/cursos',  fn() => view('cliente.cursos'))->name('cursos');
     });
 });
+
+// ── Webhook Wompi (POST público, sin CSRF configurado en bootstrap/app.php) ──
+Route::post('/api/wompi/webhook', WompiWebhookController::class)->name('wompi.webhook');
 
 Route::get('/send-test-mail', function () {
     Mail::to('sg0077010@gmail.com')->send(new TestMail());
