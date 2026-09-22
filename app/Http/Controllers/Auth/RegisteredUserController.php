@@ -39,10 +39,27 @@ class RegisteredUserController extends Controller
                 Password::min(8)->mixedCase()->numbers()->symbols()
             ],
         ], [
-            'password.min'         => 'La contraseña debe tener mínimo 8 caracteres.',
-            'password.mixed_case'  => 'La contraseña debe tener mayúsculas y minúsculas.',
-            'password.numbers'     => 'La contraseña debe incluir al menos un número.',
-            'password.symbols'     => 'La contraseña debe incluir al menos un símbolo (ej: @, #, !).',
+            'required'                    => 'Este campo es obligatorio.',
+            'email'                       => 'El correo no tiene un formato válido.',
+            'numero_documento.unique'     => 'Este número de documento ya está registrado. Si es tuyo, inicia sesión o recupera tu contraseña.',
+            'correo.unique'               => 'Este correo ya está registrado. Si es tuyo, inicia sesión o recupera tu contraseña.',
+            'tipo_documento_id.required'  => 'Selecciona un tipo de documento.',
+            'tipo_documento_id.exists'    => 'Tipo de documento no válido.',
+            'password.confirmed'          => 'La contraseña y su confirmación no coinciden.',
+            'password.min'                => 'La contraseña debe tener mínimo 8 caracteres.',
+            'password.mixed_case'         => 'La contraseña debe tener mayúsculas y minúsculas.',
+            'password.numbers'            => 'La contraseña debe incluir al menos un número.',
+            'password.symbols'            => 'La contraseña debe incluir al menos un símbolo (ej: @, #, !).',
+        ], [
+            'primer_nombre'     => 'primer nombre',
+            'primer_apellido'   => 'primer apellido',
+            'segundo_nombre'    => 'segundo nombre',
+            'segundo_apellido'  => 'segundo apellido',
+            'numero_documento'  => 'número de documento',
+            'tipo_documento_id' => 'tipo de documento',
+            'correo'            => 'correo',
+            'telefono'          => 'teléfono',
+            'password'          => 'contraseña',
         ]);
 
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
