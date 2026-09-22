@@ -9,6 +9,7 @@ use App\Models\Producto;
 use App\Models\Venta;
 use App\Models\VentaEnvio;
 use App\Services\AuditoriaService;
+use App\Services\PagoOrdenService;
 use App\Services\ShippingService;
 use App\Services\WompiService;
 use Illuminate\Http\Request;
@@ -20,6 +21,7 @@ class CheckoutController extends Controller
     public function __construct(
         private ShippingService $shipping,
         private WompiService $wompi,
+        private PagoOrdenService $pagoOrden,
     ) {}
 
     /**
@@ -226,8 +228,14 @@ class CheckoutController extends Controller
 
     /**
      * Página que Wompi llama al terminar (por redirect-url).
-     * Consulta el estado real por API si tenemos transaction_id en query.
-     * NO marca la orden como pagada solo por regresar — eso lo hace el webhook.
+     *
+     * El webhook es la fuente de verdad "oficial" del pago, pero en
+     * desarrollo local Wompi no puede alcanzar http://127.0.0.1 para
+     * enviarlo. Por eso, aquí SIEMPRE se consulta el estado real de la
+     * transacción directamente a la API de Wompi (nunca se confía en
+     * el simple hecho de que el usuario haya vuelto) y se aplica con la
+     * misma lógica que usa el webhook — así el resultado se refleja
+     * igual, tengas o no un dominio público configurado.
      */
     public function resultado(Request $request, string $numeroOrden)
     {
@@ -235,13 +243,22 @@ class CheckoutController extends Controller
             ->where('numero_orden', $numeroOrden)
             ->firstOrFail();
 
-        // Solo el dueño puede ver
         if ($envio->venta->usuario_id !== auth()->id()) abort(403);
 
-        // Si Wompi nos manda el ID, actualizamos referencia rápido (webhook confirmará)
-        $trxId = $request->query('id');
-        if ($trxId && !$envio->wompi_transaction_id) {
-            $envio->update(['wompi_transaction_id' => $trxId]);
+        $trxId = $envio->wompi_transaction_id ?: $request->query('id');
+
+        if ($trxId && $envio->payment_status !== 'APPROVED') {
+            $trx = $this->wompi->consultarTransaccion($trxId);
+            if ($trx) {
+                $this->pagoOrden->aplicar(
+                    $envio,
+                    $trx['status'] ?? 'PENDING',
+                    $trx['id'] ?? $trxId,
+                    $trx['payment_method_type'] ?? null,
+                    'consulta-directa'
+                );
+                $envio->refresh();
+            }
         }
 
         return view('checkout.resultado', compact('envio'));
