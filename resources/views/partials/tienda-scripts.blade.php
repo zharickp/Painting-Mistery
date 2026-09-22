@@ -212,12 +212,6 @@ function renderCarrito() {
 
     footer.classList.remove('hidden');
     document.getElementById('carritoTotal').textContent = fmt(total);
-
-    // Armar mensaje WhatsApp
-    let msg = '🛒 *Pedido Painting Mistery*\n\n';
-    cart.forEach(i => { msg += `• ${i.nombre} x${i.qty} = ${fmt(i.precio * i.qty)}\n`; });
-    msg += `\n*Total: ${fmt(total)}*`;
-    document.getElementById('carritoWaBtn').href = 'https://wa.me/573144557602?text=' + encodeURIComponent(msg);
 }
 
 function cambiarQtyCarrito(id, delta) {
@@ -233,6 +227,41 @@ function quitarDelCarrito(id) {
     let cart = getCarrito().filter(c => c.id != id);
     saveCarrito(cart);
     renderCarrito();
+}
+
+// ── Envía el carrito local (localStorage) al carrito real del backend
+//    antes de ir al checkout, para que Wompi cobre exactamente lo que
+//    el cliente ve en el modal. ──
+async function irACheckout(btn) {
+    const cart = getCarrito();
+    if (cart.length === 0) { showToast('Tu carrito está vacío'); return; }
+
+    const original = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = 'Cargando…';
+
+    try {
+        const csrf = document.querySelector('meta[name="csrf-token"]').content;
+        const r = await fetch('{{ route("carrito.sincronizar") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+            body: JSON.stringify({ items: cart.map(i => ({ id: i.id, qty: i.qty })) }),
+        });
+        const j = await r.json();
+
+        if (!r.ok || !j.ok) {
+            showToast(j.message || 'No se pudo validar el carrito.');
+            btn.disabled = false;
+            btn.innerHTML = original;
+            return;
+        }
+
+        window.location.href = '{{ route("checkout.mostrar") }}';
+    } catch (e) {
+        showToast('Error de conexión. Intenta de nuevo.');
+        btn.disabled = false;
+        btn.innerHTML = original;
+    }
 }
 
 // ── Toast ──

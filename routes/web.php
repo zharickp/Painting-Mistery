@@ -153,6 +153,7 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::post('/actualizar/{detalle}', [CarritoController::class, 'actualizar'])->name('actualizar');
         Route::delete('/eliminar/{detalle}', [CarritoController::class, 'eliminar'])->name('eliminar');
         Route::post('/vaciar',               [CarritoController::class, 'vaciar'])->name('vaciar');
+        Route::post('/sincronizar',          [CarritoController::class, 'sincronizar'])->name('sincronizar');
     });
 
     // ── Checkout con Wompi (solo Clientes) ────────────────────────────────────
