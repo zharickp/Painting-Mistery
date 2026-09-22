@@ -172,7 +172,10 @@ class CheckoutController extends Controller
                     'tarifa_envio_id'    => $envio['tarifa_id'] ?? null,
                 ]);
 
-                $carrito->update(['estado' => 'procesando']);
+                // La tabla `carrito` solo acepta 'activo' o 'finalizado' (constraint CHECK).
+                // Al crear la orden, el carrito actual se cierra; la próxima visita
+                // firstOrCreate() abrirá uno nuevo en estado 'activo'.
+                $carrito->update(['estado' => 'finalizado']);
 
                 return $venta;
             });
