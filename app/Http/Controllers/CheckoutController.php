@@ -131,9 +131,14 @@ class CheckoutController extends Controller
 
         $total = $subtotal + (float) $envio['valor'];
 
-        // Transacción atómica: crear Venta + Detalle + VentaEnvio
+        // Transacción atómica: crear Venta + Detalle + VentaEnvio.
+        // Guardamos $ventaEnvio (el objeto recién creado, en memoria) en vez de
+        // volver a pedirlo después vía $venta->envio: justo al crear la Venta,
+        // el observer de Auditable dispara auditoriaEtiqueta(), que consulta
+        // esa relación cuando el VentaEnvio hermano AÚN no existe — evitamos
+        // depender de la propiedad mágica para no toparnos con ese caché.
         try {
-            $venta = DB::transaction(function () use ($carrito, $detalles, $subtotal, $envio, $total, $data) {
+            [$venta, $ventaEnvio] = DB::transaction(function () use ($carrito, $detalles, $subtotal, $envio, $total, $data) {
                 $venta = Venta::create([
                     'usuario_id' => auth()->id(),
                     'total'      => $total,
@@ -155,7 +160,7 @@ class CheckoutController extends Controller
                 $numeroOrden = sprintf('PM-ORD-%06d', $venta->id);
                 $wompiRef    = $this->wompi->nuevaReferencia($venta->id);
 
-                VentaEnvio::create([
+                $ventaEnvio = VentaEnvio::create([
                     'venta_id'           => $venta->id,
                     'numero_orden'       => $numeroOrden,
                     'wompi_reference'    => $wompiRef,
@@ -179,7 +184,7 @@ class CheckoutController extends Controller
                 // firstOrCreate() abrirá uno nuevo en estado 'activo'.
                 $carrito->update(['estado' => 'finalizado']);
 
-                return $venta;
+                return [$venta, $ventaEnvio];
             });
         } catch (\Throwable $e) {
             Log::error('Checkout falló: ' . $e->getMessage());
@@ -190,28 +195,28 @@ class CheckoutController extends Controller
             'accion'            => 'creado',
             'modulo'            => 'Venta',
             'registro_id'       => $venta->id,
-            'registro_etiqueta' => $venta->envio->numero_orden,
-            'descripcion'       => "Orden {$venta->envio->numero_orden} creada, esperando pago",
+            'registro_etiqueta' => $ventaEnvio->numero_orden,
+            'descripcion'       => "Orden {$ventaEnvio->numero_orden} creada, esperando pago",
             'valores_anteriores'=> [],
             'valores_nuevos'    => ['total' => $total, 'envio' => $envio['valor']],
         ]);
 
         // Si Wompi NO está configurado → modo demostración
         if (!$this->wompi->publicKey()) {
-            return redirect()->route('checkout.demo', $venta->envio->numero_orden);
+            return redirect()->route('checkout.demo', $ventaEnvio->numero_orden);
         }
 
         // Redirigir a Wompi Web Checkout
         $amountCents = $this->wompi->toCents($total);
-        $signature   = $this->wompi->signature($venta->envio->wompi_reference, $amountCents);
+        $signature   = $this->wompi->signature($ventaEnvio->wompi_reference, $amountCents);
 
         $params = [
             'public-key'          => $this->wompi->publicKey(),
             'currency'            => $this->wompi->currency(),
             'amount-in-cents'     => $amountCents,
-            'reference'           => $venta->envio->wompi_reference,
+            'reference'           => $ventaEnvio->wompi_reference,
             'signature:integrity' => $signature,
-            'redirect-url'        => route('checkout.resultado', $venta->envio->numero_orden),
+            'redirect-url'        => route('checkout.resultado', $ventaEnvio->numero_orden),
             'customer-data:email'      => $data['correo_envio'],
             'customer-data:full-name'  => $data['nombre_envio'],
             'customer-data:phone-number' => $data['telefono_envio'],

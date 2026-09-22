@@ -11,42 +11,39 @@ class Venta extends Model
 
     protected string $auditoriaTipo = 'Venta';
 
+    /**
+     * Usa el número de orden guardado en la tabla auxiliar venta_envio
+     * (la tabla `venta` en sí no tiene esa columna — ver VentaEnvio).
+     *
+     * IMPORTANTE: se usa envio()->first() (consulta directa) y NO la
+     * propiedad mágica $this->envio. El observer de Auditable llama a
+     * este método justo después de crear la Venta —en ese instante el
+     * VentaEnvio hermano todavía no existe (se crea en la siguiente
+     * línea del checkout)— y la propiedad mágica CACHEA ese resultado
+     * null en la relación para siempre en esa instancia del modelo.
+     * envio()->first() consulta cada vez, sin ese efecto secundario.
+     */
     public function auditoriaEtiqueta(): ?string
     {
-        return $this->numero_orden ?: ('#' . $this->id);
+        return $this->envio()->first()?->numero_orden ?: ('#' . $this->id);
     }
 
     protected $table = 'venta';
 
+    // Estas son las ÚNICAS columnas reales de la tabla `venta`.
+    // Todo lo demás (numero_orden, subtotal, envio, estados de pago/pedido,
+    // datos de Wompi, dirección de envío) vive en la tabla auxiliar
+    // `venta_envio` — ver el modelo VentaEnvio y la relación envio() abajo.
     protected $fillable = [
         'usuario_id',
-        'numero_orden',
         'total',
-        'subtotal',
-        'envio',
         'estado',
-        'estado_pedido',
-        'payment_status',
-        'wompi_reference',
-        'wompi_transaction_id',
-        'wompi_payment_method',
         'fecha',
-        'fecha_pago',
-        'nombre_envio',
-        'telefono_envio',
-        'correo_envio',
-        'departamento_envio',
-        'ciudad_envio',
-        'direccion_envio',
-        'referencia_envio',
     ];
 
     protected $casts = [
-        'total'      => 'decimal:2',
-        'subtotal'   => 'decimal:2',
-        'envio'      => 'decimal:2',
-        'fecha'      => 'datetime',
-        'fecha_pago' => 'datetime',
+        'total' => 'decimal:2',
+        'fecha' => 'datetime',
     ];
 
     // ─── Relaciones ────────────────────────────────────────────
