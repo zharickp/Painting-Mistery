@@ -11,7 +11,7 @@
     <section>
     @if ($banners->isEmpty())
         {{-- Sin banners configurados: imagen fija de siempre, sin cambios --}}
-        <div class="h-[280px] sm:h-[340px] md:h-[400px] overflow-hidden">
+        <div class="h-[320px] sm:h-[420px] md:h-[500px] overflow-hidden">
             <img src="/images/hero.jpeg"
                  alt="Painting Mistery"
                  class="w-full h-full object-cover object-center block">
@@ -39,7 +39,7 @@
         {{-- Slider administrable desde /admin/banners.
              Sin overlay de texto: los banners se ven completos y limpios.
              La altura es responsiva por breakpoint para que la imagen respire. --}}
-        <div id="heroSlider" class="relative overflow-hidden bg-gray-900 h-[280px] sm:h-[340px] md:h-[400px]">
+        <div id="heroSlider" class="relative overflow-hidden bg-gray-900 h-[320px] sm:h-[420px] md:h-[500px]">
             @foreach ($banners as $i => $banner)
                 <div class="hero-slide absolute inset-0 transition-opacity duration-1000 ease-in-out {{ $i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}">
                     <img src="{{ $banner->imagen }}" alt="Painting Mistery"
