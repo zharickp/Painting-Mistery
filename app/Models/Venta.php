@@ -71,6 +71,11 @@ class Venta extends Model
         return $this->hasMany(Pago::class);
     }
 
+    public function envio()
+    {
+        return $this->hasOne(VentaEnvio::class);
+    }
+
     // ─── Estados legibles ──────────────────────────────────────
 
     public const ESTADOS_PEDIDO = [

@@ -17,6 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'email.verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
             'role'           => \App\Http\Middleware\EnsureUserHasRole::class,
         ]);
+
+        // Webhook de Wompi debe recibir POST sin CSRF (Wompi es el que llama)
+        $middleware->validateCsrfTokens(except: [
+            'api/wompi/webhook',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
