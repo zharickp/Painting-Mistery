@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\InventarioController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Admin\AuditoriaController;
 use App\Http\Controllers\Admin\RespaldoController;
+use App\Http\Controllers\Admin\TarifaEnvioController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ResenaController;
@@ -94,6 +95,14 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::post('/respaldos',           [RespaldoController::class, 'store'])->name('respaldos.store');
         Route::get('/respaldos/{nombre}',   [RespaldoController::class, 'download'])->name('respaldos.download');
         Route::delete('/respaldos/{nombre}',[RespaldoController::class, 'destroy'])->name('respaldos.destroy');
+
+        // Tarifas de envío — configurables desde admin, alimentan al checkout
+        Route::get('/tarifas-envio',                       [TarifaEnvioController::class, 'index'])->name('tarifas-envio.index');
+        Route::get('/tarifas-envio/create',                [TarifaEnvioController::class, 'create'])->name('tarifas-envio.create');
+        Route::post('/tarifas-envio',                      [TarifaEnvioController::class, 'store'])->name('tarifas-envio.store');
+        Route::get('/tarifas-envio/{tarifas_envio}/edit',  [TarifaEnvioController::class, 'edit'])->name('tarifas-envio.edit');
+        Route::put('/tarifas-envio/{tarifas_envio}',       [TarifaEnvioController::class, 'update'])->name('tarifas-envio.update');
+        Route::post('/tarifas-envio/{tarifas_envio}/toggle',[TarifaEnvioController::class, 'toggleEstado'])->name('tarifas-envio.toggle');
     });
 
     // ── Admin + Gerente + Asesor: AUDITORÍA (solo consulta) ───────────────────

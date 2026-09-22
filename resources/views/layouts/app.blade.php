@@ -42,7 +42,8 @@
         || request()->routeIs('admin.usuarios.*')
         || request()->routeIs('admin.roles*')
         || request()->routeIs('admin.auditoria.*')
-        || request()->routeIs('admin.respaldos.*');
+        || request()->routeIs('admin.respaldos.*')
+        || request()->routeIs('admin.tarifas-envio.*');
 
     $verOperaciones = $esAdmin || $esAsesor || $esGerente;
 @endphp
@@ -251,6 +252,15 @@
                         Auditoría
                     </a>
                     @if($esAdmin)
+                    <a href="{{ route('admin.tarifas-envio.index') }}"
+                       class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition
+                              {{ request()->routeIs('admin.tarifas-envio.*') ? 'text-white bg-red-600/85' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <svg class="h-4 w-4 shrink-0 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1"/>
+                        </svg>
+                        Tarifas de envío
+                    </a>
                     <a href="{{ route('admin.respaldos.index') }}"
                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition
                               {{ request()->routeIs('admin.respaldos.*') ? 'text-white bg-red-600/85' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
