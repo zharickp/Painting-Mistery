@@ -174,9 +174,9 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
     });
 
     // ── Cliente ───────────────────────────────────────────────────────────────
+    // "Mis pedidos" vive en el grupo mi-cuenta.* (ver arriba, ClienteDashboardController).
     Route::prefix('cliente')->name('cliente.')->group(function () {
-        Route::get('/pedidos', fn() => view('cliente.pedidos'))->name('pedidos');
-        Route::get('/cursos',  fn() => view('cliente.cursos'))->name('cursos');
+        Route::get('/cursos', fn() => view('cliente.cursos'))->name('cursos');
     });
 });
 
