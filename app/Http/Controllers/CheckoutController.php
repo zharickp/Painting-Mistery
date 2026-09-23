@@ -201,8 +201,9 @@ class CheckoutController extends Controller
             'valores_nuevos'    => ['total' => $total, 'envio' => $envio['valor']],
         ]);
 
-        // Si Wompi NO está configurado → modo demostración
-        if (!$this->wompi->publicKey()) {
+        // Modo demostración: controlado explícitamente por PAGO_MODO_DEMO en .env,
+        // o automáticamente si aún no hay llaves de Wompi configuradas.
+        if ($this->wompi->debeUsarDemo()) {
             return redirect()->route('checkout.demo', $ventaEnvio->numero_orden);
         }
 

@@ -27,6 +27,26 @@ class WompiService
         return env('WOMPI_ENV', 'sandbox') === 'sandbox';
     }
 
+    /**
+     * Decide si el checkout debe usar el simulador interno en vez de
+     * redirigir a Wompi. Controlado explícitamente por .env:
+     *
+     *   PAGO_MODO_DEMO=true   -> siempre simulador, aunque haya llaves.
+     *   PAGO_MODO_DEMO=false  -> siempre Wompi real (falla si faltan llaves).
+     *   (sin definir)         -> automático: simulador solo si no hay
+     *                            WOMPI_PUBLIC_KEY configurada.
+     */
+    public function debeUsarDemo(): bool
+    {
+        $modo = env('PAGO_MODO_DEMO');
+
+        if ($modo !== null) {
+            return filter_var($modo, FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return empty($this->publicKey());
+    }
+
     public function checkoutBaseUrl(): string
     {
         // Wompi mantiene el mismo checkout para sandbox y prod;
