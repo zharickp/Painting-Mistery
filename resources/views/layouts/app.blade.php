@@ -32,6 +32,9 @@
     $esAsesor  = $u?->tieneRol('Asesor');
     $esGerente = $u?->tieneRol('Gerente');
     $esCliente = $u?->tieneRol('Cliente');
+    // El módulo "Mis Cursos" solo aparece si el cliente ya tiene alguna
+    // inscripción — no tiene sentido mostrarlo vacío a quien solo compra productos.
+    $tieneCursos = $esCliente && $u->inscripciones()->exists();
 
     $productosOpen = request()->routeIs('admin.productos.*')
         || request()->routeIs('admin.tipo-iva.*')
@@ -294,6 +297,7 @@
                 </svg>
                 <span class="font-medium">Mis Pedidos</span>
             </a>
+            @if($tieneCursos)
             <a href="{{ route('cliente.cursos') }}"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition
                       {{ request()->routeIs('cliente.cursos') ? 'bg-red-600 text-white' : 'text-slate-400 hover:bg-slate-800/70 hover:text-white' }}">
@@ -302,6 +306,7 @@
                 </svg>
                 <span class="font-medium">Mis Cursos</span>
             </a>
+            @endif
             @endif
         </nav>
 

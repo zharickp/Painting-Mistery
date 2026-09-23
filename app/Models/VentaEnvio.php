@@ -73,13 +73,27 @@ class VentaEnvio extends Model
         return self::ESTADOS_PEDIDO[$this->estado_pedido] ?? ucfirst((string) $this->estado_pedido);
     }
 
+    /**
+     * Una orden queda "expirada" cuando el pago nunca se confirmó
+     * (sigue en PENDING para Wompi) pero el sistema ya la canceló
+     * automáticamente por superar el tiempo límite de espera
+     * (ver ExpirarPedidosPendientesCommand).
+     */
+    public function estaExpirada(): bool
+    {
+        return $this->payment_status === 'PENDING' && $this->estado_pedido === 'cancelado';
+    }
+
     public function paymentStatusEtiqueta(): string
     {
+        if ($this->estaExpirada()) return 'Expirado';
         return self::PAYMENT_STATUS[$this->payment_status] ?? ucfirst((string) $this->payment_status);
     }
 
     public function paymentStatusColor(): string
     {
+        if ($this->estaExpirada()) return 'bg-slate-200 text-slate-600 border-slate-300';
+
         return match ($this->payment_status) {
             'APPROVED' => 'bg-emerald-100 text-emerald-700 border-emerald-200',
             'PENDING'  => 'bg-amber-100 text-amber-700 border-amber-200',
