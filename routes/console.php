@@ -12,3 +12,8 @@ Artisan::command('inspire', function () {
 Schedule::command('respaldos:generar')
     ->cron('0 3 1,16 * *')
     ->onOneServer();
+
+// Cancela órdenes con pago pendiente que nunca se confirmó (24h de espera).
+Schedule::command('pedidos:expirar-pendientes')
+    ->hourly()
+    ->onOneServer();

@@ -169,6 +169,7 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
             Route::get('/',                    [ClienteDashboardController::class, 'index'])->name('inicio');
             Route::get('/pedidos',             [ClienteDashboardController::class, 'pedidos'])->name('pedidos');
             Route::get('/pedidos/{venta}',     [ClienteDashboardController::class, 'pedido'])->name('pedido');
+            Route::get('/pedidos/{venta}/factura', [ClienteDashboardController::class, 'factura'])->name('pedido.factura');
         });
     });
 
