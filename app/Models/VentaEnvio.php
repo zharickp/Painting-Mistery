@@ -23,6 +23,9 @@ class VentaEnvio extends Model
         'nombre_envio',
         'telefono_envio',
         'correo_envio',
+        'tipo_documento',
+        'numero_documento',
+        'acepto_terminos',
         'departamento_envio',
         'ciudad_envio',
         'direccion_envio',
@@ -31,10 +34,11 @@ class VentaEnvio extends Model
     ];
 
     protected $casts = [
-        'subtotal'   => 'decimal:2',
-        'envio'      => 'decimal:2',
-        'total'      => 'decimal:2',
-        'fecha_pago' => 'datetime',
+        'subtotal'        => 'decimal:2',
+        'envio'           => 'decimal:2',
+        'total'           => 'decimal:2',
+        'fecha_pago'      => 'datetime',
+        'acepto_terminos' => 'boolean',
     ];
 
     public const ESTADOS_PEDIDO = [

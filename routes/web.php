@@ -160,7 +160,6 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
     Route::middleware('role:Cliente')->group(function () {
         Route::get('/checkout',                        [CheckoutController::class, 'mostrar'])->name('checkout.mostrar');
         Route::post('/checkout',                       [CheckoutController::class, 'procesar'])->name('checkout.procesar');
-        Route::post('/checkout/calcular-envio',        [CheckoutController::class, 'calcularEnvio'])->name('checkout.calcular-envio');
         Route::get('/checkout/{numero}/resultado',     [CheckoutController::class, 'resultado'])->name('checkout.resultado');
         Route::get('/checkout/{numero}/demo',          [CheckoutController::class, 'demo'])->name('checkout.demo');
         Route::post('/checkout/{numero}/demo/confirmar',[CheckoutController::class, 'demoConfirmar'])->name('checkout.demo.confirmar');

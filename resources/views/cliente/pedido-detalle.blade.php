@@ -95,17 +95,31 @@
             @if($envio)
             {{-- Envío --}}
             <div class="bg-white border border-slate-200 rounded-2xl p-6">
-                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4">Dirección de envío</h2>
+                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4">Datos de envío y facturación</h2>
                 <div class="text-sm space-y-1">
                     <p class="font-semibold text-slate-800">{{ $envio->nombre_envio }}</p>
+                    @if($envio->numero_documento)
+                        <p class="text-slate-500 text-xs">{{ $envio->tipo_documento }} {{ $envio->numero_documento }}</p>
+                    @endif
                     <p class="text-slate-600">{{ $envio->direccion_envio }}</p>
                     <p class="text-slate-600">{{ $envio->ciudad_envio }}, {{ $envio->departamento_envio }}</p>
                     @if($envio->referencia_envio)
                         <p class="text-xs text-slate-500 italic">{{ $envio->referencia_envio }}</p>
                     @endif
-                    <p class="text-slate-600 pt-2 border-t border-slate-100 mt-2">
-                        📱 {{ $envio->telefono_envio }} · ✉ {{ $envio->correo_envio }}
-                    </p>
+                    <div class="flex items-center gap-4 text-slate-600 pt-2 border-t border-slate-100 mt-2 text-xs">
+                        <span class="inline-flex items-center gap-1">
+                            <svg class="h-3.5 w-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                            </svg>
+                            {{ $envio->telefono_envio }}
+                        </span>
+                        <span class="inline-flex items-center gap-1">
+                            <svg class="h-3.5 w-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            {{ $envio->correo_envio }}
+                        </span>
+                    </div>
                 </div>
             </div>
             @endif

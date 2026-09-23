@@ -13,6 +13,49 @@ use Illuminate\Support\Facades\Cache;
 class ShippingService
 {
     /**
+     * Calcula el envío a partir del valor del carrito (no de la ciudad):
+     * escalas de $20.000 a $30.000 según lo que se vaya a llevar, y
+     * envío GRATIS al superar el umbral configurado (config/envios.php).
+     * Este es el método que usa el checkout actualmente.
+     */
+    public function calcularPorSubtotal(float $subtotal): array
+    {
+        $umbral  = (float) config('envios.umbral_envio_gratis');
+        $escalas = config('envios.escalas', []);
+
+        if ($subtotal >= $umbral) {
+            return [
+                'valor'     => 0.0,
+                'es_gratis' => true,
+                'umbral'    => $umbral,
+                'faltante'  => 0.0,
+                'progreso'  => 100,
+            ];
+        }
+
+        $valor = end($escalas)['valor'] ?? 0;
+        foreach ($escalas as $escala) {
+            if ($subtotal < $escala['hasta']) {
+                $valor = $escala['valor'];
+                break;
+            }
+        }
+
+        return [
+            'valor'     => (float) $valor,
+            'es_gratis' => false,
+            'umbral'    => $umbral,
+            'faltante'  => round($umbral - $subtotal, 0),
+            'progreso'  => $umbral > 0 ? (int) min(100, round(($subtotal / $umbral) * 100)) : 0,
+        ];
+    }
+
+    /**
+     * MÉTODO ANTERIOR (por ciudad/departamento) — se mantiene por si se
+     * necesita en el futuro y para no romper el admin de Tarifas de Envío,
+     * pero el checkout ya NO lo usa: ahora el costo depende del valor del
+     * carrito (ver calcularPorSubtotal), no del destino.
+     *
      * Devuelve el costo de envío para un destino y un subtotal.
      * Estrategia:
      *  1) Busca una tarifa activa cuya ciudad coincida (case-insensitive).
