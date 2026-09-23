@@ -26,7 +26,9 @@ class CheckoutController extends Controller
 
     /**
      * Muestra el checkout con formulario de envío + resumen del carrito.
-     * El envío se muestra en 0 hasta que el usuario seleccione depto+ciudad.
+     * El envío ya se conoce al renderizar (depende del subtotal del
+     * carrito, no del destino), así que la barra de progreso hacia el
+     * envío gratis se muestra de inmediato, sin esperar ninguna llamada AJAX.
      */
     public function mostrar()
     {
@@ -38,41 +40,22 @@ class CheckoutController extends Controller
                 ->with('error', 'Tu carrito está vacío.');
         }
 
-        $subtotal   = $detalles->sum(fn($d) => $d->cantidad * $d->precio_unitario);
+        $subtotal     = $detalles->sum(fn($d) => $d->cantidad * $d->precio_unitario);
+        $envio        = $this->shipping->calcularPorSubtotal($subtotal);
         $ciudadesDept = $this->shipping->ciudadesPorDepartamento();
-        $usuario    = auth()->user();
+        $usuario      = auth()->user();
+        $tiposDocumento = \App\Models\TipoDocumento::orderBy('nombre')->get();
 
         return view('checkout.index', [
-            'carrito'      => $carrito,
-            'detalles'     => $detalles,
-            'subtotal'     => $subtotal,
-            'ciudadesDept' => $ciudadesDept,
-            'usuario'      => $usuario,
+            'carrito'        => $carrito,
+            'detalles'       => $detalles,
+            'subtotal'       => $subtotal,
+            'envio'          => $envio,
+            'total'          => $subtotal + $envio['valor'],
+            'ciudadesDept'   => $ciudadesDept,
+            'usuario'        => $usuario,
+            'tiposDocumento' => $tiposDocumento,
             'wompiPublicKey' => $this->wompi->publicKey(),
-        ]);
-    }
-
-    /**
-     * Endpoint AJAX para recalcular envío al cambiar departamento/ciudad.
-     */
-    public function calcularEnvio(Request $request)
-    {
-        $data = $request->validate([
-            'departamento' => 'nullable|string|max:80',
-            'ciudad'       => 'nullable|string|max:80',
-        ]);
-
-        $carrito  = $this->carritoActivo();
-        $detalles = $carrito->detalles;
-        $subtotal = $detalles->sum(fn($d) => $d->cantidad * $d->precio_unitario);
-
-        $envio = $this->shipping->calcular($data['departamento'] ?? null, $data['ciudad'] ?? null, $subtotal);
-
-        return response()->json([
-            'subtotal'     => $subtotal,
-            'envio'        => $envio,
-            'total'        => $subtotal + (float) ($envio['valor'] ?? 0),
-            'configurable' => $envio === null,
         ]);
     }
 
@@ -86,10 +69,15 @@ class CheckoutController extends Controller
             'nombre_envio'       => 'required|string|max:120',
             'telefono_envio'     => 'required|string|max:40',
             'correo_envio'       => 'required|email|max:120',
+            'tipo_documento'     => 'required|string|max:10',
+            'numero_documento'   => 'required|string|max:20',
             'departamento_envio' => 'required|string|max:80',
             'ciudad_envio'       => 'required|string|max:80',
             'direccion_envio'    => 'required|string|max:300',
             'referencia_envio'   => 'nullable|string|max:300',
+            'acepto_terminos'    => 'accepted',
+        ], [
+            'acepto_terminos.accepted' => 'Debes aceptar los términos y condiciones para continuar.',
         ]);
 
         $carrito  = $this->carritoActivo();
@@ -120,15 +108,10 @@ class CheckoutController extends Controller
             return back()->with('error', implode(' ', $errores))->withInput();
         }
 
-        $envio = $this->shipping->calcular(
-            $data['departamento_envio'],
-            $data['ciudad_envio'],
-            $subtotal
-        );
-        if ($envio === null) {
-            return back()->with('error', 'No hay tarifa de envío para el destino. Contacta a soporte.')->withInput();
-        }
-
+        // El envío depende del valor del carrito, no del destino — siempre
+        // devuelve un valor (nunca null), así que no hace falta validar
+        // "tarifa no configurada" como antes.
+        $envio = $this->shipping->calcularPorSubtotal($subtotal);
         $total = $subtotal + (float) $envio['valor'];
 
         // Transacción atómica: crear Venta + Detalle + VentaEnvio.
@@ -172,11 +155,13 @@ class CheckoutController extends Controller
                     'nombre_envio'       => $data['nombre_envio'],
                     'telefono_envio'     => $data['telefono_envio'],
                     'correo_envio'       => $data['correo_envio'],
+                    'tipo_documento'     => $data['tipo_documento'],
+                    'numero_documento'   => $data['numero_documento'],
+                    'acepto_terminos'    => true,
                     'departamento_envio' => $data['departamento_envio'],
                     'ciudad_envio'       => $data['ciudad_envio'],
                     'direccion_envio'    => $data['direccion_envio'],
                     'referencia_envio'   => $data['referencia_envio'] ?? null,
-                    'tarifa_envio_id'    => $envio['tarifa_id'] ?? null,
                 ]);
 
                 // La tabla `carrito` solo acepta 'activo' o 'finalizado' (constraint CHECK).

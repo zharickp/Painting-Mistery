@@ -29,6 +29,34 @@
         <div class="mb-6 bg-red-50 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded text-sm">{{ session('error') }}</div>
     @endif
 
+    {{-- Barra de envío gratis (Addi-style), dinámica según el subtotal real --}}
+    <div class="mb-6 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+        @if($envio['es_gratis'])
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold text-emerald-700 text-sm">¡Tu pedido tiene envío GRATIS!</p>
+                    <p class="text-xs text-slate-500">Superaste el mínimo de ${{ number_format($envio['umbral'], 0, ',', '.') }} en compras.</p>
+                </div>
+            </div>
+        @else
+            <p class="text-center text-xs font-bold text-slate-600 uppercase tracking-wide mb-3">
+                Envío gratis en compras superiores a ${{ number_format($envio['umbral'], 0, ',', '.') }}
+            </p>
+            <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500"
+                     style="width: {{ $envio['progreso'] }}%"></div>
+            </div>
+            <p class="text-center text-sm text-slate-600 mt-3">
+                ¡Agrega <span class="font-bold text-red-600">${{ number_format($envio['faltante'], 0, ',', '.') }}</span> más para obtener envío gratis!
+            </p>
+        @endif
+    </div>
+
     <form method="POST" action="{{ route('checkout.procesar') }}" id="checkoutForm">
         @csrf
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -62,6 +90,28 @@
                                value="{{ old('correo_envio', $usuario->correo) }}"
                                class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-red-500 focus:outline-none">
                     </div>
+
+                    {{-- Documento de identidad --}}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wider">Tipo de documento *</label>
+                        <select name="tipo_documento" required
+                                class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-red-500 focus:outline-none">
+                            @foreach($tiposDocumento as $td)
+                                <option value="{{ $td->abreviatura }}"
+                                    @selected(old('tipo_documento', $usuario->tipoDocumento?->abreviatura) === $td->abreviatura)>
+                                    {{ $td->abreviatura }} - {{ $td->nombre }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wider">Número de documento *</label>
+                        <input type="text" name="numero_documento" required
+                               value="{{ old('numero_documento', $usuario->numero_documento) }}"
+                               placeholder="Sin puntos ni espacios"
+                               class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-red-500 focus:outline-none">
+                    </div>
+
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wider">Departamento *</label>
                         <select name="departamento_envio" id="deptoSelect" required
@@ -124,24 +174,41 @@
                     <div class="border-t border-slate-100 pt-4 space-y-2 text-sm">
                         <div class="flex justify-between text-slate-600">
                             <span>Subtotal</span>
-                            <span id="labelSubtotal" data-value="{{ $subtotal }}">${{ number_format($subtotal, 0, ',', '.') }}</span>
+                            <span>${{ number_format($subtotal, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between text-slate-600">
-                            <span>Envío <span id="labelEnvioDetalle" class="text-xs text-slate-400"></span></span>
-                            <span id="labelEnvio" class="font-semibold">—</span>
+                            <span>Envío</span>
+                            @if($envio['es_gratis'])
+                                <span class="font-bold text-emerald-600">GRATIS</span>
+                            @else
+                                <span class="font-semibold">${{ number_format($envio['valor'], 0, ',', '.') }}</span>
+                            @endif
                         </div>
                         <div class="flex justify-between text-base font-bold text-slate-800 pt-2 border-t border-slate-100">
                             <span>Total</span>
-                            <span id="labelTotal" class="text-red-600">${{ number_format($subtotal, 0, ',', '.') }}</span>
+                            <span class="text-red-600">${{ number_format($total, 0, ',', '.') }}</span>
                         </div>
                     </div>
 
-                    <button type="submit" id="btnPagar" disabled
-                            class="mt-5 w-full bg-red-600 hover:bg-red-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl text-sm transition flex items-center justify-center gap-2">
+                    {{-- Términos y condiciones --}}
+                    <label class="flex items-start gap-2 mt-5 text-xs text-slate-600 cursor-pointer">
+                        <input type="checkbox" name="acepto_terminos" value="1" required
+                               class="mt-0.5 rounded border-slate-300 text-red-600 focus:ring-red-500">
+                        <span>
+                            He leído y estoy de acuerdo con los
+                            <button type="button" onclick="document.getElementById('terminosModal').classList.remove('hidden')"
+                                    class="text-red-600 underline hover:text-red-700 font-semibold">
+                                términos y condiciones
+                            </button> *
+                        </span>
+                    </label>
+
+                    <button type="submit" id="btnPagar"
+                            class="mt-4 w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl text-sm transition flex items-center justify-center gap-2">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m0 0v2m0-2h2m-2 0h-2m9-7a9 9 0 11-18 0 9 9 0 0118 0zM12 8V5"/>
                         </svg>
-                        <span id="btnPagarLabel">Selecciona un destino</span>
+                        Ir a pagar ${{ number_format($total, 0, ',', '.') }}
                     </button>
 
                     <div class="mt-3 flex items-center justify-center gap-2 text-[11px] text-slate-500">
@@ -156,20 +223,36 @@
     </form>
 </div>
 
+{{-- Modal de términos y condiciones --}}
+<div id="terminosModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50" onclick="document.getElementById('terminosModal').classList.add('hidden')"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b">
+            <h3 class="font-bold text-gray-800">Términos y condiciones</h3>
+            <button onclick="document.getElementById('terminosModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto px-6 py-4 text-sm text-gray-600 space-y-3">
+            <p><strong>1. Sobre la compra.</strong> Al confirmar este pedido aceptas los precios, cantidades y datos de envío mostrados en el resumen. Painting Mistery se reserva el derecho de contactarte si algún producto no puede despacharse por falta de disponibilidad.</p>
+            <p><strong>2. Envío.</strong> El costo de envío se calcula según el valor total de tu compra y se muestra antes de pagar. Los tiempos de entrega dependen de tu ciudad y de la transportadora.</p>
+            <p><strong>3. Pagos.</strong> Los pagos se procesan a través de Wompi. Painting Mistery no almacena datos de tu tarjeta.</p>
+            <p><strong>4. Datos personales.</strong> Los datos de contacto y envío que ingreses se usan únicamente para procesar y entregar tu pedido.</p>
+            <p><strong>5. Cambios y devoluciones.</strong> Contáctanos por WhatsApp o correo dentro de los primeros 5 días hábiles tras recibir tu pedido si necesitas una devolución o cambio.</p>
+        </div>
+        <div class="px-6 py-4 border-t">
+            <button onclick="document.getElementById('terminosModal').classList.add('hidden')"
+                    class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-lg text-sm transition">
+                Entendido
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
     const ciudadesDept = @json($ciudadesDept);
     const deptoSel = document.getElementById('deptoSelect');
     const ciudadSel = document.getElementById('ciudadSelect');
-    const labelEnvio = document.getElementById('labelEnvio');
-    const labelEnvioDet = document.getElementById('labelEnvioDetalle');
-    const labelTotal = document.getElementById('labelTotal');
-    const subtotal = parseFloat(document.getElementById('labelSubtotal').dataset.value);
-    const btnPagar = document.getElementById('btnPagar');
-    const btnLabel = document.getElementById('btnPagarLabel');
-
-    const fmt = v => '$' + Math.round(v).toLocaleString('es-CO');
-    const csrf = document.querySelector('meta[name="csrf-token"]')?.content
-        || document.querySelector('input[name="_token"]').value;
 
     function poblarCiudades(dep) {
         ciudadSel.innerHTML = '<option value="">Selecciona…</option>';
@@ -186,50 +269,15 @@
         }
     }
 
-    async function recalcular() {
-        const depto = deptoSel.value;
-        const ciudad = ciudadSel.value;
-        if (!depto || !ciudad) { setEnvio(null); return; }
+    deptoSel.addEventListener('change', () => poblarCiudades(deptoSel.value));
 
-        try {
-            const r = await fetch('{{ route("checkout.calcular-envio") }}', {
-                method: 'POST',
-                headers: {'Content-Type':'application/json','X-CSRF-TOKEN':csrf,'Accept':'application/json'},
-                body: JSON.stringify({departamento: depto, ciudad: ciudad}),
-            });
-            const j = await r.json();
-            setEnvio(j.envio, j.total);
-        } catch (e) { setEnvio(null); }
+    // Restaurar ciudades si el form vuelve con old() tras un error de validación
+    if (deptoSel.value) {
+        poblarCiudades(deptoSel.value);
+        @if(old('ciudad_envio'))
+            setTimeout(() => { ciudadSel.value = @json(old('ciudad_envio')); }, 0);
+        @endif
     }
-
-    function setEnvio(envio, totalCalc) {
-        if (!envio) {
-            labelEnvio.textContent = '—';
-            labelEnvioDet.textContent = '';
-            labelTotal.textContent = fmt(subtotal);
-            btnPagar.disabled = true;
-            btnLabel.textContent = 'Selecciona un destino';
-            return;
-        }
-        if (envio.es_gratis) {
-            labelEnvio.textContent = 'GRATIS';
-            labelEnvio.className = 'font-bold text-emerald-600';
-            labelEnvioDet.textContent = '(por superar el mínimo)';
-        } else {
-            labelEnvio.textContent = fmt(envio.valor);
-            labelEnvio.className = 'font-semibold';
-            labelEnvioDet.textContent = '(' + envio.etiqueta + ')';
-        }
-        labelTotal.textContent = fmt(totalCalc);
-        btnPagar.disabled = false;
-        btnLabel.textContent = 'Ir a pagar ' + fmt(totalCalc);
-    }
-
-    deptoSel.addEventListener('change', () => { poblarCiudades(deptoSel.value); setEnvio(null); });
-    ciudadSel.addEventListener('change', recalcular);
-
-    // Restaurar valor si el form falla y vuelve con old()
-    if (deptoSel.value) { poblarCiudades(deptoSel.value); }
 </script>
 
 @include('partials.footer')

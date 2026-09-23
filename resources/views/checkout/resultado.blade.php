@@ -44,14 +44,34 @@
                 <p class="font-mono text-xs text-slate-700 break-all">{{ $envio->wompi_reference }}</p>
             </div>
             <div>
-                <p class="text-xs uppercase tracking-wider font-bold text-slate-500">Total</p>
-                <p class="font-bold text-red-600 text-lg">${{ number_format($envio->total, 0, ',', '.') }}</p>
-            </div>
-            <div>
                 <p class="text-xs uppercase tracking-wider font-bold text-slate-500">Estado del pago</p>
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border {{ $envio->paymentStatusColor() }}">
                     {{ $envio->paymentStatusEtiqueta() }}
                 </span>
+            </div>
+            <div>
+                <p class="text-xs uppercase tracking-wider font-bold text-slate-500">Estado del pedido</p>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border {{ $envio->estadoPedidoColor() }}">
+                    {{ $envio->estadoPedidoEtiqueta() }}
+                </span>
+            </div>
+        </div>
+
+        <div class="mt-4 border-t border-slate-100 pt-4 space-y-1.5 text-sm text-left max-w-xs mx-auto">
+            <div class="flex justify-between text-slate-600">
+                <span>Subtotal</span>
+                <span>${{ number_format($envio->subtotal, 0, ',', '.') }}</span>
+            </div>
+            <div class="flex justify-between text-slate-600">
+                <span>Envío</span>
+                <span>
+                    @if((float) $envio->envio === 0.0) <span class="font-bold text-emerald-600">GRATIS</span>
+                    @else ${{ number_format($envio->envio, 0, ',', '.') }} @endif
+                </span>
+            </div>
+            <div class="flex justify-between font-bold text-slate-800 pt-1.5 border-t border-slate-100">
+                <span>Total</span>
+                <span class="text-red-600">${{ number_format($envio->total, 0, ',', '.') }}</span>
             </div>
         </div>
 
