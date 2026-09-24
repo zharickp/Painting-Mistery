@@ -208,6 +208,9 @@
                     </p>
                 </div>
             </div>
+            <div class="text-center mt-10">
+                <a href="{{ route('nosotros') }}" class="inline-flex items-center gap-2 bg-gray-900 hover:bg-red-600 text-white font-semibold px-6 py-3 rounded-xl text-sm transition">Conoce nuestra historia →</a>
+            </div>
         </div>
     </section>
 
@@ -302,97 +305,8 @@
                     @endforeach
                 </div>
             @endif
-        </div>
-    </section>
-
-    {{-- SOBRE NOSOTROS (ampliado) --}}
-    <section id="sobre-nosotros" class="py-20 bg-gray-900 text-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div>
-                    <span class="text-red-400 font-semibold text-xs uppercase tracking-widest">Sobre nosotros</span>
-                    <h2 class="text-3xl font-extrabold mt-2 mb-4">Pasión por las motos,<br><span class="text-red-500">arte en cada trazo</span></h2>
-                    <p class="text-gray-300 text-base leading-relaxed mb-6">
-                        Painting Mistery es un taller de restauración especializado en pintura para motocicletas,
-                        con base en Melgar, Tolima. Creamos diseños exclusivos y personalizados, cuidando cada
-                        detalle del proceso para entregar trabajos en perfecto estado y con acabados de nivel
-                        profesional.
-                    </p>
-                    <p class="text-gray-400 text-sm leading-relaxed mb-8">
-                        Además de la pintura y personalización, ofrecemos accesorios, repuestos y cursos prácticos
-                        para quienes quieren aprender el oficio desde cero. Nuestro compromiso es simple: la mejor
-                        calidad de productos y procesos, trabajo tras trabajo.
-                    </p>
-
-                    {{-- Misión y Visión --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="bg-gray-800/60 border border-gray-700 rounded-xl p-5">
-                            <div class="h-9 w-9 rounded-lg bg-red-600/20 text-red-400 flex items-center justify-center mb-3">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                                </svg>
-                            </div>
-                            <h3 class="font-bold text-white text-sm mb-1.5">Nuestra misión</h3>
-                            <p class="text-gray-400 text-xs leading-relaxed">
-                                Transformar motocicletas a través de la pintura y la personalización, ofreciendo
-                                productos y procesos de calidad, y formando a nuevos artistas del oficio a través
-                                de nuestros cursos.
-                            </p>
-                        </div>
-                        <div class="bg-gray-800/60 border border-gray-700 rounded-xl p-5">
-                            <div class="h-9 w-9 rounded-lg bg-red-600/20 text-red-400 flex items-center justify-center mb-3">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                </svg>
-                            </div>
-                            <h3 class="font-bold text-white text-sm mb-1.5">Nuestra visión</h3>
-                            <p class="text-gray-400 text-xs leading-relaxed">
-                                Ser reconocidos como el taller de referencia en pintura y personalización de
-                                motocicletas en el Tolima, expandiendo nuestra academia de formación a más
-                                estudiantes cada año.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-red-500 transition">
-                        <div class="bg-red-600 rounded-xl h-12 w-12 flex items-center justify-center mb-4">
-                            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
-                            </svg>
-                        </div>
-                        <h3 class="font-bold text-white mb-1 text-sm">Repuestos originales</h3>
-                        <p class="text-gray-400 text-xs">Piezas de calidad para todas las marcas.</p>
-                    </div>
-                    <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-red-500 transition">
-                        <div class="bg-red-600 rounded-xl h-12 w-12 flex items-center justify-center mb-4">
-                            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                            </svg>
-                        </div>
-                        <h3 class="font-bold text-white mb-1 text-sm">Hecho con amor</h3>
-                        <p class="text-gray-400 text-xs">Cada trabajo refleja nuestra pasión.</p>
-                    </div>
-                    <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-red-500 transition">
-                        <div class="bg-red-600 rounded-xl h-12 w-12 flex items-center justify-center mb-4">
-                            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                            </svg>
-                        </div>
-                        <h3 class="font-bold text-white mb-1 text-sm">Diseño personalizado</h3>
-                        <p class="text-gray-400 text-xs">Tu visión hecha realidad en pintura.</p>
-                    </div>
-                    <div class="bg-gray-800 rounded-2xl p-6 border border-gray-700 hover:border-red-500 transition">
-                        <div class="bg-red-600 rounded-xl h-12 w-12 flex items-center justify-center mb-4">
-                            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                            </svg>
-                        </div>
-                        <h3 class="font-bold text-white mb-1 text-sm">Formación profesional</h3>
-                        <p class="text-gray-400 text-xs">Aprende de los mejores del sector.</p>
-                    </div>
-                </div>
+            <div class="text-center mt-10">
+                <a href="{{ route('academia') }}" class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-xl text-sm transition">Ver academia e inscribirme →</a>
             </div>
         </div>
     </section>
@@ -485,6 +399,7 @@
                         ['nombre'=>'Miguel S.','texto'=>'Excelente servicio, los precios son justos y la calidad del trabajo no tiene comparación en Melgar. Definitivamente vuelvo.','stars'=>5],
                         ['nombre'=>'Sofía L.','texto'=>'Hice el curso básico de pintura y ahora tengo mi propio negocio. Painting Mistery me cambió la vida. ¡Gracias a todo el equipo!','stars'=>5],
                     ];
+                    if (!empty($googleData['reviews'])) { $reviews = $googleData['reviews']; }
                     @endphp
                     @foreach($reviews as $r)
                     <div class="flex-none w-full sm:w-1/2 lg:w-1/3 bg-gray-800 rounded-2xl p-7 border border-gray-700">
@@ -498,9 +413,10 @@
                         </div>
                         <p class="text-gray-300 text-sm leading-relaxed italic mb-5">"{{ $r['texto'] }}"</p>
                         <div class="flex items-center gap-3">
+                            @if(!empty($r['foto']))<img src="{{ $r['foto'] }}" alt="" referrerpolicy="no-referrer" class="h-9 w-9 rounded-full object-cover">@else
                             <div class="h-9 w-9 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-sm">
                                 {{ strtoupper(substr($r['nombre'],0,1)) }}
-                            </div>
+                            </div>@endif
                             <p class="font-semibold text-white text-sm">{{ $r['nombre'] }}</p>
                         </div>
                     </div>
@@ -537,7 +453,7 @@
                                         <svg class="h-3.5 w-3.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                                     @endfor
                                 </div>
-                                <span class="text-gray-400 text-xs">4.3 · 62 opiniones en Google</span>
+                                <span class="text-gray-400 text-xs">{{ $googleData ? number_format($googleData['rating'],1) : '4.3' }} · {{ $googleData['total'] ?? 62 }} opiniones en Google</span>
                             </div>
                         </div>
                     </div>

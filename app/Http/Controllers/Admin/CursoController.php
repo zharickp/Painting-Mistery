@@ -13,6 +13,7 @@ class CursoController extends Controller
     public function index(): View
     {
         $cursos = Curso::withCount('inscripciones')
+            ->withCount(['inscripciones as pendientes_count' => fn ($q) => $q->where('estado', 'pendiente')])
             ->orderByDesc('created_at')
             ->paginate(10);
 
@@ -27,15 +28,19 @@ class CursoController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'nombre'       => ['required', 'string', 'max:150'],
-            'descripcion'  => ['nullable', 'string'],
-            'costo'        => ['required', 'numeric', 'min:0'],
-            'cupos'        => ['nullable', 'integer', 'min:1'],
-            'fecha_inicio' => ['nullable', 'date'],
-            'fecha_fin'    => ['nullable', 'date', 'after_or_equal:fecha_inicio'],
+            'nombre'               => ['required', 'string', 'max:150'],
+            'descripcion'          => ['nullable', 'string'],
+            'costo'                => ['required', 'numeric', 'min:0'],
+            'cupos'                => ['nullable', 'integer', 'min:1'],
+            'fecha_inicio'         => ['nullable', 'date'],
+            'fecha_fin'            => ['nullable', 'date', 'after_or_equal:fecha_inicio'],
+            'ubicacion'            => ['nullable', 'string', 'max:150'],
+            'duracion'             => ['nullable', 'string', 'max:100'],
+            'requisitos'           => ['nullable', 'string'],
+            'incluye_certificado'  => ['nullable', 'boolean'],
         ]);
 
-        Curso::create([
+        $curso = Curso::create([
             'nombre'       => $request->nombre,
             'descripcion'  => $request->descripcion,
             'costo'        => $request->costo,
@@ -45,24 +50,37 @@ class CursoController extends Controller
             'estado'       => true,
         ]);
 
+        $curso->info()->create([
+            'ubicacion'           => $request->ubicacion,
+            'duracion'            => $request->duracion,
+            'requisitos'          => $request->requisitos,
+            'incluye_certificado' => $request->boolean('incluye_certificado'),
+        ]);
+
         return redirect()->route('admin.cursos.index')
             ->with('success', 'Curso creado correctamente.');
     }
 
     public function edit(Curso $curso): View
     {
+        $curso->load('info');
+
         return view('admin.cursos.edit', compact('curso'));
     }
 
     public function update(Request $request, Curso $curso): RedirectResponse
     {
         $request->validate([
-            'nombre'       => ['required', 'string', 'max:150'],
-            'descripcion'  => ['nullable', 'string'],
-            'costo'        => ['required', 'numeric', 'min:0'],
-            'cupos'        => ['nullable', 'integer', 'min:1'],
-            'fecha_inicio' => ['nullable', 'date'],
-            'fecha_fin'    => ['nullable', 'date', 'after_or_equal:fecha_inicio'],
+            'nombre'               => ['required', 'string', 'max:150'],
+            'descripcion'          => ['nullable', 'string'],
+            'costo'                => ['required', 'numeric', 'min:0'],
+            'cupos'                => ['nullable', 'integer', 'min:1'],
+            'fecha_inicio'         => ['nullable', 'date'],
+            'fecha_fin'            => ['nullable', 'date', 'after_or_equal:fecha_inicio'],
+            'ubicacion'            => ['nullable', 'string', 'max:150'],
+            'duracion'             => ['nullable', 'string', 'max:100'],
+            'requisitos'           => ['nullable', 'string'],
+            'incluye_certificado'  => ['nullable', 'boolean'],
         ]);
 
         $curso->update([
@@ -72,6 +90,13 @@ class CursoController extends Controller
             'cupos'        => $request->cupos,
             'fecha_inicio' => $request->fecha_inicio,
             'fecha_fin'    => $request->fecha_fin,
+        ]);
+
+        $curso->info()->updateOrCreate([], [
+            'ubicacion'           => $request->ubicacion,
+            'duracion'            => $request->duracion,
+            'requisitos'          => $request->requisitos,
+            'incluye_certificado' => $request->boolean('incluye_certificado'),
         ]);
 
         return redirect()->route('admin.cursos.index')

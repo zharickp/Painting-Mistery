@@ -1,6 +1,6 @@
 @php
-    $enlaceCursos    = request()->routeIs('inicio') ? '#cursos' : route('inicio') . '#cursos';
-    $enlaceNosotros  = request()->routeIs('inicio') ? '#sobre-nosotros' : route('inicio') . '#sobre-nosotros';
+    $enlaceCursos    = route('academia');
+    $enlaceNosotros  = route('nosotros');
     $enlaceContacto  = request()->routeIs('inicio') ? '#contacto' : route('inicio') . '#contacto';
 @endphp
 {{-- FOOTER --}}

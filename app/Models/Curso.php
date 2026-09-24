@@ -39,5 +39,21 @@ class Curso extends Model
     {
         return $this->hasMany(DetalleVentaCurso::class);
     }
+
+    public function info()
+    {
+        return $this->hasOne(CursoInfo::class);
+    }
+
+    public function cuposDisponibles(): ?int
+    {
+        if (! $this->cupos) {
+            return null;
+        }
+
+        $ocupados = $this->inscripciones()->whereIn('estado', ['pendiente', 'confirmada', 'completada'])->count();
+
+        return max(0, $this->cupos - $ocupados);
+    }
 }
 
