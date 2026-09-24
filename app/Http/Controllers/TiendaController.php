@@ -11,10 +11,13 @@ class TiendaController extends Controller
 {
     public function index(Request $request): View
     {
-        $buscar    = trim((string) $request->query('buscar', ''));
-        $categoria = $request->query('categoria');
-        $orden     = $request->query('orden', 'relevancia');
-        $porPagina = (int) $request->query('por_pagina', 12);
+        $buscar     = trim((string) $request->query('buscar', ''));
+        $categoria  = $request->query('categoria');
+        $orden      = $request->query('orden', 'relevancia');
+        $porPagina  = (int) $request->query('por_pagina', 12);
+        $precioMin  = $request->query('precio_min');
+        $precioMax  = $request->query('precio_max');
+        $soloStock  = $request->boolean('en_stock');
 
         if (! in_array($porPagina, [9, 12, 18, 24], true)) {
             $porPagina = 12;
@@ -29,6 +32,9 @@ class TiendaController extends Controller
                 });
             })
             ->when($categoria, fn ($query) => $query->where('categoria_producto_id', $categoria))
+            ->when(is_numeric($precioMin), fn ($query) => $query->where('precio', '>=', (float) $precioMin))
+            ->when(is_numeric($precioMax), fn ($query) => $query->where('precio', '<=', (float) $precioMax))
+            ->when($soloStock, fn ($query) => $query->whereHas('inventario', fn ($q) => $q->where('stock_actual', '>', 0)))
             ->when($orden === 'precio_asc', fn ($query) => $query->orderBy('precio', 'asc'))
             ->when($orden === 'precio_desc', fn ($query) => $query->orderBy('precio', 'desc'))
             ->when($orden === 'nombre', fn ($query) => $query->orderBy('nombre', 'asc'))
@@ -50,6 +56,9 @@ class TiendaController extends Controller
                 return $cat;
             });
 
-        return view('tienda.index', compact('productos', 'categorias', 'buscar', 'categoria', 'orden', 'porPagina'));
+        return view('tienda.index', compact(
+            'productos', 'categorias', 'buscar', 'categoria', 'orden', 'porPagina',
+            'precioMin', 'precioMax', 'soloStock'
+        ));
     }
 }
