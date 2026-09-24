@@ -112,7 +112,7 @@
         {{-- Bottom bar --}}
         <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600">
             <p>&copy; {{ date('Y') }} Painting Mistery. Todos los derechos reservados.</p>
-            <p>Hecho con ❤️ en Melgar, Tolima — Colombia 🇨🇴</p>
+            <p>Pintura, restauración y diseño de motos — taller en Melgar, Tolima</p>
         </div>
     </div>
 </footer>

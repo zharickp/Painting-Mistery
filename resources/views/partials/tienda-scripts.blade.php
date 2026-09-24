@@ -173,8 +173,17 @@ function addToCartDesdeCard(card, btn) {
 function abrirCarrito() {
     renderCarrito();
     document.getElementById('carritoModal').classList.remove('hidden');
+    // rAF para que la transición de entrada se anime (si quitamos "hidden" y
+    // trasladamos en el mismo tick, el navegador no dibuja el estado inicial)
+    requestAnimationFrame(() => {
+        document.getElementById('carritoPanel').classList.remove('translate-x-full');
+    });
 }
-function cerrarCarrito() { document.getElementById('carritoModal').classList.add('hidden'); }
+function cerrarCarrito() {
+    const panel = document.getElementById('carritoPanel');
+    panel.classList.add('translate-x-full');
+    setTimeout(() => document.getElementById('carritoModal').classList.add('hidden'), 300);
+}
 
 function renderCarrito() {
     const cart = getCarrito();
@@ -212,6 +221,13 @@ function renderCarrito() {
 
     footer.classList.remove('hidden');
     document.getElementById('carritoTotal').textContent = fmt(total);
+
+    // Mensaje de WhatsApp (alternativa a la compra en línea, siempre disponible)
+    let msg = 'Hola! Quiero hacer este pedido en Painting Mistery:\n\n';
+    cart.forEach(i => { msg += `• ${i.nombre} x${i.qty} = ${fmt(i.precio * i.qty)}\n`; });
+    msg += `\nTotal: ${fmt(total)}`;
+    const waBtn = document.getElementById('carritoWaBtn');
+    if (waBtn) waBtn.href = 'https://wa.me/573144557602?text=' + encodeURIComponent(msg);
 }
 
 function cambiarQtyCarrito(id, delta) {
