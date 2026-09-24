@@ -72,9 +72,12 @@
                         </div>
                     </td>
                     <td class="px-5 py-4 text-center">
-                        <span class="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full font-semibold">
+                        <a href="{{ route('admin.cursos.inscripciones', $c) }}" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full font-semibold hover:bg-indigo-100 transition">
                             {{ $c->inscripciones_count }}
-                        </span>
+                            @if($c->pendientes_count > 0)
+                                <span class="h-4 w-4 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center">{{ $c->pendientes_count }}</span>
+                            @endif
+                        </a>
                     </td>
                     <td class="px-5 py-4 text-right font-bold text-red-600">
                         ${{ number_format($c->costo, 0, ',', '.') }}

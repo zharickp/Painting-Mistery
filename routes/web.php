@@ -17,6 +17,8 @@ use App\Http\Controllers\Admin\TipoIvaController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\CursoController;
+use App\Http\Controllers\Admin\InscripcionController as AdminInscripcionController;
+use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\Admin\InventarioController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Admin\AuditoriaController;
@@ -29,6 +31,8 @@ use App\Http\Controllers\ResenaController;
 use App\Http\Controllers\WompiWebhookController;
 // ─── Landing ──────────────────────────────────────────────────────────────────
 Route::get('/', [LandingController::class, 'index'])->name('inicio');
+Route::get('/nosotros', [LandingController::class, 'nosotros'])->name('nosotros');
+Route::get('/academia', [LandingController::class, 'academia'])->name('academia');
 
 // ─── Tienda pública ───────────────────────────────────────────────────────────
 Route::get('/tienda', [TiendaController::class, 'index'])->name('tienda.index');
@@ -128,6 +132,7 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::put('cursos/{curso}',           [CursoController::class, 'update'])->name('cursos.update');
         Route::patch('cursos/{curso}',         [CursoController::class, 'update']);
         Route::post('cursos/{curso}/toggle',   [CursoController::class, 'toggleEstado'])->name('cursos.toggle');
+        Route::put('inscripciones/{inscripcion}', [AdminInscripcionController::class, 'update'])->name('inscripciones.update');
 
         Route::post('/inventario/{inventario}/actualizar', [InventarioController::class, 'actualizar'])->name('inventario.actualizar');
     });
@@ -136,6 +141,7 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
     Route::prefix('admin')->name('admin.')->middleware('role:Administrador,Asesor,Gerente')->group(function () {
         Route::get('productos',              [ProductoController::class, 'index'])->name('productos.index');
         Route::get('cursos',                 [CursoController::class, 'index'])->name('cursos.index');
+        Route::get('cursos/{curso}/inscripciones', [AdminInscripcionController::class, 'index'])->name('cursos.inscripciones');
         Route::get('/inventario',            [InventarioController::class, 'index'])->name('inventario');
         Route::get('/ventas',                fn() => view('admin.ventas'))->name('ventas');
         Route::get('/reportes',              fn() => view('admin.reportes'))->name('reportes');
@@ -155,6 +161,9 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::post('/vaciar',               [CarritoController::class, 'vaciar'])->name('vaciar');
         Route::post('/sincronizar',          [CarritoController::class, 'sincronizar'])->name('sincronizar');
     });
+
+    Route::post('/cursos/{curso}/inscribirse', [InscripcionController::class, 'store'])
+        ->middleware('role:Cliente')->name('cursos.inscribirse');
 
     // ── Checkout con Wompi (solo Clientes) ────────────────────────────────────
     Route::middleware('role:Cliente')->group(function () {

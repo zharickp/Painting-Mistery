@@ -1,7 +1,7 @@
 @php
-    $enlaceProductos = request()->routeIs('inicio') ? '#productos' : route('tienda.index');
-    $enlaceCursos    = request()->routeIs('inicio') ? '#cursos' : route('inicio') . '#cursos';
-    $enlaceNosotros  = request()->routeIs('inicio') ? '#sobre-nosotros' : route('inicio') . '#sobre-nosotros';
+    $enlaceProductos = route('tienda.index');
+    $enlaceCursos    = route('academia');
+    $enlaceNosotros  = route('nosotros');
     $enlaceContacto  = request()->routeIs('inicio') ? '#contacto' : route('inicio') . '#contacto';
 @endphp
 {{-- NAVBAR --}}
@@ -22,8 +22,8 @@
             <div class="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
                 <a href="{{ route('inicio') }}" class="hover:text-red-600 transition {{ request()->routeIs('inicio') ? 'text-red-600' : '' }}">Inicio</a>
                 <a href="{{ $enlaceProductos }}" class="hover:text-red-600 transition {{ request()->routeIs('tienda.index') ? 'text-red-600' : '' }}">Tienda</a>
-                <a href="{{ $enlaceCursos }}" class="hover:text-red-600 transition">Academia</a>
-                <a href="{{ $enlaceNosotros }}" class="hover:text-red-600 transition">Nosotros</a>
+                <a href="{{ $enlaceCursos }}" class="hover:text-red-600 transition {{ request()->routeIs('academia') ? 'text-red-600' : '' }}">Academia</a>
+                <a href="{{ $enlaceNosotros }}" class="hover:text-red-600 transition {{ request()->routeIs('nosotros') ? 'text-red-600' : '' }}">Nosotros</a>
                 <a href="{{ $enlaceContacto }}" class="hover:text-red-600 transition">Contacto</a>
             </div>
 
