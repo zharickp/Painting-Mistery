@@ -40,6 +40,17 @@ class Curso extends Model
         return $this->hasMany(DetalleVentaCurso::class);
     }
 
+    public function fechas()
+    {
+        return $this->hasMany(CursoFecha::class)->orderBy('fecha');
+    }
+
+    /** Próximas fechas publicadas (hoy en adelante). */
+    public function fechasDisponibles()
+    {
+        return $this->fechas()->whereDate('fecha', '>=', today());
+    }
+
     public function info()
     {
         return $this->hasOne(CursoInfo::class);

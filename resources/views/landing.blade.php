@@ -307,7 +307,7 @@
                 </div>
             @endif
             <div class="text-center mt-10">
-                <a href="{{ route('academia') }}" class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-xl text-sm transition">Ver academia e inscribirme →</a>
+                <a href="{{ route('academia') }}" class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-xl text-sm transition">Ver cursos y fechas →</a>
             </div>
         </div>
     </section>

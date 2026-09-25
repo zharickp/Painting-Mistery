@@ -51,7 +51,7 @@
                 <p class="text-gray-600 leading-relaxed mb-6">
                     Hoy creamos diseños exclusivos y personalizados, cuidando cada paso del proceso para entregar
                     trabajos en perfecto estado y con acabados de nivel profesional. Y porque creemos en el oficio,
-                    también lo enseñamos: nuestra academia forma a quienes quieren aprender desde cero.
+                    también lo enseñamos: nuestros cursos forman a quienes quieren aprender desde cero.
                 </p>
                 <div class="grid grid-cols-3 gap-3">
                     <div class="rounded-xl bg-gray-50 border border-gray-100 p-4 text-center">
@@ -133,7 +133,7 @@
                         <h3 class="text-2xl font-bold mb-3">Visión</h3>
                         <p class="text-gray-300 leading-relaxed">
                             Ser el taller de referencia en pintura y personalización de motocicletas en el Tolima,
-                            y hacer crecer nuestra academia para formar más estudiantes cada año.
+                            y hacer crecer nuestros cursos para formar más estudiantes cada año.
                         </p>
                     </div>
                 </div>
@@ -152,7 +152,7 @@
                 @foreach([
                     ['Diseño personalizado','Tu idea hecha realidad en pintura, adaptada a tu moto.','M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'],
                     ['Accesorios y repuestos','Piezas de calidad para distintas marcas y modelos.','M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10'],
-                    ['Academia','Cursos prácticos para aprender el oficio desde cero.','M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'],
+                    ['Cursos','Cursos prácticos para aprender el oficio desde cero.','M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'],
                     ['Hecho con amor','Cada trabajo refleja nuestra pasión por las motos.','M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'],
                 ] as $v)
                 <div class="group rounded-2xl border border-gray-100 p-7 hover:border-red-200 hover:-translate-y-1 hover:shadow-lg transition">

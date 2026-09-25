@@ -113,4 +113,30 @@
     </form>
 </div>
 
+<div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 max-w-2xl mt-6">
+    <h2 class="text-base font-bold text-gray-800">Fechas disponibles</h2>
+    <p class="text-xs text-gray-400 mt-0.5 mb-4">Aproximadamente dos cursos por mes. El cliente solo puede elegir entre las fechas publicadas aquí.</p>
+
+    <ul class="divide-y divide-gray-50 mb-4">
+        @forelse($curso->fechas as $f)
+            <li class="flex items-center justify-between py-2 text-sm">
+                <span class="{{ $f->fecha->isPast() && ! $f->fecha->isToday() ? 'text-gray-400 line-through' : 'text-gray-700' }}">{{ $f->etiqueta() }}</span>
+                <form method="POST" action="{{ route('admin.cursos.fechas.destroy', $f) }}" onsubmit="return confirm('¿Retirar esta fecha?')">
+                    @csrf @method('DELETE')
+                    <button class="text-xs text-red-600 hover:text-red-700 font-medium">Quitar</button>
+                </form>
+            </li>
+        @empty
+            <li class="py-2 text-sm text-gray-400">Aún no hay fechas publicadas: el curso se muestra sin fechas y los clientes no pueden solicitar cupo.</li>
+        @endforelse
+    </ul>
+
+    <form method="POST" action="{{ route('admin.cursos.fechas.store', $curso) }}" class="flex flex-wrap items-center gap-2">
+        @csrf
+        <input type="date" name="fecha" min="{{ now()->toDateString() }}" required
+               class="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400">
+        <button class="bg-gray-900 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Publicar fecha</button>
+    </form>
+</div>
+
 @endsection

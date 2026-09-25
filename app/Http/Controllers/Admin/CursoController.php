@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Curso;
+use App\Models\CursoFecha;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -63,7 +64,7 @@ class CursoController extends Controller
 
     public function edit(Curso $curso): View
     {
-        $curso->load('info');
+        $curso->load(['info', 'fechas']);
 
         return view('admin.cursos.edit', compact('curso'));
     }
@@ -111,5 +112,21 @@ class CursoController extends Controller
 
         return redirect()->route('admin.cursos.index')
             ->with('success', $mensaje);
+    }
+
+    public function agregarFecha(Request $request, Curso $curso): RedirectResponse
+    {
+        $request->validate(['fecha' => ['required', 'date', 'after_or_equal:today']]);
+
+        $curso->fechas()->firstOrCreate(['fecha' => $request->fecha]);
+
+        return back()->with('success', 'Fecha publicada para este curso.');
+    }
+
+    public function quitarFecha(CursoFecha $fecha): RedirectResponse
+    {
+        $fecha->delete();
+
+        return back()->with('success', 'Fecha retirada.');
     }
 }

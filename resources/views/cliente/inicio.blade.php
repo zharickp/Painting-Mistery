@@ -174,7 +174,7 @@
                 </a>
                 <a href="{{ route('academia') }}"
                    class="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition group">
-                    <span class="text-sm font-semibold text-slate-700 group-hover:text-red-600">Explorar la academia</span>
+                    <span class="text-sm font-semibold text-slate-700 group-hover:text-red-600">Explorar los cursos</span>
                     <svg class="h-4 w-4 text-slate-300 group-hover:text-red-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                 </a>
             </div>
@@ -214,7 +214,7 @@
     <div class="mt-10">
         <div class="flex items-end justify-between mb-4">
             <h2 class="text-lg font-bold text-slate-800">Cursos para ti</h2>
-            <a href="{{ route('academia') }}" class="text-xs font-semibold text-red-600 hover:text-red-700">Ver academia →</a>
+            <a href="{{ route('academia') }}" class="text-xs font-semibold text-red-600 hover:text-red-700">Ver cursos →</a>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             @foreach($cursosDisponibles as $c)

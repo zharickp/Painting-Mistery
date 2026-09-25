@@ -22,7 +22,7 @@
             <div class="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
                 <a href="{{ route('inicio') }}" class="hover:text-red-600 transition {{ request()->routeIs('inicio') ? 'text-red-600' : '' }}">Inicio</a>
                 <a href="{{ $enlaceProductos }}" class="hover:text-red-600 transition {{ request()->routeIs('tienda.index') ? 'text-red-600' : '' }}">Tienda</a>
-                <a href="{{ $enlaceCursos }}" class="hover:text-red-600 transition {{ request()->routeIs('academia') ? 'text-red-600' : '' }}">Academia</a>
+                <a href="{{ $enlaceCursos }}" class="hover:text-red-600 transition {{ request()->routeIs('academia') ? 'text-red-600' : '' }}">Cursos</a>
                 <a href="{{ $enlaceNosotros }}" class="hover:text-red-600 transition {{ request()->routeIs('nosotros') ? 'text-red-600' : '' }}">Nosotros</a>
                 <a href="{{ $enlaceContacto }}" class="hover:text-red-600 transition">Contacto</a>
             </div>
@@ -115,7 +115,7 @@
         <div id="mobileMenu" class="hidden md:hidden pb-3 space-y-1 text-sm font-medium text-gray-600">
             <a href="{{ route('inicio') }}" class="block px-2 py-2 hover:text-red-600">Inicio</a>
             <a href="{{ $enlaceProductos }}" class="block px-2 py-2 hover:text-red-600">Tienda</a>
-            <a href="{{ $enlaceCursos }}" class="block px-2 py-2 hover:text-red-600">Academia</a>
+            <a href="{{ $enlaceCursos }}" class="block px-2 py-2 hover:text-red-600">Cursos</a>
             <a href="{{ $enlaceNosotros }}" class="block px-2 py-2 hover:text-red-600">Nosotros</a>
             <a href="{{ $enlaceContacto }}" class="block px-2 py-2 hover:text-red-600">Contacto</a>
             @guest
