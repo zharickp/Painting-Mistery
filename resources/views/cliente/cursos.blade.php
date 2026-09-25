@@ -28,10 +28,10 @@
                     <h3 class="font-bold text-slate-800">{{ $ins->curso->nombre ?? 'Curso' }}</h3>
                     <span class="px-2 py-0.5 text-[11px] rounded-full font-semibold shrink-0 {{ $ins->estadoColor() }}">{{ $ins->estadoEtiqueta() }}</span>
                 </div>
-                <p class="text-xs text-slate-400 mb-3">Solicitado el {{ $ins->created_at->format('d/m/Y') }}</p>
+                <p class="text-xs text-slate-400 mb-3">Reserva {{ $ins->codigoReserva() }} · {{ $ins->created_at->format('d/m/Y') }}</p>
                 @if(in_array($ins->estado, ['confirmada', 'completada'], true))
                     <div class="rounded-xl bg-blue-50 border border-blue-100 p-3 text-xs text-slate-700 space-y-1">
-                        @if($ins->agenda?->fecha_confirmada)<p><strong>Fecha:</strong> {{ $ins->agenda->fecha_confirmada->format('d/m/Y') }}</p>@endif
+                        @if($ins->fechaTexto())<p><strong>Fecha:</strong> {{ $ins->fechaTexto() }}</p>@endif
                         <p><strong>Lugar:</strong> {{ $ins->curso->info?->ubicacion ?: 'Taller Painting Mistery, Melgar – Tolima' }}</p>
                         @if($ins->curso->info?->duracion)<p><strong>Duración:</strong> {{ $ins->curso->info->duracion }}</p>@endif
                         @if($ins->curso->info?->requisitos)<p><strong>Debes traer:</strong> {{ $ins->curso->info->requisitos }}</p>@endif
@@ -39,9 +39,12 @@
                         @if($ins->curso->info?->incluye_certificado ?? true)<p class="text-green-700">Recibirás certificado al finalizar.</p>@endif
                     </div>
                 @elseif($ins->estado === 'pendiente')
-                    <p class="text-xs text-amber-700 bg-amber-50 rounded-xl p-3">Reservaste{{ $ins->agenda?->fecha_preferida ? ' el ' . $ins->agenda->fecha_preferida->format('d/m/Y') : '' }}. Pronto nos comunicamos contigo para confirmar la fecha y coordinar hospedaje y detalles.</p>
+                    <p class="text-xs text-amber-700 bg-amber-50 rounded-xl p-3">Reservaste{{ $ins->fechaTexto() ? ': ' . $ins->fechaTexto() : '' }}. Pronto nos comunicamos contigo para el abono, la confirmación y el hospedaje.</p>
                 @else
                     <p class="text-xs text-slate-400">Esta inscripción fue cancelada.</p>
+                @endif
+                @if($ins->estado !== 'cancelada')
+                    <a href="{{ route('mi-cuenta.cursos.comprobante', $ins->id) }}" class="inline-block mt-3 text-xs font-bold text-red-600 hover:text-red-700">Ver comprobante de reserva →</a>
                 @endif
             </div>
             @endforeach

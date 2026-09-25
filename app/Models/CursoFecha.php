@@ -17,8 +17,31 @@ class CursoFecha extends Model
         return $this->belongsTo(Curso::class);
     }
 
-    public function etiqueta(): string
+    public function fin(int $dias = 1)
     {
-        return ucfirst($this->fecha->locale('es')->isoFormat('dddd D [de] MMMM'));
+        return $this->fecha->copy()->addDays(max(1, $dias) - 1);
+    }
+
+    /** "Jueves 15 de octubre" o, si dura varios días, "Jueves 15 al domingo 18 de octubre". */
+    public static function etiquetaDe(\Carbon\CarbonInterface $fecha, int $dias = 1): string
+    {
+        $ini = $fecha->copy()->locale('es');
+
+        if ($dias <= 1) {
+            return ucfirst($ini->isoFormat('dddd D [de] MMMM'));
+        }
+
+        $fin = $ini->copy()->addDays($dias - 1);
+
+        if ($ini->month === $fin->month) {
+            return ucfirst($ini->isoFormat('dddd D')) . ' al ' . $fin->isoFormat('dddd D [de] MMMM');
+        }
+
+        return ucfirst($ini->isoFormat('dddd D [de] MMMM')) . ' al ' . $fin->isoFormat('dddd D [de] MMMM');
+    }
+
+    public function etiqueta(int $dias = 1): string
+    {
+        return self::etiquetaDe($this->fecha, $dias);
     }
 }

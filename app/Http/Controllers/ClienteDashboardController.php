@@ -141,4 +141,16 @@ class ClienteDashboardController extends Controller
 
         return back()->with('success', 'Tu pedido fue cancelado. Se conserva en tu historial.');
     }
+
+    public function comprobanteCurso(int $inscripcionId): View
+    {
+        $inscripcion = Inscripcion::with(['curso.info', 'agenda', 'usuario'])
+            ->where('id', $inscripcionId)
+            ->where('usuario_id', auth()->id())
+            ->firstOrFail();
+
+        abort_if($inscripcion->estado === 'cancelada', 404);
+
+        return view('cliente.comprobante-curso', ['ins' => $inscripcion]);
+    }
 }

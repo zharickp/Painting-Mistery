@@ -25,9 +25,9 @@
         <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
             <div>
                 <p class="font-semibold text-gray-800">{{ $ins->usuario->primer_nombre ?? '' }} {{ $ins->usuario->primer_apellido ?? '' }}</p>
-                <p class="text-xs text-gray-400">{{ $ins->usuario->email ?? '' }} · solicitado {{ $ins->created_at->format('d/m/Y') }}</p>
+                <p class="text-xs text-gray-400">{{ $ins->usuario->email ?? '' }} · solicitado {{ $ins->created_at->format('d/m/Y') }} · {{ $ins->codigoReserva() }}</p>
                 @if($ag?->fecha_preferida)
-                    <p class="text-xs text-gray-500 mt-1">Fecha elegida: <strong>{{ $ag->fecha_preferida->format('d/m/Y') }}</strong></p>
+                    <p class="text-xs text-gray-500 mt-1">Fecha elegida: <strong>{{ \App\Models\CursoFecha::etiquetaDe($ag->fecha_preferida, $curso->dias()) }}</strong></p>
                 @endif
             </div>
             <span class="px-2.5 py-1 text-xs rounded-full font-semibold {{ $ins->estadoColor() }}">{{ $ins->estadoEtiqueta() }}</span>

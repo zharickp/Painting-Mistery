@@ -52,6 +52,6 @@ class InscripcionController extends Controller
         ]);
         $inscripcion->cambiarEstado('pendiente');
 
-        return back()->with('success', "¡Listo! Reservaste tu cupo para el {$fecha->etiqueta()}. Nos comunicaremos contigo para coordinar hospedaje y los detalles del curso.");
+        return redirect()->route('mi-cuenta.cursos.comprobante', $inscripcion->id)->with('success', "¡Listo! Reservaste tu cupo: {$fecha->etiqueta($curso->dias())}. Ahora escríbenos por WhatsApp para el abono, el hospedaje y los detalles.");
     }
 }

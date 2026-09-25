@@ -37,6 +37,19 @@ class Inscripcion extends Model
         return $this->hasOne(InscripcionAgenda::class);
     }
 
+    public function codigoReserva(): string
+    {
+        return 'RES-' . str_pad((string) $this->id, 5, '0', STR_PAD_LEFT);
+    }
+
+    /** Fecha (o rango de días) vigente de la reserva: la confirmada por el taller o, si no, la elegida por el cliente. */
+    public function fechaTexto(): ?string
+    {
+        $fecha = $this->agenda?->fecha_confirmada ?? $this->agenda?->fecha_preferida;
+
+        return $fecha ? CursoFecha::etiquetaDe($fecha, $this->curso?->dias() ?? 1) : null;
+    }
+
     public function getEstadoAttribute($valor): string
     {
         if ($valor === 'cancelado') {

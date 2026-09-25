@@ -14,6 +14,7 @@ class CursoInfo extends Model
         'duracion',
         'requisitos',
         'incluye_certificado',
+        'dias',
     ];
 
     protected $casts = [
