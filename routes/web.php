@@ -35,6 +35,7 @@ use App\Http\Controllers\WompiWebhookController;
 // ─── Landing ──────────────────────────────────────────────────────────────────
 Route::get('/', [LandingController::class, 'index'])->name('inicio');
 Route::get('/nosotros', [LandingController::class, 'nosotros'])->name('nosotros');
+Route::get('/contacto', [LandingController::class, 'contacto'])->name('contacto');
 Route::get('/cursos', [LandingController::class, 'academia'])->name('academia');
 Route::redirect('/academia', '/cursos', 301);
 Route::get('/cursos/{curso}/inscribirse', fn (int $curso) => redirect(route('academia') . '#curso-' . $curso))
