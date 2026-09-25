@@ -176,6 +176,8 @@ class CheckoutController extends Controller
             return back()->with('error', 'No se pudo crear la orden. Intenta de nuevo.')->withInput();
         }
 
+        session(['pm_ultima_orden.' . auth()->id() => $venta->id]);
+
         AuditoriaService::registrar([
             'accion'            => 'creado',
             'modulo'            => 'Venta',
