@@ -51,7 +51,7 @@ class Curso extends Model
             return null;
         }
 
-        $ocupados = $this->inscripciones()->whereIn('estado', ['pendiente', 'confirmada', 'completada'])->count();
+        $ocupados = $this->inscripciones()->activas()->count();
 
         return max(0, $this->cupos - $ocupados);
     }

@@ -13,6 +13,7 @@ class InscripcionAgenda extends Model
         'fecha_preferida',
         'fecha_confirmada',
         'notas',
+        'estado_solicitud',
     ];
 
     protected $casts = [

@@ -39,7 +39,7 @@ class LandingController extends Controller
         $cursos = Curso::where('estado', true)->with('info')->orderBy('id')->get();
 
         $misInscripciones = auth()->check()
-            ? Inscripcion::where('usuario_id', auth()->id())->get()->keyBy('curso_id')
+            ? Inscripcion::with('agenda')->where('usuario_id', auth()->id())->get()->keyBy('curso_id')
             : collect();
 
         return view('academia', compact('cursos', 'misInscripciones'));

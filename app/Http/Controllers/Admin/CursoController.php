@@ -13,7 +13,7 @@ class CursoController extends Controller
     public function index(): View
     {
         $cursos = Curso::withCount('inscripciones')
-            ->withCount(['inscripciones as pendientes_count' => fn ($q) => $q->where('estado', 'pendiente')])
+            ->withCount(['inscripciones as pendientes_count' => fn ($q) => $q->whereHas('agenda', fn ($a) => $a->where('estado_solicitud', 'pendiente'))])
             ->orderByDesc('created_at')
             ->paginate(10);
 

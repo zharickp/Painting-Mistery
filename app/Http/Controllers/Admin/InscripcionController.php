@@ -15,7 +15,7 @@ class InscripcionController extends Controller
     {
         $inscripciones = $curso->inscripciones()
             ->with(['usuario', 'agenda'])
-            ->orderByRaw("CASE estado WHEN 'pendiente' THEN 0 WHEN 'confirmada' THEN 1 WHEN 'completada' THEN 2 ELSE 3 END")
+            ->orderByRaw("CASE (select a.estado_solicitud from inscripcion_agenda a where a.inscripcion_id = inscripcion.id) WHEN 'pendiente' THEN 0 WHEN 'confirmada' THEN 1 WHEN 'completada' THEN 2 ELSE 3 END")
             ->orderByDesc('created_at')
             ->paginate(15);
 
@@ -30,12 +30,8 @@ class InscripcionController extends Controller
             'notas'            => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $inscripcion->update(['estado' => $request->estado]);
-
-        $inscripcion->agenda()->updateOrCreate(
-            ['inscripcion_id' => $inscripcion->id],
-            ['fecha_confirmada' => $request->fecha_confirmada, 'notas' => $request->notas]
-        );
+        $inscripcion->agenda()->updateOrCreate([], ['fecha_confirmada' => $request->fecha_confirmada, 'notas' => $request->notas]);
+        $inscripcion->cambiarEstado($request->estado);
 
         return back()->with('success', 'Inscripción actualizada.');
     }
