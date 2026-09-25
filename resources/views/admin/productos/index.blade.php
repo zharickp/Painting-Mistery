@@ -7,10 +7,12 @@
         <h1 class="text-xl font-bold text-gray-800">Productos</h1>
         <p class="text-sm text-gray-400 mt-1">Catálogo de productos.</p>
     </div>
+    @if(auth()->user()->tieneRol('Administrador', 'Asesor'))
     <a href="{{ route('admin.productos.create') }}"
        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
         + Nuevo producto
     </a>
+    @endif
 </div>
 
 @if (session('success'))
@@ -54,6 +56,7 @@
                 </span>
             </div>
 
+            @if(auth()->user()->tieneRol('Administrador', 'Asesor'))
             <div class="flex gap-2">
                 <a href="{{ route('admin.productos.edit', $producto) }}"
                    class="flex-1 text-center px-2 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs rounded-md transition">
@@ -71,6 +74,9 @@
                     </button>
                 </form>
             </div>
+            @else
+            <p class="text-xs text-gray-400">Solo lectura</p>
+            @endif
         </div>
     </div>
     @empty
