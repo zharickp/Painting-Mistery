@@ -118,9 +118,7 @@
                                 <p class="text-xs text-slate-500 mt-0.5">{{ $v->fecha?->format('d/m/Y') }}</p>
                             </div>
                             <div class="flex items-center gap-3">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border {{ $v->envio?->paymentStatusColor() ?? 'bg-slate-100 text-slate-600 border-slate-200' }}">
-                                    {{ $v->envio?->paymentStatusEtiqueta() ?? '—' }}
-                                </span>
+                                @include('partials.estado-orden', ['venta' => $v])
                                 <p class="font-bold text-slate-800 text-sm w-24 text-right">${{ number_format($v->total, 0, ',', '.') }}</p>
                                 <svg class="h-4 w-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>

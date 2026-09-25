@@ -85,7 +85,7 @@
     if (count($spark) === 0) $spark = [0,0,0,0,0,0,0];
 
     // Ventas de ayer para delta
-    $ventasAyer = \App\Models\Venta::whereDate('fecha', now()->subDay())->sum('total');
+    $ventasAyer = \App\Models\Venta::pagadas()->whereDate('fecha', now()->subDay())->sum('total');
     $ventasHoy  = $stats['ventas_hoy'] ?? 0;
     $delta      = $ventasAyer > 0 ? round((($ventasHoy - $ventasAyer) / $ventasAyer) * 100) : 0;
 @endphp

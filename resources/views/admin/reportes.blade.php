@@ -5,18 +5,18 @@
     use App\Models\Venta;
     use App\Models\DetalleVentaProducto;
 
-    $hoy    = Venta::whereDate('fecha', today())->sum('total');
-    $semana = Venta::whereBetween('fecha', [now()->startOfWeek(), now()->endOfWeek()])->sum('total');
-    $mes    = Venta::whereYear('fecha', now()->year)->whereMonth('fecha', now()->month)->sum('total');
-    $anio   = Venta::whereYear('fecha', now()->year)->sum('total');
-    $total  = Venta::sum('total');
+    $hoy    = Venta::pagadas()->whereDate('fecha', today())->sum('total');
+    $semana = Venta::pagadas()->whereBetween('fecha', [now()->startOfWeek(), now()->endOfWeek()])->sum('total');
+    $mes    = Venta::pagadas()->whereYear('fecha', now()->year)->whereMonth('fecha', now()->month)->sum('total');
+    $anio   = Venta::pagadas()->whereYear('fecha', now()->year)->sum('total');
+    $total  = Venta::pagadas()->sum('total');
 
-    $ordenesHoy    = Venta::whereDate('fecha', today())->count();
-    $ordenesMes    = Venta::whereYear('fecha', now()->year)->whereMonth('fecha', now()->month)->count();
+    $ordenesHoy    = Venta::pagadas()->whereDate('fecha', today())->count();
+    $ordenesMes    = Venta::pagadas()->whereYear('fecha', now()->year)->whereMonth('fecha', now()->month)->count();
     $ticketPromedio = $ordenesMes > 0 ? round($mes / $ordenesMes, 0) : 0;
 
     // Ventas por mes del año actual (para gráfica de barras)
-    $porMes = Venta::selectRaw("EXTRACT(MONTH FROM fecha)::int as num, SUM(total) as total, COUNT(*) as ordenes")
+    $porMes = Venta::pagadas()->selectRaw("EXTRACT(MONTH FROM fecha)::int as num, SUM(total) as total, COUNT(*) as ordenes")
         ->whereRaw("EXTRACT(YEAR FROM fecha) = ?", [now()->year])
         ->groupByRaw("EXTRACT(MONTH FROM fecha)::int")
         ->orderByRaw("EXTRACT(MONTH FROM fecha)::int")
@@ -40,7 +40,7 @@
     $totalV     = $pagadas + $pendientes + $canceladas;
 
     // Top productos vendidos
-    $topProductos = DetalleVentaProducto::selectRaw('producto_id, SUM(cantidad) as unidades, SUM(subtotal) as ingresos')
+    $topProductos = DetalleVentaProducto::whereHas('venta', fn ($q) => $q->where('estado', 'pagada'))->selectRaw('producto_id, SUM(cantidad) as unidades, SUM(subtotal) as ingresos')
         ->with('producto:id,nombre')
         ->groupBy('producto_id')
         ->orderByDesc('unidades')

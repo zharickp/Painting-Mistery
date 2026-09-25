@@ -201,12 +201,12 @@ class VentaController extends Controller
     public function destroy($id)
     {
         try {
-            $venta = Venta::findOrFail($id);
-            $venta->delete();
+            Venta::findOrFail($id);
 
+            // Las ventas no se eliminan: se conservan para mantener la trazabilidad.
             return response()->json([
-                'message' => 'Eliminada correctamente'
-            ], 200);
+                'message' => 'Las ventas no se eliminan. Cancele la orden desde el panel de ventas para conservar el historial.'
+            ], 409);
 
         } catch (ModelNotFoundException $e) {
             return response()->json([

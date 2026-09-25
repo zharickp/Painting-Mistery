@@ -43,8 +43,8 @@
                             <th class="px-6 py-3 text-left font-semibold">Orden</th>
                             <th class="px-6 py-3 text-left font-semibold">Fecha</th>
                             <th class="px-6 py-3 text-right font-semibold">Total</th>
-                            <th class="px-6 py-3 text-center font-semibold">Pago</th>
                             <th class="px-6 py-3 text-center font-semibold">Estado</th>
+                            <th class="px-6 py-3 text-center font-semibold">Envío</th>
                             <th class="px-6 py-3"></th>
                         </tr>
                     </thead>
@@ -58,15 +58,11 @@
                                 <td class="px-6 py-3 text-right font-bold text-slate-800">
                                     ${{ number_format($v->total, 0, ',', '.') }}
                                 </td>
+                                <td class="px-6 py-3 text-center">@include('partials.estado-orden', ['venta' => $v])</td>
                                 <td class="px-6 py-3 text-center">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border {{ $v->envio?->paymentStatusColor() ?? 'bg-slate-100 text-slate-600 border-slate-200' }}">
-                                        {{ $v->envio?->paymentStatusEtiqueta() ?? '—' }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-3 text-center">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border {{ $v->envio?->estadoPedidoColor() ?? 'bg-slate-100 text-slate-600 border-slate-200' }}">
-                                        {{ $v->envio?->estadoPedidoEtiqueta() ?? ucfirst($v->estado) }}
-                                    </span>
+                                    @if($v->estado === 'pagada' && $v->envio)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border {{ $v->envio->estadoPedidoColor() }}">{{ $v->envio->estadoPedidoEtiqueta() }}</span>
+                                    @else <span class="text-slate-300">—</span> @endif
                                 </td>
                                 <td class="px-6 py-3 text-right">
                                     <a href="{{ route('mi-cuenta.pedido', $v->id) }}" class="text-red-600 hover:text-red-700 text-xs font-semibold">

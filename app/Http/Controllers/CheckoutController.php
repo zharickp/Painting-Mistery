@@ -275,21 +275,13 @@ class CheckoutController extends Controller
 
         $resultado = $request->input('resultado', 'aprobado');
 
-        DB::transaction(function () use ($envio, $resultado) {
-            if ($resultado === 'aprobado') {
-                $envio->update([
-                    'payment_status'       => 'APPROVED',
-                    'estado_pedido'        => 'confirmado',
-                    'fecha_pago'           => now(),
-                    'wompi_payment_method' => 'DEMO',
-                    'wompi_transaction_id' => 'DEMO-' . strtoupper(bin2hex(random_bytes(4))),
-                ]);
-                $envio->venta->update(['estado' => 'pagada']);
-            } else {
-                $envio->update(['payment_status' => 'DECLINED']);
-                $envio->venta->update(['estado' => 'cancelada']);
-            }
-        });
+        $svc = app(\App\Services\OrdenEstadoService::class);
+
+        if ($resultado === 'aprobado') {
+            $svc->confirmarPago($envio, null, 'demo', 'DEMO', 'DEMO-' . strtoupper(bin2hex(random_bytes(4))));
+        } else {
+            $svc->cancelar($envio, null, 'Pago rechazado en modo demo', 'demo', 'DECLINED');
+        }
 
         return redirect()->route('checkout.resultado', $envio->numero_orden);
     }

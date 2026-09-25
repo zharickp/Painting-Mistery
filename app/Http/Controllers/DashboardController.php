@@ -53,11 +53,11 @@ class DashboardController extends Controller
                 'usuarios'        => Usuario::count(),
                 'inventario'      => (int) Inventario::sum('stock_actual'),
                 'inventario_bajo' => Inventario::whereColumn('stock_actual', '<=', 'stock_minimo')->count(),
-                'ventas_hoy'      => Venta::whereDate('fecha', today())->sum('total'),
-                'ventas_mes'      => Venta::whereYear('fecha', now()->year)
+                'ventas_hoy'      => Venta::pagadas()->whereDate('fecha', today())->sum('total'),
+                'ventas_mes'      => Venta::pagadas()->whereYear('fecha', now()->year)
                                       ->whereMonth('fecha', now()->month)->sum('total'),
-                'ventas_anio'     => Venta::whereYear('fecha', now()->year)->sum('total'),
-                'ordenes_mes'     => Venta::whereYear('fecha', now()->year)
+                'ventas_anio'     => Venta::pagadas()->whereYear('fecha', now()->year)->sum('total'),
+                'ordenes_mes'     => Venta::pagadas()->whereYear('fecha', now()->year)
                                       ->whereMonth('fecha', now()->month)->count(),
             ];
         }
@@ -69,9 +69,9 @@ class DashboardController extends Controller
                 'categorias'      => CategoriaProducto::where('estado', true)->count(),
                 'inventario'      => (int) Inventario::sum('stock_actual'),
                 'inventario_bajo' => Inventario::whereColumn('stock_actual', '<=', 'stock_minimo')->count(),
-                'ventas_mes'      => Venta::whereYear('fecha', now()->year)
+                'ventas_mes'      => Venta::pagadas()->whereYear('fecha', now()->year)
                                       ->whereMonth('fecha', now()->month)->sum('total'),
-                'ordenes_mes'     => Venta::whereYear('fecha', now()->year)
+                'ordenes_mes'     => Venta::pagadas()->whereYear('fecha', now()->year)
                                       ->whereMonth('fecha', now()->month)->count(),
             ];
         }
@@ -82,10 +82,10 @@ class DashboardController extends Controller
                 'cursos'          => Curso::where('estado', true)->count(),
                 'inventario'      => (int) Inventario::sum('stock_actual'),
                 'inventario_bajo' => Inventario::whereColumn('stock_actual', '<=', 'stock_minimo')->count(),
-                'ventas_mes'      => Venta::whereYear('fecha', now()->year)
+                'ventas_mes'      => Venta::pagadas()->whereYear('fecha', now()->year)
                                       ->whereMonth('fecha', now()->month)->sum('total'),
-                'ventas_anio'     => Venta::whereYear('fecha', now()->year)->sum('total'),
-                'ordenes_mes'     => Venta::whereYear('fecha', now()->year)
+                'ventas_anio'     => Venta::pagadas()->whereYear('fecha', now()->year)->sum('total'),
+                'ordenes_mes'     => Venta::pagadas()->whereYear('fecha', now()->year)
                                       ->whereMonth('fecha', now()->month)->count(),
             ];
         }
@@ -94,13 +94,13 @@ class DashboardController extends Controller
         return [
             'mis_pedidos'   => $usuario->ventas()->count(),
             'mis_cursos'    => $usuario->inscripciones()->count(),
-            'total_gastado' => $usuario->ventas()->sum('total'),
+            'total_gastado' => $usuario->ventas()->pagadas()->sum('total'),
         ];
     }
 
     private function ventasMensuales(): array
     {
-        $datos = Venta::selectRaw("EXTRACT(MONTH FROM fecha)::int AS mes, SUM(total) AS total")
+        $datos = Venta::pagadas()->selectRaw("EXTRACT(MONTH FROM fecha)::int AS mes, SUM(total) AS total")
             ->whereRaw("EXTRACT(YEAR FROM fecha) = ?", [now()->year])
             ->groupByRaw("EXTRACT(MONTH FROM fecha)")
             ->orderByRaw("EXTRACT(MONTH FROM fecha)")
