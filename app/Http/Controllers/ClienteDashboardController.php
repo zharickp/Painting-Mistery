@@ -42,7 +42,7 @@ class ClienteDashboardController extends Controller
         ];
 
         $inscripciones = Inscripcion::with(['curso.info', 'agenda'])
-            ->where('usuario_id', $userId)->whereIn('estado', ['pendiente', 'confirmada', 'completada'])->latest()->get();
+            ->where('usuario_id', $userId)->activas()->latest()->get();
         $proximoCurso = $inscripciones->where('estado', 'confirmada')
             ->filter(fn ($i) => $i->agenda?->fecha_confirmada && $i->agenda->fecha_confirmada->gte(today()))
             ->sortBy(fn ($i) => $i->agenda->fecha_confirmada)->first();

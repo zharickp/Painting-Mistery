@@ -8,6 +8,10 @@ class Inscripcion extends Model
 {
     public const ESTADOS = ['pendiente', 'confirmada', 'completada', 'cancelada'];
 
+    // La columna `estado` de la BD solo admite 'inscrito' | 'cancelado' (CHECK). El estado
+    // detallado vive en inscripcion_agenda.estado_solicitud y se expone como $inscripcion->estado.
+
+
     protected $table = 'inscripcion';
 
     protected $fillable = [
@@ -31,6 +35,28 @@ class Inscripcion extends Model
     public function agenda()
     {
         return $this->hasOne(InscripcionAgenda::class);
+    }
+
+    public function getEstadoAttribute($valor): string
+    {
+        if ($valor === 'cancelado') {
+            return 'cancelada';
+        }
+
+        return $this->agenda?->estado_solicitud ?? 'pendiente';
+    }
+
+    public function cambiarEstado(string $estado): void
+    {
+        $this->forceFill(['estado' => $estado === 'cancelada' ? 'cancelado' : 'inscrito'])->save();
+
+        $this->agenda()->updateOrCreate([], ['estado_solicitud' => $estado]);
+        $this->unsetRelation('agenda');
+    }
+
+    public function scopeActivas($query)
+    {
+        return $query->where('estado', 'inscrito');
     }
 
     public function estadoEtiqueta(): string

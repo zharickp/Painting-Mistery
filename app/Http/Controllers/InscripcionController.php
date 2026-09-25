@@ -17,6 +17,7 @@ class InscripcionController extends Controller
 
         $existente = Inscripcion::where('usuario_id', auth()->id())
             ->where('curso_id', $curso->id)
+            ->with('agenda')
             ->first();
 
         if ($existente && in_array($existente->estado, ['pendiente', 'confirmada', 'completada'], true)) {
@@ -28,15 +29,17 @@ class InscripcionController extends Controller
             return back()->with('error', 'No quedan cupos disponibles para este curso por ahora.');
         }
 
-        $inscripcion = Inscripcion::updateOrCreate(
+        $inscripcion = Inscripcion::firstOrCreate(
             ['usuario_id' => auth()->id(), 'curso_id' => $curso->id],
-            ['estado' => 'pendiente']
+            ['estado' => 'inscrito']
         );
 
-        $inscripcion->agenda()->updateOrCreate(
-            ['inscripcion_id' => $inscripcion->id],
-            ['fecha_preferida' => $request->fecha_preferida, 'fecha_confirmada' => null, 'notas' => null]
-        );
+        $inscripcion->agenda()->updateOrCreate([], [
+            'fecha_preferida'  => $request->fecha_preferida,
+            'fecha_confirmada' => null,
+            'notas'            => null,
+        ]);
+        $inscripcion->cambiarEstado('pendiente');
 
         return back()->with('success', 'Solicitud enviada. Te confirmaremos la fecha del curso pronto desde "Mis Cursos".');
     }
