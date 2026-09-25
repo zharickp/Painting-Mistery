@@ -36,6 +36,8 @@ use App\Http\Controllers\WompiWebhookController;
 Route::get('/', [LandingController::class, 'index'])->name('inicio');
 Route::get('/nosotros', [LandingController::class, 'nosotros'])->name('nosotros');
 Route::get('/academia', [LandingController::class, 'academia'])->name('academia');
+Route::get('/cursos/{curso}/inscribirse', fn (int $curso) => redirect(route('academia') . '#curso-' . $curso))
+    ->whereNumber('curso');
 
 Route::post('/resenas-sitio', [ResenaSitioController::class, 'store'])->middleware('throttle:5,10')->name('resenas-sitio.store');
 
