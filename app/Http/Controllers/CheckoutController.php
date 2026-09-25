@@ -189,7 +189,7 @@ class CheckoutController extends Controller
         // Modo demostración: controlado explícitamente por PAGO_MODO_DEMO en .env,
         // o automáticamente si aún no hay llaves de Wompi configuradas.
         if ($this->wompi->debeUsarDemo()) {
-            return redirect()->route('checkout.demo', $ventaEnvio->numero_orden);
+            return redirect()->route('checkout.demo', $ventaEnvio->numero_orden)->withCookie($this->cookieVaciarCarrito());
         }
 
         // Redirigir a Wompi Web Checkout
@@ -214,7 +214,7 @@ class CheckoutController extends Controller
             'shipping-address:phone-number'   => $data['telefono_envio'],
         ];
 
-        return redirect()->away($this->wompi->checkoutUrl($params));
+        return redirect()->away($this->wompi->checkoutUrl($params))->withCookie($this->cookieVaciarCarrito());
     }
 
     /**
@@ -287,6 +287,12 @@ class CheckoutController extends Controller
     }
 
     // ─── Helpers ────────────────────────────────────────────
+
+    /** Señal legible por JS (cookie sin cifrar, ver bootstrap/app.php) para vaciar el carrito local. */
+    private function cookieVaciarCarrito(): \Symfony\Component\HttpFoundation\Cookie
+    {
+        return cookie('pm_vaciar_carrito', '1', 120, '/', null, false, false);
+    }
 
     private function carritoActivo(): Carrito
     {
