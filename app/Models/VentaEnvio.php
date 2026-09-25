@@ -31,6 +31,10 @@ class VentaEnvio extends Model
         'direccion_envio',
         'referencia_envio',
         'tarifa_envio_id',
+        'cancelada_at',
+        'cancelada_por',
+        'motivo_cancelacion',
+        'pago_confirmado_por',
     ];
 
     protected $casts = [
@@ -38,6 +42,7 @@ class VentaEnvio extends Model
         'envio'           => 'decimal:2',
         'total'           => 'decimal:2',
         'fecha_pago'      => 'datetime',
+        'cancelada_at'    => 'datetime',
         'acepto_terminos' => 'boolean',
     ];
 
@@ -63,6 +68,16 @@ class VentaEnvio extends Model
         return $this->belongsTo(Venta::class);
     }
 
+    public function canceladaPor()
+    {
+        return $this->belongsTo(Usuario::class, 'cancelada_por');
+    }
+
+    public function pagoConfirmadoPor()
+    {
+        return $this->belongsTo(Usuario::class, 'pago_confirmado_por');
+    }
+
     public function tarifa()
     {
         return $this->belongsTo(TarifaEnvio::class, 'tarifa_envio_id');
@@ -81,12 +96,14 @@ class VentaEnvio extends Model
      */
     public function estaExpirada(): bool
     {
-        return $this->payment_status === 'PENDING' && $this->estado_pedido === 'cancelado';
+        return $this->payment_status === 'PENDING' && $this->estado_pedido === 'cancelado'
+            && str_starts_with((string) $this->motivo_cancelacion, 'Expiración automática');
     }
 
     public function paymentStatusEtiqueta(): string
     {
         if ($this->estaExpirada()) return 'Expirado';
+        if ($this->payment_status === 'PENDING' && $this->estado_pedido === 'cancelado') return 'Sin pago';
         return self::PAYMENT_STATUS[$this->payment_status] ?? ucfirst((string) $this->payment_status);
     }
 

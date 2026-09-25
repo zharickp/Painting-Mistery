@@ -32,7 +32,13 @@
         </button>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 sm:p-10 print:shadow-none print:border-0">
+    <div class="relative overflow-hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-8 sm:p-10 print:shadow-none print:border-0">
+
+        @if($venta->estado === 'cancelada')
+            <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <span class="-rotate-12 text-7xl sm:text-8xl font-black tracking-widest text-rose-500/15 border-8 border-rose-500/15 rounded-2xl px-6">CANCELADA</span>
+            </div>
+        @endif
 
         {{-- Cabecera --}}
         <div class="flex items-start justify-between border-b border-slate-100 pb-6 mb-6">
@@ -50,7 +56,7 @@
                 <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Orden de venta</p>
                 <p class="font-mono font-black text-slate-800 text-lg">{{ $envio->numero_orden }}</p>
                 <p class="text-xs text-slate-500 mt-0.5">{{ $venta->fecha?->format('d/m/Y h:i A') }}</p>
-                <p class="mt-1.5 inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border {{ $envio->estadoPedidoColor() }}">{{ $envio->estadoPedidoEtiqueta() }}</p>
+                <p class="mt-1.5 inline-block px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wide border {{ $venta->estadoColor() }}">Estado: {{ $venta->estado === 'pagada' ? 'Pagada / Confirmada' : $venta->estadoEtiqueta() }}</p>
             </div>
         </div>
 
@@ -116,7 +122,7 @@
                     </div>
                 @endif
                 <div class="flex justify-between font-bold text-slate-800 text-base pt-2 border-t border-slate-200">
-                    <span>Total</span>
+                    <span>{{ $venta->estado === 'pagada' ? 'Total pagado' : 'Total' }}</span>
                     <span class="text-red-600">${{ number_format($venta->total, 0, ',', '.') }}</span>
                 </div>
             </div>
@@ -126,6 +132,11 @@
         <div class="border-t border-slate-100 pt-6 text-xs text-slate-500 space-y-1">
             <p>Método de pago: <span class="font-semibold text-slate-700">{{ $envio->wompi_payment_method ?: 'Pago en línea' }}</span></p>
             <p>Estado del pago: <span class="font-semibold text-slate-700">{{ $envio->paymentStatusEtiqueta() }}</span>@if($envio->fecha_pago) · {{ $envio->fecha_pago->format('d/m/Y h:i A') }}@endif</p>
+            @if($venta->estado === 'cancelada')
+                <p class="text-rose-700">Cancelada el {{ $envio->cancelada_at?->format('d/m/Y h:i A') ?? '—' }}@if($envio->motivo_cancelacion) · Motivo: {{ $envio->motivo_cancelacion }}@endif</p>
+            @elseif($venta->estado === 'pendiente')
+                <p class="text-amber-700">Pago pendiente de confirmación. Este documento no acredita el pago.</p>
+            @endif
             <p>Referencia de pago: <span class="font-mono">{{ $envio->wompi_reference }}</span></p>
             <p class="text-slate-400">Observaciones: {{ $envio->referencia_envio ?: 'Sin observaciones.' }}</p>
         </div>

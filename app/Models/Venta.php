@@ -73,6 +73,43 @@ class Venta extends Model
         return $this->hasOne(VentaEnvio::class);
     }
 
+    // ─── Estado de la orden (fuente única: venta.estado) ───────
+
+    public const ESTADOS_ORDEN = [
+        'pendiente' => 'Pendiente',
+        'pagada'    => 'Pagada',
+        'cancelada' => 'Cancelada',
+    ];
+
+    public function scopePagadas($query)
+    {
+        return $query->where('estado', 'pagada');
+    }
+
+    public function estadoEtiqueta(): string
+    {
+        return self::ESTADOS_ORDEN[$this->estado] ?? ucfirst((string) $this->estado);
+    }
+
+    /** Amarillo = pendiente, verde = pagada, rojo = cancelada (siempre acompañado del texto). */
+    public function estadoColor(): string
+    {
+        return match ($this->estado) {
+            'pagada'    => 'bg-emerald-100 text-emerald-800 border-emerald-300',
+            'cancelada' => 'bg-rose-100 text-rose-800 border-rose-300',
+            default     => 'bg-amber-100 text-amber-800 border-amber-300',
+        };
+    }
+
+    public function estadoPunto(): string
+    {
+        return match ($this->estado) {
+            'pagada'    => 'bg-emerald-500',
+            'cancelada' => 'bg-rose-500',
+            default     => 'bg-amber-500',
+        };
+    }
+
     // ─── Estados legibles ──────────────────────────────────────
 
     public const ESTADOS_PEDIDO = [

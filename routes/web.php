@@ -141,6 +141,9 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::put('resenas-sitio/{resena}', [AdminResenaSitioController::class, 'update'])->name('resenas-sitio.update');
         Route::put('inscripciones/{inscripcion}', [AdminInscripcionController::class, 'update'])->name('inscripciones.update');
 
+        Route::post('/ventas/{venta}/confirmar-pago', [AdminVentaController::class, 'confirmarPago'])->name('ventas.confirmar-pago');
+        Route::post('/ventas/{venta}/cancelar',       [AdminVentaController::class, 'cancelar'])->name('ventas.cancelar');
+
         Route::post('/inventario/{inventario}/actualizar', [InventarioController::class, 'actualizar'])->name('inventario.actualizar');
     });
 
@@ -152,6 +155,7 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::get('cursos/{curso}/inscripciones', [AdminInscripcionController::class, 'index'])->name('cursos.inscripciones');
         Route::get('/inventario',            [InventarioController::class, 'index'])->name('inventario');
         Route::get('/ventas',                [AdminVentaController::class, 'index'])->name('ventas');
+        Route::get('/ventas/{venta}',             [AdminVentaController::class, 'show'])->whereNumber('venta')->name('ventas.show');
         Route::get('/ventas/{venta}/orden-venta', [AdminVentaController::class, 'orden'])->name('ventas.orden');
         Route::get('/reportes',              fn() => view('admin.reportes'))->name('reportes');
     });
@@ -190,6 +194,7 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
             Route::get('/cursos',              [ClienteDashboardController::class, 'cursos'])->name('cursos');
             Route::get('/perfil',              [ClienteDashboardController::class, 'perfil'])->name('perfil');
             Route::put('/perfil',              [ClienteDashboardController::class, 'actualizarPerfil'])->name('perfil.update');
+            Route::post('/pedidos/{venta}/cancelar', [ClienteDashboardController::class, 'cancelarPedido'])->name('pedido.cancelar');
             Route::get('/pedidos/{venta}/orden-venta', [ClienteDashboardController::class, 'ordenVenta'])->name('pedido.orden');
         });
     });

@@ -31,15 +31,14 @@ class ClienteDashboardController extends Controller
         $stats = [
             'total'           => Venta::where('usuario_id', $userId)->count(),
             // "Pendientes" reales: en espera de pago Y no expiradas todavía.
-            'pendientes'      => $enviosUsuario()->where('payment_status', 'PENDING')
-                                     ->where('estado_pedido', '!=', 'cancelado')->count(),
-            'aprobadas'       => $enviosUsuario()->where('payment_status', 'APPROVED')->count(),
+            'pendientes'      => Venta::where('usuario_id', $userId)->where('estado', 'pendiente')->count(),
+            'aprobadas'       => Venta::where('usuario_id', $userId)->where('estado', 'pagada')->count(),
+            'canceladas'      => Venta::where('usuario_id', $userId)->where('estado', 'cancelada')->count(),
             'entregadas'      => $enviosUsuario()->where('estado_pedido', 'entregado')->count(),
             // Total invertido: SOLO lo realmente pagado (antes se sumaba todo,
             // incluyendo pedidos pendientes o cancelados, lo cual era engañoso).
-            'total_pagado'    => (float) $enviosUsuario()->where('payment_status', 'APPROVED')->sum('total'),
-            'total_pendiente' => (float) $enviosUsuario()->where('payment_status', 'PENDING')
-                                     ->where('estado_pedido', '!=', 'cancelado')->sum('total'),
+            'total_pagado'    => (float) Venta::where('usuario_id', $userId)->where('estado', 'pagada')->sum('total'),
+            'total_pendiente' => (float) Venta::where('usuario_id', $userId)->where('estado', 'pendiente')->sum('total'),
         ];
 
         $inscripciones = Inscripcion::with(['curso.info', 'agenda'])
@@ -49,7 +48,7 @@ class ClienteDashboardController extends Controller
             ->sortBy(fn ($i) => $i->agenda->fecha_confirmada)->first();
         $inscritosIds = $inscripciones->pluck('curso_id');
         $cursosDisponibles = Curso::where('estado', true)->whereNotIn('id', $inscritosIds)->orderBy('costo')->limit(3)->get();
-        $ultimaOrden = $ventas->first(fn ($v) => $v->envio?->payment_status === 'APPROVED');
+        $ultimaOrden = $ventas->first(fn ($v) => $v->estado === 'pagada');
         $recomendados = Producto::where('estado', true)->with('categoria')->latest()->limit(4)->get();
 
         return view('cliente.inicio', compact(
@@ -78,8 +77,8 @@ class ClienteDashboardController extends Controller
     }
 
     /**
-     * Orden de venta imprimible. Solo disponible una vez el pago quedó
-     * aprobado. Documento interno del sistema, no es una factura.
+     * Orden de venta imprimible. Refleja el estado actual (pendiente, pagada o
+     * cancelada). Documento interno del sistema, no es una factura.
      */
     public function ordenVenta(int $ventaId): View
     {
@@ -88,7 +87,7 @@ class ClienteDashboardController extends Controller
             ->where('usuario_id', auth()->id())
             ->firstOrFail();
 
-        abort_unless($venta->envio && $venta->envio->payment_status === 'APPROVED', 404);
+        abort_unless($venta->envio, 404);
 
         $volver = route('mi-cuenta.pedido', $venta->id);
 
@@ -126,5 +125,20 @@ class ClienteDashboardController extends Controller
         auth()->user()->update($data);
 
         return back()->with('success', 'Tu perfil se actualizó correctamente.');
+    }
+
+    public function cancelarPedido(int $ventaId, \App\Services\OrdenEstadoService $svc): RedirectResponse
+    {
+        $venta = Venta::with('envio')->where('id', $ventaId)->where('usuario_id', auth()->id())->firstOrFail();
+
+        abort_unless($venta->envio, 404);
+
+        if ($venta->estado !== 'pendiente') {
+            return back()->with('error', 'Solo puedes cancelar pedidos que aún están pendientes de pago.');
+        }
+
+        $svc->cancelar($venta->envio, auth()->user(), 'Cancelado por el cliente', 'cliente');
+
+        return back()->with('success', 'Tu pedido fue cancelado. Se conserva en tu historial.');
     }
 }

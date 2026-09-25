@@ -24,13 +24,11 @@
         </div>
         <div class="flex flex-col items-end gap-2">
             @if($envio)
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border {{ $envio->paymentStatusColor() }}">
-                    Pago: {{ $envio->paymentStatusEtiqueta() }}
-                </span>
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border {{ $envio->estadoPedidoColor() }}">
-                    Pedido: {{ $envio->estadoPedidoEtiqueta() }}
-                </span>
-                @if($envio->payment_status === 'APPROVED')
+                @include('partials.estado-orden', ['venta' => $venta])
+                @if($venta->estado === 'pagada')
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border {{ $envio->estadoPedidoColor() }}">Envío: {{ $envio->estadoPedidoEtiqueta() }}</span>
+                @endif
+                @if(true)
                     <a href="{{ route('mi-cuenta.pedido.orden', $venta->id) }}" target="_blank"
                        class="mt-1 inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 hover:text-red-700 border border-red-200 hover:bg-red-50 px-3 py-1.5 rounded-lg transition">
                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -43,13 +41,31 @@
         </div>
     </div>
 
+    @if($venta->estado === 'cancelada')
+        <div class="mb-6 bg-rose-50 border border-rose-200 rounded-2xl p-5 text-sm text-rose-900">
+            <p class="font-bold">Esta orden fue cancelada</p>
+            <p class="text-rose-800/80 mt-1">
+                {{ $envio?->cancelada_at ? 'El ' . $envio->cancelada_at->format('d/m/Y H:i') . '. ' : '' }}{{ $envio?->motivo_cancelacion }}
+                Se conserva en tu historial como referencia.
+            </p>
+        </div>
+    @elseif($venta->estado === 'pendiente')
+        <div class="mb-6 bg-amber-50 border border-amber-200 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-3 text-sm text-amber-900">
+            <p><span class="font-bold">Pendiente de pago.</span> Se cancelará automáticamente si no se confirma en 24 horas.</p>
+            <form method="POST" action="{{ route('mi-cuenta.pedido.cancelar', $venta->id) }}" onsubmit="return confirm('¿Cancelar este pedido? Quedará en tu historial como Cancelado.')">
+                @csrf
+                <button class="text-xs font-bold text-rose-700 hover:text-rose-800 border border-rose-200 hover:bg-rose-50 px-3 py-1.5 rounded-lg transition">Cancelar pedido</button>
+            </form>
+        </div>
+    @endif
+
     {{-- Línea de progreso --}}
     @if($envio)
     @php
         $pasos = ['pendiente','confirmado','preparando','enviado','entregado'];
         $actual = array_search($envio->estado_pedido, $pasos);
         $actual = $actual === false ? 0 : $actual;
-        $cancelado = $envio->estado_pedido === 'cancelado';
+        $cancelado = $envio->estado_pedido === 'cancelado' || $venta->estado === 'pendiente';
     @endphp
     @if(!$cancelado)
     <div class="bg-white border border-slate-200 rounded-2xl p-6 mb-6">

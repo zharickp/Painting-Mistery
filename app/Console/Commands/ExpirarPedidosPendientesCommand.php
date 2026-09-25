@@ -3,9 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Models\VentaEnvio;
-use App\Services\AuditoriaService;
+use App\Services\OrdenEstadoService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Cancela automáticamente las órdenes cuyo pago nunca se confirmó
@@ -31,21 +30,10 @@ class ExpirarPedidosPendientesCommand extends Command
             ->with('venta')
             ->get();
 
-        foreach ($envios as $envio) {
-            DB::transaction(function () use ($envio) {
-                $envio->update(['estado_pedido' => 'cancelado']);
-                $envio->venta->update(['estado' => 'cancelada']);
-            });
+        $svc = app(OrdenEstadoService::class);
 
-            AuditoriaService::registrar([
-                'accion'            => 'actualizado',
-                'modulo'            => 'Venta',
-                'registro_id'       => $envio->venta_id,
-                'registro_etiqueta' => $envio->numero_orden,
-                'descripcion'       => "Orden {$envio->numero_orden} cancelada automáticamente: sin confirmación de pago tras {$horas}h",
-                'valores_anteriores'=> ['estado_pedido' => 'pendiente'],
-                'valores_nuevos'    => ['estado_pedido' => 'cancelado', 'motivo' => 'expiracion_automatica'],
-            ]);
+        foreach ($envios as $envio) {
+            $svc->cancelar($envio, null, "Expiración automática: sin confirmación de pago tras {$horas} h", 'expiracion');
         }
 
         $this->info("Órdenes canceladas por expiración: {$envios->count()}");
