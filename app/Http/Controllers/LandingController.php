@@ -6,11 +6,11 @@ use App\Models\Banner;
 use App\Models\Curso;
 use App\Models\Inscripcion;
 use App\Models\Producto;
-use App\Services\GoogleReviewsService;
+use App\Models\ResenaSitio;
 
 class LandingController extends Controller
 {
-    public function index(GoogleReviewsService $google)
+    public function index()
     {
         $productosDestacados = Producto::where('estado', true)
             ->with(['categoria', 'imagenes', 'resenas.usuario', 'colores'])
@@ -24,9 +24,9 @@ class LandingController extends Controller
             ->get();
 
         $banners = Banner::activos()->get();
-        $googleData = $google->obtener();
+        $resenasSitio = ResenaSitio::aprobadas()->latest()->take(12)->get();
 
-        return view('landing', compact('productosDestacados', 'cursosDestacados', 'banners', 'googleData'));
+        return view('landing', compact('productosDestacados', 'cursosDestacados', 'banners', 'resenasSitio'));
     }
 
     public function nosotros()

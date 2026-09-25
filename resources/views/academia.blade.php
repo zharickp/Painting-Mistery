@@ -12,7 +12,7 @@
         <div class="absolute inset-0 bg-gradient-to-t from-gray-950 to-transparent"></div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
             <span class="text-red-400 font-semibold text-xs uppercase tracking-[0.3em]">Academia</span>
-            <h1 class="text-4xl sm:text-5xl font-extrabold text-white mt-3">Aprende el oficio <span class="text-red-500">desde cero</span></h1>
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-white mt-3">Fórmate en <span class="text-red-500">pintura y reparación</span> de motos</h1>
             <p class="text-gray-300 max-w-2xl mx-auto mt-4">Cursos prácticos de pintura y reparación de partes en nuestro taller de Melgar, Tolima.</p>
         </div>
     </section>
@@ -55,7 +55,7 @@
                     $libres = $curso->cuposDisponibles();
                     $info = $curso->info;
                 @endphp
-                <article class="rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition overflow-hidden flex flex-col">
+                <article id="curso-{{ $curso->id }}" class="scroll-mt-24 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition overflow-hidden flex flex-col">
                     <div class="bg-gray-900 px-7 py-6 flex items-start justify-between gap-4">
                         <div>
                             <h2 class="text-xl font-bold text-white">{{ $curso->nombre }}</h2>
