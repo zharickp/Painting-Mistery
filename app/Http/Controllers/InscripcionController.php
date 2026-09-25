@@ -11,9 +11,20 @@ class InscripcionController extends Controller
 {
     public function store(Request $request, Curso $curso): RedirectResponse
     {
+        $fechasIds = $curso->fechasDisponibles()->pluck('id');
+
+        if ($fechasIds->isEmpty()) {
+            return back()->with('error', 'Este curso aún no tiene fechas publicadas. Escríbenos por WhatsApp y te avisamos apenas se abra la próxima.');
+        }
+
         $request->validate([
-            'fecha_preferida' => ['nullable', 'date', 'after_or_equal:today'],
+            'curso_fecha_id' => ['required', 'integer', 'in:' . $fechasIds->implode(',')],
+        ], [
+            'curso_fecha_id.required' => 'Elige una de las fechas disponibles.',
+            'curso_fecha_id.in'       => 'Esa fecha ya no está disponible. Elige otra.',
         ]);
+
+        $fecha = $curso->fechasDisponibles()->findOrFail($request->curso_fecha_id);
 
         $existente = Inscripcion::where('usuario_id', auth()->id())
             ->where('curso_id', $curso->id)
@@ -35,12 +46,12 @@ class InscripcionController extends Controller
         );
 
         $inscripcion->agenda()->updateOrCreate([], [
-            'fecha_preferida'  => $request->fecha_preferida,
+            'fecha_preferida'  => $fecha->fecha,
             'fecha_confirmada' => null,
             'notas'            => null,
         ]);
         $inscripcion->cambiarEstado('pendiente');
 
-        return back()->with('success', 'Solicitud enviada. Te confirmaremos la fecha del curso pronto desde "Mis Cursos".');
+        return back()->with('success', "¡Listo! Reservaste tu cupo para el {$fecha->etiqueta()}. Nos comunicaremos contigo para coordinar hospedaje y los detalles del curso.");
     }
 }

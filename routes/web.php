@@ -35,7 +35,8 @@ use App\Http\Controllers\WompiWebhookController;
 // ─── Landing ──────────────────────────────────────────────────────────────────
 Route::get('/', [LandingController::class, 'index'])->name('inicio');
 Route::get('/nosotros', [LandingController::class, 'nosotros'])->name('nosotros');
-Route::get('/academia', [LandingController::class, 'academia'])->name('academia');
+Route::get('/cursos', [LandingController::class, 'academia'])->name('academia');
+Route::redirect('/academia', '/cursos', 301);
 Route::get('/cursos/{curso}/inscribirse', fn (int $curso) => redirect(route('academia') . '#curso-' . $curso))
     ->whereNumber('curso');
 
@@ -140,6 +141,8 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::put('cursos/{curso}',           [CursoController::class, 'update'])->name('cursos.update');
         Route::patch('cursos/{curso}',         [CursoController::class, 'update']);
         Route::post('cursos/{curso}/toggle',   [CursoController::class, 'toggleEstado'])->name('cursos.toggle');
+        Route::post('cursos/{curso}/fechas',   [CursoController::class, 'agregarFecha'])->name('cursos.fechas.store');
+        Route::delete('cursos/fechas/{fecha}', [CursoController::class, 'quitarFecha'])->name('cursos.fechas.destroy');
         Route::put('resenas-sitio/{resena}', [AdminResenaSitioController::class, 'update'])->name('resenas-sitio.update');
         Route::put('inscripciones/{inscripcion}', [AdminInscripcionController::class, 'update'])->name('inscripciones.update');
 

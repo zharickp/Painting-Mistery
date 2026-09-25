@@ -27,7 +27,7 @@
                 <p class="font-semibold text-gray-800">{{ $ins->usuario->primer_nombre ?? '' }} {{ $ins->usuario->primer_apellido ?? '' }}</p>
                 <p class="text-xs text-gray-400">{{ $ins->usuario->email ?? '' }} · solicitado {{ $ins->created_at->format('d/m/Y') }}</p>
                 @if($ag?->fecha_preferida)
-                    <p class="text-xs text-gray-500 mt-1">Fecha preferida: <strong>{{ $ag->fecha_preferida->format('d/m/Y') }}</strong></p>
+                    <p class="text-xs text-gray-500 mt-1">Fecha elegida: <strong>{{ $ag->fecha_preferida->format('d/m/Y') }}</strong></p>
                 @endif
             </div>
             <span class="px-2.5 py-1 text-xs rounded-full font-semibold {{ $ins->estadoColor() }}">{{ $ins->estadoEtiqueta() }}</span>
@@ -47,7 +47,7 @@
             </div>
             <div>
                 <label class="block text-xs font-medium text-gray-500 mb-1">Fecha confirmada</label>
-                <input type="date" name="fecha_confirmada" value="{{ $ag?->fecha_confirmada?->format('Y-m-d') }}"
+                <input type="date" name="fecha_confirmada" value="{{ ($ag?->fecha_confirmada ?? $ag?->fecha_preferida)?->format('Y-m-d') }}"
                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
             </div>
             <div class="sm:col-span-2">

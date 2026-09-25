@@ -39,7 +39,7 @@
                         @if($ins->curso->info?->incluye_certificado ?? true)<p class="text-green-700">Recibirás certificado al finalizar.</p>@endif
                     </div>
                 @elseif($ins->estado === 'pendiente')
-                    <p class="text-xs text-amber-700 bg-amber-50 rounded-xl p-3">Estamos revisando tu solicitud{{ $ins->agenda?->fecha_preferida ? ' (fecha preferida: ' . $ins->agenda->fecha_preferida->format('d/m/Y') . ')' : '' }}. Te confirmaremos la fecha por aquí.</p>
+                    <p class="text-xs text-amber-700 bg-amber-50 rounded-xl p-3">Reservaste{{ $ins->agenda?->fecha_preferida ? ' el ' . $ins->agenda->fecha_preferida->format('d/m/Y') : '' }}. Pronto nos comunicamos contigo para confirmar la fecha y coordinar hospedaje y detalles.</p>
                 @else
                     <p class="text-xs text-slate-400">Esta inscripción fue cancelada.</p>
                 @endif
@@ -67,12 +67,8 @@
                     @if($c->info?->incluye_certificado ?? true)<span class="bg-green-50 text-green-700 rounded-full px-2.5 py-1">Con certificado</span>@endif
                 </div>
                 <div class="mt-auto flex items-center gap-2">
-                    <a href="{{ route('academia') }}#curso-{{ $c->id }}" class="text-sm font-semibold text-slate-600 hover:text-red-600 transition">Ver detalles</a>
-                    @if($libres === null || $libres > 0)
-                    <form method="POST" action="{{ route('cursos.inscribirse', $c) }}" class="ml-auto">
-                        @csrf
-                        <button class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-xl text-sm transition">Solicitar cupo</button>
-                    </form>
+                                        @if($libres === null || $libres > 0)
+                    <a href="{{ route('academia') }}#curso-{{ $c->id }}" class="ml-auto bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-xl text-sm transition">Elegir fecha</a>
                     @else
                         <span class="ml-auto text-xs font-semibold text-slate-400">Cupos agotados</span>
                     @endif

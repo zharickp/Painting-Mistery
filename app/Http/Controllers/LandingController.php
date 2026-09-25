@@ -36,7 +36,7 @@ class LandingController extends Controller
 
     public function academia()
     {
-        $cursos = Curso::where('estado', true)->with('info')->orderBy('id')->get();
+        $cursos = Curso::where('estado', true)->with(['info', 'fechas' => fn ($q) => $q->whereDate('fecha', '>=', today())])->orderBy('id')->get();
 
         $misInscripciones = auth()->check()
             ? Inscripcion::with('agenda')->where('usuario_id', auth()->id())->get()->keyBy('curso_id')
