@@ -36,44 +36,36 @@
             </div>
         </div>
     @else
-        {{-- Slider administrable desde /admin/banners. Banner enmarcado, con la imagen COMPLETA
-             (sin recortes: fondo desenfocado de la misma imagen) y transición suave. --}}
-        <div class="bg-[#0b0b0d] py-3 sm:py-6">
-            <div class="max-w-[1400px] mx-auto px-3 sm:px-6 lg:px-8">
-                <div id="heroSlider" class="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gray-900 shadow-2xl shadow-black/60 ring-1 ring-white/10
-                                            aspect-[16/10] sm:aspect-[2.1/1] lg:aspect-[2.35/1]">
-                    @foreach ($banners as $i => $banner)
-                        <div class="hero-slide {{ $i === 0 ? 'is-active' : '' }}" aria-hidden="{{ $i === 0 ? 'false' : 'true' }}">
-                            <img src="{{ $banner->imagen }}" alt="" aria-hidden="true"
-                                 class="absolute inset-0 h-full w-full object-cover scale-110 blur-2xl opacity-60">
-                            <img src="{{ $banner->imagen }}" alt="Painting Mistery" {{ $i === 0 ? '' : 'loading=lazy' }}
-                                 class="relative h-full w-full object-contain">
-                            <div class="absolute inset-0 pointer-events-none"
-                                 style="background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.35) 100%);"></div>
-                        </div>
-                    @endforeach
-
-                    @if ($banners->count() > 1)
-                        <button onclick="heroMover(-1)" aria-label="Anterior"
-                            class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/40 hover:bg-white text-white hover:text-gray-900 backdrop-blur ring-1 ring-white/25 flex items-center justify-center transition-all duration-200 hover:scale-110">
-                            <svg class="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
-                        </button>
-                        <button onclick="heroMover(1)" aria-label="Siguiente"
-                            class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/40 hover:bg-white text-white hover:text-gray-900 backdrop-blur ring-1 ring-white/25 flex items-center justify-center transition-all duration-200 hover:scale-110">
-                            <svg class="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                        </button>
-                        {{-- Puntos del slider ocultos (solicitud anterior); se conservan para el JS --}}
-                        <div class="hidden" id="heroDots">
-                            @foreach ($banners as $i => $banner)
-                                <button onclick="heroIrA({{ $i }})" class="hero-dot"></button>
-                            @endforeach
-                        </div>
-                        <div class="absolute bottom-0 left-0 right-0 z-20 h-1 bg-white/10">
-                            <div id="heroProgreso" class="h-full w-0 bg-red-600"></div>
-                        </div>
-                    @endif
+        {{-- Slider administrable desde /admin/banners.
+             Sin overlay de texto: los banners se ven completos y limpios.
+             La altura es responsiva por breakpoint para que la imagen respire. --}}
+        <div id="heroSlider" class="relative overflow-hidden bg-gray-900 h-[320px] sm:h-[420px] md:h-[500px]">
+            @foreach ($banners as $i => $banner)
+                <div class="hero-slide absolute inset-0 transition-opacity duration-1000 ease-in-out {{ $i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}">
+                    <img src="{{ $banner->imagen }}" alt="Painting Mistery"
+                         class="w-full h-full object-cover object-center">
+                    {{-- Vignette sutil solo alrededor para dar profundidad, sin oscurecer el centro --}}
+                    <div class="absolute inset-0 pointer-events-none"
+                         style="background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.4) 100%);"></div>
                 </div>
-            </div>
+            @endforeach
+
+            @if ($banners->count() > 1)
+                <button onclick="heroMover(-1)" aria-label="Anterior"
+                    class="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-white/90 hover:bg-white shadow-lg hover:shadow-xl flex items-center justify-center text-gray-800 transition-all duration-200 hover:scale-110">
+                    <svg class="h-6 w-6 sm:h-7 sm:w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button onclick="heroMover(1)" aria-label="Siguiente"
+                    class="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-white/90 hover:bg-white shadow-lg hover:shadow-xl flex items-center justify-center text-gray-800 transition-all duration-200 hover:scale-110">
+                    <svg class="h-6 w-6 sm:h-7 sm:w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                {{-- Dots ocultos por solicitud: mantenidos en el DOM para que el JS del slider funcione --}}
+                <div class="hidden" id="heroDots">
+                    @foreach ($banners as $i => $banner)
+                        <button onclick="heroIrA({{ $i }})" class="hero-dot"></button>
+                    @endforeach
+                </div>
+            @endif
         </div>
     @endif
 
@@ -477,42 +469,36 @@
     @include('partials.carrito-wishlist-modales')
 
     <style>
-    .hero-slide { position:absolute; inset:0; opacity:0; transform:scale(1.07); pointer-events:none;
-                  transition: opacity 1.2s ease, transform 0s linear 1.2s; }
-    .hero-slide.is-active { opacity:1; transform:scale(1); z-index:10; pointer-events:auto;
-                  transition: opacity 1.2s ease, transform 8s ease-out; }
-    @media (prefers-reduced-motion: reduce) { .hero-slide, .hero-slide.is-active { transition: opacity .3s; transform:none; } }
     .cat-btn { background:#fff; color:#6b7280; border-color:#e5e7eb; }
     .cat-btn.active-cat { background:#dc2626; color:#fff; border-color:#dc2626; }
     </style>
 
     <script>
-    // ── Slider del hero (banners administrables) ─────────────────────
+    // ── Slider del hero (banners administrables) ──────────────────────
     (function() {
         const slider = document.getElementById('heroSlider');
         if (!slider) return;
 
-        const slides   = slider.querySelectorAll('.hero-slide');
-        const progreso = document.getElementById('heroProgreso');
-        const total    = slides.length;
-        const DURACION = 6000;
+        const slides = slider.querySelectorAll('.hero-slide');
+        const dots   = slider.querySelectorAll('.hero-dot');
+        const total  = slides.length;
         let actual = 0;
         let temporizador = null;
 
         function pintar() {
             slides.forEach((s, i) => {
-                s.classList.toggle('is-active', i === actual);
-                s.setAttribute('aria-hidden', i === actual ? 'false' : 'true');
+                s.classList.toggle('opacity-100', i === actual);
+                s.classList.toggle('z-10', i === actual);
+                s.classList.toggle('opacity-0', i !== actual);
+                s.classList.toggle('z-0', i !== actual);
+                s.classList.toggle('pointer-events-none', i !== actual);
             });
-            if (progreso) {
-                progreso.style.transition = 'none';
-                progreso.style.width = '0%';
-                void progreso.offsetWidth;
-                if (total > 1) {
-                    progreso.style.transition = 'width ' + DURACION + 'ms linear';
-                    progreso.style.width = '100%';
-                }
-            }
+            dots.forEach((d, i) => {
+                d.classList.toggle('w-6', i === actual);
+                d.classList.toggle('bg-white', i === actual);
+                d.classList.toggle('w-2', i !== actual);
+                d.classList.toggle('bg-white/40', i !== actual);
+            });
         }
 
         function irA(idx) {
@@ -520,29 +506,19 @@
             pintar();
         }
 
-        function reiniciar() {
+        window.heroIrA = function(idx) { irA(idx); reiniciarAutoplay(); };
+        window.heroMover = function(dir) { irA(actual + dir); reiniciarAutoplay(); };
+
+        function iniciarAutoplay() {
+            if (total <= 1) return;
+            temporizador = setInterval(() => irA(actual + 1), 6000);
+        }
+        function reiniciarAutoplay() {
             clearInterval(temporizador);
-            if (total > 1) temporizador = setInterval(() => irA(actual + 1), DURACION);
+            iniciarAutoplay();
         }
 
-        window.heroIrA   = function(idx) { irA(idx); reiniciar(); };
-        window.heroMover = function(dir) { irA(actual + dir); reiniciar(); };
-
-        // Deslizar con el dedo en el celular
-        let x0 = null;
-        slider.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
-        slider.addEventListener('touchend', e => {
-            if (x0 === null) return;
-            const dx = e.changedTouches[0].clientX - x0;
-            if (Math.abs(dx) > 40) window.heroMover(dx < 0 ? 1 : -1);
-            x0 = null;
-        });
-
-        // No avanzar mientras la pestaña está oculta
-        document.addEventListener('visibilitychange', () => document.hidden ? clearInterval(temporizador) : reiniciar());
-
-        pintar();
-        reiniciar();
+        iniciarAutoplay();
     })();
 
     // ── Carrusel de reseñas ──────────────────────────────────────────
