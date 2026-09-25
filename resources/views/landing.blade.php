@@ -287,7 +287,7 @@
             @else
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-7">
                     @foreach ($cursosDestacados as $curso)
-                        <div class="rounded-2xl border border-gray-100 hover:border-red-200 hover:shadow-lg transition p-6">
+                        <a href="{{ route('academia') }}#curso-{{ $curso->id }}" class="block rounded-2xl border border-gray-100 hover:border-red-200 hover:shadow-lg hover:-translate-y-0.5 transition p-6">
                             <div class="bg-red-600 text-white rounded-xl h-12 w-12 flex items-center justify-center mb-4">
                                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
@@ -301,7 +301,8 @@
                                     <span class="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">{{ $curso->cupos }} cupos</span>
                                 @endif
                             </div>
-                        </div>
+                            <p class="text-red-600 text-xs font-semibold mt-4">Ver detalles e inscribirme →</p>
+                        </a>
                     @endforeach
                 </div>
             @endif
@@ -382,47 +383,31 @@
     </section>
 
     {{-- RESEÑAS --}}
-    <section class="py-20 bg-gray-950">
+    <section id="resenas" class="py-20 bg-gray-950">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
                 <span class="text-red-400 font-semibold text-xs uppercase tracking-widest">Testimonios</span>
                 <h2 class="text-3xl font-bold text-white mt-2">Lo que dicen nuestros clientes</h2>
             </div>
+
+            @if($resenasSitio->isNotEmpty())
             <div class="relative overflow-hidden" id="reviewsWrapper">
                 <div class="flex gap-6 transition-transform duration-500 ease-in-out" id="reviewsTrack">
-                    @php
-                    $reviews = [
-                        ['nombre'=>'Carlos M.','texto'=>'Llevé mi moto para personalización y quedé impresionado. Los colores son perfectos y el acabado es de nivel profesional. 100% recomendados.','stars'=>5],
-                        ['nombre'=>'Daniela R.','texto'=>'Tomé el curso de pintura automotriz y fue increíble. El instructor explica muy bien y aprendí técnicas que jamás imaginé. Vale cada peso.','stars'=>5],
-                        ['nombre'=>'Andrés P.','texto'=>'Compré repuestos y los recibí rápido, todo en perfectas condiciones. El servicio al cliente es excelente, siempre dispuestos a ayudar.','stars'=>5],
-                        ['nombre'=>'Laura V.','texto'=>'Mi moto quedó como nueva después del trabajo de pintura. Es un arte lo que hacen, se nota la dedicación y el amor por lo que hacen.','stars'=>5],
-                        ['nombre'=>'Miguel S.','texto'=>'Excelente servicio, los precios son justos y la calidad del trabajo no tiene comparación en Melgar. Definitivamente vuelvo.','stars'=>5],
-                        ['nombre'=>'Sofía L.','texto'=>'Hice el curso básico de pintura y ahora tengo mi propio negocio. Painting Mistery me cambió la vida. ¡Gracias a todo el equipo!','stars'=>5],
-                    ];
-                    if (!empty($googleData['reviews'])) { $reviews = $googleData['reviews']; }
-                    @endphp
-                    @foreach($reviews as $r)
+                    @foreach($resenasSitio as $r)
                     <div class="flex-none w-full sm:w-1/2 lg:w-1/3 bg-gray-800 rounded-2xl p-7 border border-gray-700">
-                        {{-- Estrellas --}}
                         <div class="flex gap-1 mb-4">
                             @for($i=0;$i<5;$i++)
-                            <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
+                            <svg class="h-4 w-4 {{ $i < $r->calificacion ? 'text-yellow-400' : 'text-gray-600' }}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                             @endfor
                         </div>
-                        <p class="text-gray-300 text-sm leading-relaxed italic mb-5">"{{ $r['texto'] }}"</p>
+                        <p class="text-gray-300 text-sm leading-relaxed italic mb-5">"{{ $r->comentario }}"</p>
                         <div class="flex items-center gap-3">
-                            @if(!empty($r['foto']))<img src="{{ $r['foto'] }}" alt="" referrerpolicy="no-referrer" class="h-9 w-9 rounded-full object-cover">@else
-                            <div class="h-9 w-9 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-sm">
-                                {{ strtoupper(substr($r['nombre'],0,1)) }}
-                            </div>@endif
-                            <p class="font-semibold text-white text-sm">{{ $r['nombre'] }}</p>
+                            <div class="h-9 w-9 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-sm">{{ mb_strtoupper(mb_substr($r->nombre,0,1)) }}</div>
+                            <p class="font-semibold text-white text-sm">{{ $r->nombre }}</p>
                         </div>
                     </div>
                     @endforeach
                 </div>
-                {{-- Controles --}}
                 <div class="flex items-center justify-center gap-4 mt-8">
                     <button onclick="moveReviews(-1)" class="h-10 w-10 rounded-full bg-gray-800 hover:bg-red-600 text-white flex items-center justify-center transition border border-gray-700">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
@@ -432,9 +417,43 @@
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </button>
                 </div>
+            </div>
+            @else
+            <p class="text-center text-gray-400 text-sm mb-2">Aún no hay reseñas publicadas aquí. ¡Sé la primera persona en dejar la suya!</p>
+            @endif
 
-                {{-- CTA: reseñas de Google (dato real: 4.3 ★ · 62 opiniones) --}}
-                <div class="mt-12 bg-gray-800 border border-gray-700 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+            {{-- Dejar reseña + Google --}}
+            <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 sm:p-8">
+                    <h3 class="font-bold text-white text-lg">Cuéntanos tu experiencia</h3>
+                    <p class="text-gray-400 text-sm mb-5">Tu opinión se publica después de una breve revisión.</p>
+
+                    @if(session('resena_ok'))
+                        <div class="mb-4 bg-green-500/10 border border-green-500/30 text-green-300 text-sm px-4 py-3 rounded-xl">{{ session('resena_ok') }}</div>
+                    @endif
+                    @if($errors->has('nombre') || $errors->has('calificacion') || $errors->has('comentario'))
+                        <div class="mb-4 bg-red-500/10 border border-red-500/30 text-red-300 text-sm px-4 py-3 rounded-xl">Revisa los datos: escribe tu nombre, elige estrellas y un comentario de al menos 10 caracteres.</div>
+                    @endif
+
+                    <form method="POST" action="{{ route('resenas-sitio.store') }}" class="space-y-4">
+                        @csrf
+                        <input type="text" name="nombre" value="{{ old('nombre', auth()->user()->primer_nombre ?? '') }}" maxlength="80" required placeholder="Tu nombre"
+                               class="w-full rounded-lg bg-gray-900 border border-gray-700 text-white placeholder-gray-500 px-3 py-2.5 text-sm focus:outline-none focus:border-red-500">
+                        <div class="flex items-center gap-3">
+                            <span class="text-gray-400 text-sm">Tu calificación:</span>
+                            <select name="calificacion" class="rounded-lg bg-gray-900 border border-gray-700 text-yellow-400 px-3 py-2 text-sm">
+                                @for($i=5;$i>=1;$i--)
+                                    <option value="{{ $i }}" @selected((int) old('calificacion', 5) === $i)>{{ str_repeat('★', $i) }} ({{ $i }})</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <textarea name="comentario" rows="3" minlength="10" maxlength="600" required placeholder="¿Qué te pareció el servicio?"
+                                  class="w-full rounded-lg bg-gray-900 border border-gray-700 text-white placeholder-gray-500 px-3 py-2.5 text-sm focus:outline-none focus:border-red-500 resize-none">{{ old('comentario') }}</textarea>
+                        <button class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl text-sm transition">Enviar reseña</button>
+                    </form>
+                </div>
+
+                <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 sm:p-8 flex flex-col justify-center gap-5">
                     <div class="flex items-center gap-4">
                         <div class="h-14 w-14 rounded-full bg-white flex items-center justify-center shrink-0">
                             <svg class="h-7 w-7" viewBox="0 0 24 24">
@@ -445,25 +464,18 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="font-bold text-white">¿Ya nos visitaste?</p>
-                            <p class="text-gray-400 text-sm">Cuéntale a otros tu experiencia en Google</p>
-                            <div class="flex items-center gap-1.5 mt-1.5">
+                            <p class="font-bold text-white">También en Google</p>
+                            <div class="flex items-center gap-1.5 mt-1">
                                 <div class="flex gap-0.5">
-                                    @for($i=0;$i<5;$i++)
-                                        <svg class="h-3.5 w-3.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                    @endfor
+                                    @for($i=0;$i<5;$i++)<svg class="h-3.5 w-3.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>@endfor
                                 </div>
-                                <span class="text-gray-400 text-xs">{{ $googleData ? number_format($googleData['rating'],1) : '4.3' }} · {{ $googleData['total'] ?? 62 }} opiniones en Google</span>
+                                <span class="text-gray-400 text-xs">4.3 · 62 opiniones en Google</span>
                             </div>
                         </div>
                     </div>
-                    <a href="https://www.google.com/search?q=Painting+Mistery+Melgar+Tolima+opiniones" target="_blank" rel="noopener"
-                       class="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition shrink-0 flex items-center gap-2">
-                        Dejar una reseña
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                        </svg>
-                    </a>
+                    <p class="text-gray-400 text-sm">Si prefieres, deja tu reseña directamente en Google y ayuda a que más personas nos encuentren.</p>
+                    <a href="https://search.google.com/local/writereview?placeid=ChIJv7Zab8DfPo4R1AyV2wRvzJM" target="_blank" rel="noopener"
+                       class="bg-white hover:bg-gray-100 text-gray-900 font-bold px-6 py-3 rounded-xl text-sm transition text-center">Dejar reseña en Google</a>
                 </div>
             </div>
         </div>

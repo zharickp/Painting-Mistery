@@ -19,6 +19,8 @@ use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\CursoController;
 use App\Http\Controllers\Admin\InscripcionController as AdminInscripcionController;
 use App\Http\Controllers\InscripcionController;
+use App\Http\Controllers\ResenaSitioController;
+use App\Http\Controllers\Admin\ResenaSitioController as AdminResenaSitioController;
 use App\Http\Controllers\Admin\InventarioController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Admin\AuditoriaController;
@@ -33,6 +35,8 @@ use App\Http\Controllers\WompiWebhookController;
 Route::get('/', [LandingController::class, 'index'])->name('inicio');
 Route::get('/nosotros', [LandingController::class, 'nosotros'])->name('nosotros');
 Route::get('/academia', [LandingController::class, 'academia'])->name('academia');
+
+Route::post('/resenas-sitio', [ResenaSitioController::class, 'store'])->middleware('throttle:5,10')->name('resenas-sitio.store');
 
 // ─── Tienda pública ───────────────────────────────────────────────────────────
 Route::get('/tienda', [TiendaController::class, 'index'])->name('tienda.index');
@@ -132,6 +136,7 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::put('cursos/{curso}',           [CursoController::class, 'update'])->name('cursos.update');
         Route::patch('cursos/{curso}',         [CursoController::class, 'update']);
         Route::post('cursos/{curso}/toggle',   [CursoController::class, 'toggleEstado'])->name('cursos.toggle');
+        Route::put('resenas-sitio/{resena}', [AdminResenaSitioController::class, 'update'])->name('resenas-sitio.update');
         Route::put('inscripciones/{inscripcion}', [AdminInscripcionController::class, 'update'])->name('inscripciones.update');
 
         Route::post('/inventario/{inventario}/actualizar', [InventarioController::class, 'actualizar'])->name('inventario.actualizar');
@@ -141,6 +146,7 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
     Route::prefix('admin')->name('admin.')->middleware('role:Administrador,Asesor,Gerente')->group(function () {
         Route::get('productos',              [ProductoController::class, 'index'])->name('productos.index');
         Route::get('cursos',                 [CursoController::class, 'index'])->name('cursos.index');
+        Route::get('resenas-sitio',          [AdminResenaSitioController::class, 'index'])->name('resenas-sitio.index');
         Route::get('cursos/{curso}/inscripciones', [AdminInscripcionController::class, 'index'])->name('cursos.inscripciones');
         Route::get('/inventario',            [InventarioController::class, 'index'])->name('inventario');
         Route::get('/ventas',                fn() => view('admin.ventas'))->name('ventas');
