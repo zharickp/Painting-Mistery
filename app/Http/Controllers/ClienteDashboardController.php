@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Curso;
+use App\Models\Inscripcion;
+use App\Models\Producto;
 use App\Models\Venta;
 use App\Models\VentaEnvio;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ClienteDashboardController extends Controller
@@ -37,9 +42,19 @@ class ClienteDashboardController extends Controller
                                      ->where('estado_pedido', '!=', 'cancelado')->sum('total'),
         ];
 
-        $tieneCursos = auth()->user()->inscripciones()->exists();
+        $inscripciones = Inscripcion::with(['curso.info', 'agenda'])
+            ->where('usuario_id', $userId)->whereIn('estado', ['pendiente', 'confirmada', 'completada'])->latest()->get();
+        $proximoCurso = $inscripciones->where('estado', 'confirmada')
+            ->filter(fn ($i) => $i->agenda?->fecha_confirmada && $i->agenda->fecha_confirmada->gte(today()))
+            ->sortBy(fn ($i) => $i->agenda->fecha_confirmada)->first();
+        $inscritosIds = $inscripciones->pluck('curso_id');
+        $cursosDisponibles = Curso::where('estado', true)->whereNotIn('id', $inscritosIds)->orderBy('costo')->limit(3)->get();
+        $ultimaOrden = $ventas->first(fn ($v) => $v->envio?->payment_status === 'APPROVED');
+        $recomendados = Producto::where('estado', true)->with('categoria')->latest()->limit(4)->get();
 
-        return view('cliente.inicio', compact('stats', 'ventas', 'tieneCursos'));
+        return view('cliente.inicio', compact(
+            'stats', 'ventas', 'inscripciones', 'proximoCurso', 'cursosDisponibles', 'ultimaOrden', 'recomendados'
+        ));
     }
 
     public function pedidos(): View
@@ -63,11 +78,10 @@ class ClienteDashboardController extends Controller
     }
 
     /**
-     * Factura/comprobante imprimible de una orden. Solo disponible una
-     * vez el pago quedó aprobado (una orden pendiente o rechazada no
-     * genera un comprobante de compra válido).
+     * Orden de venta imprimible. Solo disponible una vez el pago quedó
+     * aprobado. Documento interno del sistema, no es una factura.
      */
-    public function factura(int $ventaId): View
+    public function ordenVenta(int $ventaId): View
     {
         $venta = Venta::with(['envio', 'usuario', 'detalleProductos.producto'])
             ->where('id', $ventaId)
@@ -76,6 +90,41 @@ class ClienteDashboardController extends Controller
 
         abort_unless($venta->envio && $venta->envio->payment_status === 'APPROVED', 404);
 
-        return view('cliente.factura', compact('venta'));
+        $volver = route('mi-cuenta.pedido', $venta->id);
+
+        return view('cliente.orden-venta', compact('venta', 'volver'));
+    }
+
+    public function cursos(): View
+    {
+        $userId = auth()->id();
+
+        $inscripciones = Inscripcion::with(['curso.info', 'agenda'])
+            ->where('usuario_id', $userId)->latest()->get();
+
+        $inscritosActivos = $inscripciones->whereIn('estado', ['pendiente', 'confirmada', 'completada'])->pluck('curso_id');
+        $disponibles = Curso::with('info')->where('estado', true)->whereNotIn('id', $inscritosActivos)->orderBy('costo')->get();
+
+        return view('cliente.cursos', compact('inscripciones', 'disponibles'));
+    }
+
+    public function perfil(): View
+    {
+        return view('cliente.perfil', ['usuario' => auth()->user()]);
+    }
+
+    public function actualizarPerfil(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'primer_nombre'    => ['required', 'string', 'max:60'],
+            'segundo_nombre'   => ['nullable', 'string', 'max:60'],
+            'primer_apellido'  => ['required', 'string', 'max:60'],
+            'segundo_apellido' => ['nullable', 'string', 'max:60'],
+            'telefono'         => ['nullable', 'string', 'max:20'],
+        ]);
+
+        auth()->user()->update($data);
+
+        return back()->with('success', 'Tu perfil se actualizó correctamente.');
     }
 }

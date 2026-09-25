@@ -76,7 +76,7 @@
                         @if($activa)
                             <div class="rounded-xl bg-gray-50 border border-gray-100 px-4 py-3 flex items-center justify-between">
                                 <span class="px-2.5 py-1 text-xs rounded-full font-semibold {{ $ins->estadoColor() }}">{{ $ins->estadoEtiqueta() }}</span>
-                                @auth @if(auth()->user()->tieneRol('Cliente'))<a href="{{ route('cliente.cursos') }}" class="text-sm text-red-600 font-semibold">Ver detalles →</a>@endif @endauth
+                                @auth @if(auth()->user()->tieneRol('Cliente'))<a href="{{ route('mi-cuenta.cursos') }}" class="text-sm text-red-600 font-semibold">Ver detalles →</a>@endif @endauth
                             </div>
                         @elseif($libres !== null && $libres <= 0)
                             <div class="rounded-xl bg-gray-100 text-gray-500 text-sm text-center py-3 font-medium">Cupos agotados</div>

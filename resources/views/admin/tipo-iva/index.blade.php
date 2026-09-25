@@ -33,6 +33,7 @@
                     <th class="px-5 py-3">Descripción</th>
                     <th class="px-5 py-3 text-center">Porcentaje</th>
                     <th class="px-5 py-3 text-center">Productos</th>
+                    <th class="px-5 py-3 text-center">Estado</th>
                     <th class="px-5 py-3 text-center">Acciones</th>
                 </tr>
             </thead>
@@ -51,15 +52,29 @@
                         </span>
                     </td>
                     <td class="px-5 py-3 text-center">
-                        <a href="{{ route('admin.tipo-iva.edit', $tipo) }}"
-                           class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs rounded-md transition">
-                            Editar
-                        </a>
+                        <span class="px-2 py-0.5 text-xs rounded-full font-semibold {{ $tipo->activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500' }}">
+                            {{ $tipo->activo ? 'Activo' : 'Inactivo' }}
+                        </span>
+                    </td>
+                    <td class="px-5 py-3 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="{{ route('admin.tipo-iva.edit', $tipo) }}"
+                               class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs rounded-md transition">
+                                Editar
+                            </a>
+                            <form method="POST" action="{{ route('admin.tipo-iva.toggle', $tipo) }}"
+                                  onsubmit="return confirm('{{ $tipo->activo ? '¿Desactivar este tipo de IVA? No aparecerá para nuevos productos (los existentes lo conservan).' : '¿Activar este tipo de IVA?' }}')">
+                                @csrf
+                                <button class="px-3 py-1 text-xs rounded-md font-medium transition {{ $tipo->activo ? 'bg-amber-50 hover:bg-amber-100 text-amber-700' : 'bg-green-50 hover:bg-green-100 text-green-700' }}">
+                                    {{ $tipo->activo ? 'Desactivar' : 'Activar' }}
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="4" class="px-5 py-12 text-center text-gray-400">
+                    <td colspan="5" class="px-5 py-12 text-center text-gray-400">
                         No hay tipos de IVA registrados.
                     </td>
                 </tr>

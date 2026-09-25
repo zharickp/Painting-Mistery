@@ -97,6 +97,7 @@ return [
             'search_path' => 'public',
             'schema' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            'timezone' => env('DB_TIMEZONE', 'America/Bogota'),
         ],
 
         'sqlsrv' => [

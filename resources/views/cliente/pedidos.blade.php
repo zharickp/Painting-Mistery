@@ -5,6 +5,8 @@
 @include('partials.nav')
 
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    @include('cliente.partials.menu')
     <div class="mb-8 flex items-start justify-between gap-4 flex-wrap">
         <div>
             <p class="text-xs text-slate-500 mb-2">

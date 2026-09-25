@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CategoriaProducto;
 use App\Models\Producto;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class TiendaController extends Controller
@@ -24,13 +25,25 @@ class TiendaController extends Controller
             $porPagina = 12;
         }
 
-        $productos = Producto::where('estado', true)
+        // Normaliza: sin tildes, minúsculas y espacios de más; cada palabra debe coincidir en algún campo.
+        $normalizado = mb_strtolower(Str::ascii(preg_replace('/\s+/u', ' ', $buscar)));
+        $terminos    = $normalizado === '' ? [] : array_values(array_filter(explode(' ', $normalizado)));
+
+        $productos = Producto::where('producto.estado', true)
             ->with(['categoria', 'imagenes', 'inventario', 'resenas', 'colores'])
-            ->when($buscar !== '', function ($query) use ($buscar) {
-                $query->where(function ($sub) use ($buscar) {
-                    $sub->where('nombre', 'ilike', "%{$buscar}%")
-                        ->orWhere('descripcion', 'ilike', "%{$buscar}%");
-                });
+            ->when($terminos !== [], function ($query) use ($terminos) {
+                foreach ($terminos as $t) {
+                    $like = '%' . addcslashes($t, '\\%_') . '%';
+                    $query->where(function ($sub) use ($t, $like) {
+                        $sub->whereRaw("translate(lower(producto.nombre), 'áéíóúüñ', 'aeiouun') like ?", [$like])
+                            ->orWhereRaw("translate(lower(coalesce(producto.descripcion, '')), 'áéíóúüñ', 'aeiouun') like ?", [$like])
+                            ->orWhereHas('categoria', fn ($c) => $c->whereRaw("translate(lower(nombre), 'áéíóúüñ', 'aeiouun') like ?", [$like]))
+                            ->orWhereHas('colores', fn ($c) => $c->whereRaw("translate(lower(nombre), 'áéíóúüñ', 'aeiouun') like ?", [$like]));
+                        if (ctype_digit($t)) {
+                            $sub->orWhere('producto.id', (int) $t);
+                        }
+                    });
+                }
             })
             ->when($categoria, fn ($query) => $query->where('categoria_producto_id', $categoria))
             ->when(is_numeric($precioMin), fn ($query) => $query->where('precio', '>=', (float) $precioMin))
@@ -41,7 +54,12 @@ class TiendaController extends Controller
             ->when($orden === 'precio_desc', fn ($query) => $query->orderBy('precio', 'desc'))
             ->when($orden === 'nombre', fn ($query) => $query->orderBy('nombre', 'asc'))
             ->when($orden === 'recientes', fn ($query) => $query->orderByDesc('created_at'))
-            ->when(! in_array($orden, ['precio_asc', 'precio_desc', 'nombre', 'recientes'], true), fn ($query) => $query->orderByDesc('created_at'))
+            ->when(! in_array($orden, ['precio_asc', 'precio_desc', 'nombre', 'recientes'], true), function ($query) use ($normalizado) {
+                if ($normalizado !== '') {
+                    $query->orderByRaw("case when translate(lower(producto.nombre), 'áéíóúüñ', 'aeiouun') like ? then 0 else 1 end", ['%' . $normalizado . '%']);
+                }
+                $query->orderByDesc('producto.created_at');
+            })
             ->paginate($porPagina)
             ->withQueryString();
 

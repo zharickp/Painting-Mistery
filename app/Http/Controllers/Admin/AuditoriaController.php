@@ -10,7 +10,7 @@ class AuditoriaController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Auditoria::query()->orderByDesc('created_at');
+        $query = Auditoria::query()->orderByDesc('fecha');
 
         if ($request->filled('accion') && $request->accion !== 'todas') {
             $query->where('accion', $request->accion);
@@ -21,20 +21,20 @@ class AuditoriaController extends Controller
         }
 
         if ($request->filled('desde')) {
-            $query->whereDate('created_at', '>=', $request->desde);
+            $query->whereDate('fecha', '>=', $request->desde);
         }
 
         if ($request->filled('hasta')) {
-            $query->whereDate('created_at', '<=', $request->hasta);
+            $query->whereDate('fecha', '<=', $request->hasta);
         }
 
         if ($request->filled('buscar')) {
             $texto = trim($request->buscar);
             $query->where(function ($q) use ($texto) {
-                $q->where('usuario_nombre', 'like', "%{$texto}%")
-                  ->orWhere('usuario_correo', 'like', "%{$texto}%")
-                  ->orWhere('descripcion', 'like', "%{$texto}%")
-                  ->orWhere('registro_etiqueta', 'like', "%{$texto}%");
+                $q->where('usuario_nombre', 'ilike', "%{$texto}%")
+                  ->orWhere('usuario_correo', 'ilike', "%{$texto}%")
+                  ->orWhere('descripcion', 'ilike', "%{$texto}%")
+                  ->orWhere('registro_etiqueta', 'ilike', "%{$texto}%");
             });
         }
 

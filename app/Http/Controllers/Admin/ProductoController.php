@@ -12,6 +12,8 @@ use App\Models\TipoIva;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ProductoController extends Controller
@@ -28,7 +30,7 @@ class ProductoController extends Controller
     public function create(): View
     {
         $categorias = CategoriaProducto::where('estado', true)->orderBy('nombre')->get();
-        $tiposIva   = TipoIva::orderBy('porcentaje')->get();
+        $tiposIva   = TipoIva::activos()->orderBy('porcentaje')->get();
 
         return view('admin.productos.create', compact('categorias', 'tiposIva'));
     }
@@ -41,7 +43,7 @@ class ProductoController extends Controller
             'precio'                     => 'required|numeric|min:0',
             'precio_anterior'            => 'nullable|numeric|gt:precio',
             'categoria_producto_id'      => 'required|exists:categoria_producto,id',
-            'tipo_iva_id'                => 'required|exists:tipo_iva,id',
+            'tipo_iva_id'                => ['required', Rule::exists('tipo_iva', 'id')->where(fn ($q) => $q->whereNotIn('id', DB::table('tipo_iva_estado')->where('activo', false)->pluck('tipo_iva_id')))],
             'imagen'                     => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
             'imagenes.*'                 => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
             'grupos_color.*.nombre'      => 'nullable|string|max:40',
@@ -245,7 +247,7 @@ class ProductoController extends Controller
     public function edit(Producto $producto): View
     {
         $categorias = CategoriaProducto::where('estado', true)->orderBy('nombre')->get();
-        $tiposIva   = TipoIva::orderBy('porcentaje')->get();
+        $tiposIva   = TipoIva::activos()->orWhere('id', $producto->tipo_iva_id)->orderBy('porcentaje')->get();
         $producto->load(['imagenes', 'colores.imagenes']);
 
         $productosDisponibles = Producto::where('estado', true)
@@ -268,7 +270,7 @@ class ProductoController extends Controller
             'precio'                     => 'required|numeric|min:0',
             'precio_anterior'            => 'nullable|numeric|gt:precio',
             'categoria_producto_id'      => 'required|exists:categoria_producto,id',
-            'tipo_iva_id'                => 'required|exists:tipo_iva,id',
+            'tipo_iva_id'                => ['required', Rule::exists('tipo_iva', 'id')->where(fn ($q) => $q->whereNotIn('id', DB::table('tipo_iva_estado')->where('activo', false)->where('tipo_iva_id', '!=', $producto->tipo_iva_id)->pluck('tipo_iva_id')))],
             'imagen'                     => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
             'imagenes.*'                 => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
             'grupos_color.*.nombre'      => 'nullable|string|max:40',

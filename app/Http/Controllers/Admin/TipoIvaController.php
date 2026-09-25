@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\TipoIva;
+use App\Services\AuditoriaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -13,6 +14,7 @@ class TipoIvaController extends Controller
     public function index(): View
     {
         $tiposIva = TipoIva::withCount('productos')
+            ->with('estadoRegistro')
             ->orderBy('porcentaje')
             ->paginate(10);
 
@@ -85,5 +87,25 @@ class TipoIvaController extends Controller
 
         return redirect()->route('admin.tipo-iva.index')
             ->with('success', 'Tipo de IVA eliminado correctamente.');
+    }
+
+    public function toggleEstado(TipoIva $tipoIva): RedirectResponse
+    {
+        $anterior = $tipoIva->activo;
+        $tipoIva->estadoRegistro()->updateOrCreate([], ['activo' => ! $anterior]);
+
+        AuditoriaService::registrar([
+            'accion'             => $anterior ? 'desactivado' : 'activado',
+            'modulo'             => 'Tipo de IVA',
+            'registro_id'        => $tipoIva->id,
+            'registro_etiqueta'  => $tipoIva->descripcion,
+            'descripcion'        => ($anterior ? 'Desactivó' : 'Activó') . ' Tipo de IVA "' . $tipoIva->descripcion . '"'
+                                    . ($anterior ? ' (Activo → Inactivo)' : ' (Inactivo → Activo)'),
+            'valores_anteriores' => ['estado' => $anterior],
+            'valores_nuevos'     => ['estado' => ! $anterior],
+        ]);
+
+        return redirect()->route('admin.tipo-iva.index')
+            ->with('success', $anterior ? 'Tipo de IVA desactivado. Ya no estará disponible para nuevos productos.' : 'Tipo de IVA activado.');
     }
 }

@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\ProductoController;
 use App\Http\Controllers\Admin\CursoController;
 use App\Http\Controllers\Admin\InscripcionController as AdminInscripcionController;
 use App\Http\Controllers\InscripcionController;
+use App\Http\Controllers\Admin\VentaController as AdminVentaController;
 use App\Http\Controllers\ResenaSitioController;
 use App\Http\Controllers\Admin\ResenaSitioController as AdminResenaSitioController;
 use App\Http\Controllers\Admin\InventarioController;
@@ -96,6 +97,7 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::post('categorias/{categoria}/toggle', [CategoriaProductoController::class, 'toggleEstado'])->name('categorias.toggle');
 
         Route::resource('tipo-iva', TipoIvaController::class)->except(['show', 'destroy']);
+        Route::post('tipo-iva/{tipo_iva}/toggle', [TipoIvaController::class, 'toggleEstado'])->name('tipo-iva.toggle');
 
         Route::resource('banners', BannerController::class)->except(['show']);
         Route::post('banners/{banner}/toggle', [BannerController::class, 'toggleEstado'])->name('banners.toggle');
@@ -149,7 +151,8 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::get('resenas-sitio',          [AdminResenaSitioController::class, 'index'])->name('resenas-sitio.index');
         Route::get('cursos/{curso}/inscripciones', [AdminInscripcionController::class, 'index'])->name('cursos.inscripciones');
         Route::get('/inventario',            [InventarioController::class, 'index'])->name('inventario');
-        Route::get('/ventas',                fn() => view('admin.ventas'))->name('ventas');
+        Route::get('/ventas',                [AdminVentaController::class, 'index'])->name('ventas');
+        Route::get('/ventas/{venta}/orden-venta', [AdminVentaController::class, 'orden'])->name('ventas.orden');
         Route::get('/reportes',              fn() => view('admin.reportes'))->name('reportes');
     });
 
@@ -184,15 +187,13 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
             Route::get('/',                    [ClienteDashboardController::class, 'index'])->name('inicio');
             Route::get('/pedidos',             [ClienteDashboardController::class, 'pedidos'])->name('pedidos');
             Route::get('/pedidos/{venta}',     [ClienteDashboardController::class, 'pedido'])->name('pedido');
-            Route::get('/pedidos/{venta}/factura', [ClienteDashboardController::class, 'factura'])->name('pedido.factura');
+            Route::get('/cursos',              [ClienteDashboardController::class, 'cursos'])->name('cursos');
+            Route::get('/perfil',              [ClienteDashboardController::class, 'perfil'])->name('perfil');
+            Route::put('/perfil',              [ClienteDashboardController::class, 'actualizarPerfil'])->name('perfil.update');
+            Route::get('/pedidos/{venta}/orden-venta', [ClienteDashboardController::class, 'ordenVenta'])->name('pedido.orden');
         });
     });
 
-    // ── Cliente ───────────────────────────────────────────────────────────────
-    // "Mis pedidos" vive en el grupo mi-cuenta.* (ver arriba, ClienteDashboardController).
-    Route::prefix('cliente')->name('cliente.')->group(function () {
-        Route::get('/cursos', fn() => view('cliente.cursos'))->name('cursos');
-    });
 });
 
 // ── Webhook Wompi (POST público, sin CSRF configurado en bootstrap/app.php) ──

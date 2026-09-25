@@ -41,12 +41,26 @@ class AuditableObserver
             $desp[$campo]  = $nuevo;
         }
 
+        $accion = 'actualizado';
+        $verbo  = 'Actualizó';
+        $sufijo = '';
+
+        // Solo cambió el interruptor activo/inactivo (estado booleano): evento propio.
+        if ($dirty->keys()->all() === ['estado'] && is_bool($model->getAttribute('estado'))) {
+            $activo = (bool) $model->getAttribute('estado');
+            $accion = $activo ? 'activado' : 'desactivado';
+            $verbo  = $activo ? 'Activó' : 'Desactivó';
+            $sufijo = $activo ? ' (Inactivo → Activo)' : ' (Activo → Inactivo)';
+        }
+
+        $etiqueta = method_exists($model, 'auditoriaEtiqueta') ? $model->auditoriaEtiqueta() : null;
+
         AuditoriaService::registrar([
-            'accion'             => 'actualizado',
+            'accion'             => $accion,
             'modulo'             => $model->auditoriaTipo(),
             'registro_id'        => $model->getKey(),
-            'registro_etiqueta'  => method_exists($model, 'auditoriaEtiqueta') ? $model->auditoriaEtiqueta() : null,
-            'descripcion'        => 'Actualizó ' . $model->auditoriaTipo() . ($model->auditoriaEtiqueta() ? ' "' . $model->auditoriaEtiqueta() . '"' : ''),
+            'registro_etiqueta'  => $etiqueta,
+            'descripcion'        => $verbo . ' ' . $model->auditoriaTipo() . ($etiqueta ? ' "' . $etiqueta . '"' : '') . $sufijo,
             'valores_anteriores' => $antes,
             'valores_nuevos'     => $desp,
         ]);

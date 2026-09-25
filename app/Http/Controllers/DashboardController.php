@@ -13,9 +13,13 @@ use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function index(): View
+    public function index(): View|\Illuminate\Http\RedirectResponse
     {
         $usuario  = auth()->user();
+
+        if ($usuario->tieneRol('Cliente') && ! $usuario->tieneRol('Administrador', 'Asesor', 'Gerente')) {
+            return redirect()->route('mi-cuenta.inicio');
+        }
         $esAdmin  = $usuario->tieneRol('Administrador');
         $esAsesor = $usuario->tieneRol('Asesor');
         $esGerente = $usuario->tieneRol('Gerente');
