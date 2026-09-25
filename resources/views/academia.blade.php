@@ -150,23 +150,30 @@
                                 @if(auth()->user()->tieneRol('Cliente'))
                                 <form method="POST" action="{{ route('cursos.inscribirse', $curso) }}" class="space-y-3">
                                     @csrf
-                                    <label class="block text-xs font-semibold {{ $suave }}">Fechas disponibles</label>
-                                    <select name="curso_fecha_id" required
-                                            class="w-full rounded-xl border px-3 py-3 text-sm focus:outline-none focus:border-red-400 {{ $destacado ? 'bg-gray-900 border-white/15 text-white' : 'bg-white border-gray-200 text-gray-800' }}">
-                                        <option value="" disabled selected>Elige cuándo quieres empezar…</option>
+                                    <p class="text-xs font-semibold {{ $suave }}">Elige tu fecha <span class="font-normal opacity-70">({{ $curso->dias() === 1 ? 'dura 1 día' : 'dura ' . $curso->dias() . ' días' }})</span></p>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1">
                                         @foreach($curso->fechas as $f)
-                                            <option value="{{ $f->id }}">{{ $f->etiqueta() }}</option>
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="curso_fecha_id" value="{{ $f->id }}" required class="peer sr-only">
+                                            <span class="block rounded-xl border px-3 py-2.5 text-xs leading-snug transition peer-checked:border-red-500 peer-checked:ring-2 peer-checked:ring-red-500/40 peer-checked:bg-red-600/10 peer-focus-visible:ring-2 {{ $destacado ? 'border-white/15 text-gray-200 hover:border-white/40' : 'border-gray-200 text-gray-700 hover:border-gray-400' }}">
+                                                <span class="block font-bold">{{ ucfirst($f->fecha->copy()->locale('es')->isoFormat('MMMM')) }}</span>
+                                                {{ $f->etiqueta($curso->dias()) }}
+                                            </span>
+                                        </label>
                                         @endforeach
-                                    </select>
-                                    <button class="w-full bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl py-3 text-sm transition shadow-lg shadow-red-600/20">Reservar mi cupo</button>
-                                    <p class="text-[11px] text-gray-400">Después te contactamos para coordinar hospedaje y los detalles.</p>
+                                    </div>
+                                    <button class="w-full bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl py-3 text-sm transition shadow-lg shadow-red-600/20">Reservar y ver mi comprobante</button>
+                                    <p class="text-[11px] text-gray-400">Recibirás un comprobante para coordinar el abono por WhatsApp.</p>
                                 </form>
                                 @else
                                 <p class="text-xs text-center text-gray-400">Las reservas se hacen desde una cuenta de cliente.</p>
                                 @endif
                             @else
-                                <p class="text-sm mb-3 {{ $suave }}">Próximas fechas: {{ $curso->fechas->take(3)->map->etiqueta()->implode(' · ') }}</p>
-                                <a href="{{ route('login') }}" class="block text-center bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl py-3 text-sm transition">Inicia sesión para reservar</a>
+                                <p class="text-sm mb-3 {{ $suave }}">Próximas fechas: {{ $curso->fechas->take(3)->map(fn ($f) => $f->etiqueta($curso->dias()))->implode(' · ') }}</p>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <a href="{{ route('register') }}" class="text-center bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl py-3 text-sm transition">Crear cuenta</a>
+                                    <a href="{{ route('login') }}" class="text-center border font-bold rounded-xl py-3 text-sm transition {{ $destacado ? 'border-white/20 text-white hover:bg-white/10' : 'border-gray-300 text-gray-700 hover:bg-gray-50' }}">Ya tengo cuenta</a>
+                                </div>
                             @endauth
                         @endif
                         </div>

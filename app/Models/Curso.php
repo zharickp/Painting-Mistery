@@ -51,6 +51,16 @@ class Curso extends Model
         return $this->fechas()->whereDate('fecha', '>=', today());
     }
 
+    public function dias(): int
+    {
+        return max(1, (int) ($this->info?->dias ?? 1));
+    }
+
+    public function duracionTexto(): string
+    {
+        return $this->info?->duracion ?: ($this->dias() . ($this->dias() === 1 ? ' día' : ' días'));
+    }
+
     public function info()
     {
         return $this->hasOne(CursoInfo::class);

@@ -78,8 +78,13 @@
                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
             </div>
             <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Días de duración *</label>
+                <input type="number" name="dias" min="1" max="30" required value="{{ old('dias', $curso->info?->dias ?? 1) }}"
+                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
+            </div>
+            <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Duración <span class="text-gray-400">(opcional)</span>
+                    Texto de duración <span class="text-gray-400">(opcional)</span>
                 </label>
                 <input type="text" name="duracion" value="{{ old('duracion', $curso->info?->duracion) }}" placeholder="4 sesiones · 1 mes"
                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">

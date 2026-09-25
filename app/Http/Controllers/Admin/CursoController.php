@@ -37,6 +37,7 @@ class CursoController extends Controller
             'fecha_fin'            => ['nullable', 'date', 'after_or_equal:fecha_inicio'],
             'ubicacion'            => ['nullable', 'string', 'max:150'],
             'duracion'             => ['nullable', 'string', 'max:100'],
+            'dias'                 => ['required', 'integer', 'between:1,30'],
             'requisitos'           => ['nullable', 'string'],
             'incluye_certificado'  => ['nullable', 'boolean'],
         ]);
@@ -54,6 +55,7 @@ class CursoController extends Controller
         $curso->info()->create([
             'ubicacion'           => $request->ubicacion,
             'duracion'            => $request->duracion,
+            'dias'                => (int) $request->dias,
             'requisitos'          => $request->requisitos,
             'incluye_certificado' => $request->boolean('incluye_certificado'),
         ]);
@@ -80,6 +82,7 @@ class CursoController extends Controller
             'fecha_fin'            => ['nullable', 'date', 'after_or_equal:fecha_inicio'],
             'ubicacion'            => ['nullable', 'string', 'max:150'],
             'duracion'             => ['nullable', 'string', 'max:100'],
+            'dias'                 => ['required', 'integer', 'between:1,30'],
             'requisitos'           => ['nullable', 'string'],
             'incluye_certificado'  => ['nullable', 'boolean'],
         ]);
@@ -96,6 +99,7 @@ class CursoController extends Controller
         $curso->info()->updateOrCreate([], [
             'ubicacion'           => $request->ubicacion,
             'duracion'            => $request->duracion,
+            'dias'                => (int) $request->dias,
             'requisitos'          => $request->requisitos,
             'incluye_certificado' => $request->boolean('incluye_certificado'),
         ]);

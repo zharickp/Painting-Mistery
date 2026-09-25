@@ -156,6 +156,7 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
     Route::prefix('admin')->name('admin.')->middleware('role:Administrador,Asesor,Gerente')->group(function () {
         Route::get('productos',              [ProductoController::class, 'index'])->name('productos.index');
         Route::get('cursos',                 [CursoController::class, 'index'])->name('cursos.index');
+        Route::get('agenda-cursos',          [\App\Http\Controllers\Admin\AgendaCursosController::class, 'index'])->name('agenda-cursos.index');
         Route::get('resenas-sitio',          [AdminResenaSitioController::class, 'index'])->name('resenas-sitio.index');
         Route::get('cursos/{curso}/inscripciones', [AdminInscripcionController::class, 'index'])->name('cursos.inscripciones');
         Route::get('/inventario',            [InventarioController::class, 'index'])->name('inventario');
@@ -197,6 +198,7 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
             Route::get('/pedidos',             [ClienteDashboardController::class, 'pedidos'])->name('pedidos');
             Route::get('/pedidos/{venta}',     [ClienteDashboardController::class, 'pedido'])->name('pedido');
             Route::get('/cursos',              [ClienteDashboardController::class, 'cursos'])->name('cursos');
+            Route::get('/cursos/{inscripcion}/comprobante', [ClienteDashboardController::class, 'comprobanteCurso'])->name('cursos.comprobante');
             Route::get('/perfil',              [ClienteDashboardController::class, 'perfil'])->name('perfil');
             Route::put('/perfil',              [ClienteDashboardController::class, 'actualizarPerfil'])->name('perfil.update');
             Route::post('/pedidos/{venta}/cancelar', [ClienteDashboardController::class, 'cancelarPedido'])->name('pedido.cancelar');

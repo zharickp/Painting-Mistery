@@ -17,6 +17,7 @@
         'respaldos'     => ['Copias de seguridad', 'admin.respaldos.index'],
         'tarifas-envio' => ['Tarifas de envío',   'admin.tarifas-envio.index'],
         'resenas-sitio' => ['Reseñas',            'admin.resenas-sitio.index'],
+        'agenda-cursos' => ['Agenda de cursos',   'admin.agenda-cursos.index'],
     ];
     $acciones = ['create' => 'Nuevo', 'edit' => 'Editar', 'show' => 'Detalle', 'inscripciones' => 'Inscripciones', 'orden' => 'Orden de venta'];
 
