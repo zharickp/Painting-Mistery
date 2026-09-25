@@ -18,6 +18,7 @@ class TiendaController extends Controller
         $precioMin  = $request->query('precio_min');
         $precioMax  = $request->query('precio_max');
         $soloStock  = $request->boolean('en_stock');
+        $soloOferta = $request->boolean('oferta');
 
         if (! in_array($porPagina, [9, 12, 18, 24], true)) {
             $porPagina = 12;
@@ -34,6 +35,7 @@ class TiendaController extends Controller
             ->when($categoria, fn ($query) => $query->where('categoria_producto_id', $categoria))
             ->when(is_numeric($precioMin), fn ($query) => $query->where('precio', '>=', (float) $precioMin))
             ->when(is_numeric($precioMax), fn ($query) => $query->where('precio', '<=', (float) $precioMax))
+            ->when($soloOferta, fn ($query) => $query->whereNotNull('precio_anterior')->whereColumn('precio_anterior', '>', 'precio'))
             ->when($soloStock, fn ($query) => $query->whereHas('inventario', fn ($q) => $q->where('stock_actual', '>', 0)))
             ->when($orden === 'precio_asc', fn ($query) => $query->orderBy('precio', 'asc'))
             ->when($orden === 'precio_desc', fn ($query) => $query->orderBy('precio', 'desc'))
@@ -58,7 +60,7 @@ class TiendaController extends Controller
 
         return view('tienda.index', compact(
             'productos', 'categorias', 'buscar', 'categoria', 'orden', 'porPagina',
-            'precioMin', 'precioMax', 'soloStock'
+            'precioMin', 'precioMax', 'soloStock', 'soloOferta'
         ));
     }
 }
