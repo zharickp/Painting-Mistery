@@ -122,6 +122,12 @@ class CursoController extends Controller
     {
         $request->validate(['fecha' => ['required', 'date', 'after_or_equal:today']]);
 
+        $inicio = \Carbon\Carbon::parse($request->fecha);
+        // Los cursos no se dictan en fin de semana: ningún día del curso puede caer en sábado o domingo.
+        if ($inicio->dayOfWeekIso + $curso->dias() - 1 > 5) {
+            return back()->with('error', 'Los cursos no se dictan en fin de semana: los ' . $curso->dias() . ' día(s) del curso deben caer de lunes a viernes.');
+        }
+
         $curso->fechas()->firstOrCreate(['fecha' => $request->fecha]);
 
         return back()->with('success', 'Fecha publicada para este curso.');
