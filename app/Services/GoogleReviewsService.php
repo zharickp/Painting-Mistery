@@ -22,31 +22,32 @@ class GoogleReviewsService
 
         return Cache::remember('google_reviews', now()->addHours(3), function () {
             try {
-                $resp = Http::timeout(8)->get('https://maps.googleapis.com/maps/api/place/details/json', [
-                    'place_id' => config('services.google_places.place_id'),
-                    'fields'   => 'rating,user_ratings_total,reviews',
-                    'language' => 'es',
-                    'reviews_sort' => 'newest',
-                    'key'      => config('services.google_places.key'),
-                ]);
+                $resp = Http::timeout(8)
+                    ->withHeaders([
+                        'X-Goog-Api-Key'   => config('services.google_places.key'),
+                        'X-Goog-FieldMask' => 'rating,userRatingCount,reviews',
+                    ])
+                    ->get('https://places.googleapis.com/v1/places/' . config('services.google_places.place_id'), [
+                        'languageCode' => 'es',
+                    ]);
 
-                $r = $resp->json('result');
-                if (! $resp->ok() || ! $r) {
-                    Log::warning('Google Reviews: respuesta inválida', ['status' => $resp->json('status')]);
+                $r = $resp->json();
+                if (! $resp->ok() || ! is_array($r)) {
+                    Log::warning('Google Reviews: respuesta inválida', ['error' => $resp->json('error.message')]);
                     return null;
                 }
 
                 return [
                     'rating'  => (float) ($r['rating'] ?? 0),
-                    'total'   => (int) ($r['user_ratings_total'] ?? 0),
+                    'total'   => (int) ($r['userRatingCount'] ?? 0),
                     'reviews' => collect($r['reviews'] ?? [])
-                        ->filter(fn ($x) => filled($x['text'] ?? null))
+                        ->filter(fn ($x) => filled($x['text']['text'] ?? null))
                         ->map(fn ($x) => [
-                            'nombre' => $x['author_name'] ?? 'Cliente',
-                            'foto'   => $x['profile_photo_url'] ?? null,
-                            'texto'  => $x['text'],
+                            'nombre' => $x['authorAttribution']['displayName'] ?? 'Cliente',
+                            'foto'   => $x['authorAttribution']['photoUri'] ?? null,
+                            'texto'  => $x['text']['text'],
                             'stars'  => (int) ($x['rating'] ?? 5),
-                            'cuando' => $x['relative_time_description'] ?? '',
+                            'cuando' => $x['relativePublishTimeDescription'] ?? '',
                         ])->values()->all(),
                 ];
             } catch (\Throwable $e) {
