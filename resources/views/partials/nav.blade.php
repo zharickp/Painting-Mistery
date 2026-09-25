@@ -2,7 +2,7 @@
     $enlaceProductos = route('tienda.index');
     $enlaceCursos    = route('academia');
     $enlaceNosotros  = route('nosotros');
-    $enlaceContacto  = request()->routeIs('inicio') ? '#contacto' : route('inicio') . '#contacto';
+    $enlaceContacto  = route('contacto');
 @endphp
 {{-- NAVBAR --}}
 <nav class="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
@@ -24,7 +24,7 @@
                 <a href="{{ $enlaceProductos }}" class="hover:text-red-600 transition {{ request()->routeIs('tienda.index') ? 'text-red-600' : '' }}">Tienda</a>
                 <a href="{{ $enlaceCursos }}" class="hover:text-red-600 transition {{ request()->routeIs('academia') ? 'text-red-600' : '' }}">Cursos</a>
                 <a href="{{ $enlaceNosotros }}" class="hover:text-red-600 transition {{ request()->routeIs('nosotros') ? 'text-red-600' : '' }}">Nosotros</a>
-                <a href="{{ $enlaceContacto }}" class="hover:text-red-600 transition">Contacto</a>
+                <a href="{{ $enlaceContacto }}" class="hover:text-red-600 transition {{ request()->routeIs('contacto') ? 'text-red-600' : '' }}">Contacto</a>
             </div>
 
             {{-- Derecha: barra búsqueda + iconos --}}

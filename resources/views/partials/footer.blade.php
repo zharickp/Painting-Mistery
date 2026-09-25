@@ -1,7 +1,7 @@
 @php
     $enlaceCursos    = route('academia');
     $enlaceNosotros  = route('nosotros');
-    $enlaceContacto  = request()->routeIs('inicio') ? '#contacto' : route('inicio') . '#contacto';
+    $enlaceContacto  = route('contacto');
 @endphp
 {{-- FOOTER --}}
 <footer style="background: linear-gradient(135deg, #0f0f0f 0%, #1a0000 50%, #0f0f0f 100%);" class="pt-14 pb-6">
