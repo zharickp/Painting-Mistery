@@ -12,13 +12,35 @@
     <link rel="apple-touch-icon" sizes="256x256" href="{{ asset('images/logo-painting-mistery.png') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    {{-- Tras crear una orden, el checkout deja la cookie pm_vaciar_carrito: se vacía el carrito local una sola vez. --}}
+    {{-- Carrito local: se vacía cuando el cliente ya hizo un pedido que este navegador no había registrado. --}}
+    @auth
+        @php
+            $ultimaOrden = session('pm_ultima_orden.' . auth()->id());
+            if ($ultimaOrden === null) {
+                $ultimaOrden = (int) \App\Models\Venta::where('usuario_id', auth()->id())->max('id');
+                session(['pm_ultima_orden.' . auth()->id() => $ultimaOrden]);
+            }
+        @endphp
+        <script>window.PM_ORDEN = { usuario: {{ auth()->id() }}, ultima: {{ (int) $ultimaOrden }} };</script>
+    @endauth
     <script>
         (function () {
+            var limpiar = false;
             if (document.cookie.split('; ').some(function (c) { return c.indexOf('pm_vaciar_carrito=') === 0; })) {
-                try { localStorage.removeItem('pm_carrito'); } catch (e) {}
+                limpiar = true;
                 document.cookie = 'pm_vaciar_carrito=; Max-Age=0; path=/';
             }
+            try {
+                if (window.PM_ORDEN) {
+                    var clave = 'pm_orden_vista_' + window.PM_ORDEN.usuario;
+                    var vista = localStorage.getItem(clave);
+                    if (String(window.PM_ORDEN.ultima) !== vista) {
+                        if (window.PM_ORDEN.ultima > 0) { limpiar = true; }
+                        localStorage.setItem(clave, String(window.PM_ORDEN.ultima));
+                    }
+                }
+                if (limpiar) { localStorage.removeItem('pm_carrito'); }
+            } catch (e) {}
         })();
     </script>
 </head>
