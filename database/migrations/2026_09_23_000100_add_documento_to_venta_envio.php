@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * Snapshot del documento de identidad de quien compra, para la
- * factura/orden — igual que el resto de datos de envío, se congela
+ * orden de venta — igual que el resto de datos de envío, se congela
  * en el momento de la compra.
  */
 return new class extends Migration

@@ -34,7 +34,6 @@
     $esCliente = $u?->tieneRol('Cliente');
     // El módulo "Mis Cursos" solo aparece si el cliente ya tiene alguna
     // inscripción — no tiene sentido mostrarlo vacío a quien solo compra productos.
-    $tieneCursos = $esCliente && $u->inscripciones()->exists();
 
     $productosOpen = request()->routeIs('admin.productos.*')
         || request()->routeIs('admin.tipo-iva.*')
@@ -307,16 +306,22 @@
                 </svg>
                 <span class="font-medium">Mis Pedidos</span>
             </a>
-            @if($tieneCursos)
-            <a href="{{ route('cliente.cursos') }}"
+            <a href="{{ route('mi-cuenta.cursos') }}"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition
-                      {{ request()->routeIs('cliente.cursos') ? 'bg-red-600 text-white' : 'text-slate-400 hover:bg-slate-800/70 hover:text-white' }}">
+                      {{ request()->routeIs('mi-cuenta.cursos') ? 'bg-red-600 text-white' : 'text-slate-400 hover:bg-slate-800/70 hover:text-white' }}">
                 <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
                 </svg>
                 <span class="font-medium">Mis Cursos</span>
             </a>
-            @endif
+            <a href="{{ route('mi-cuenta.perfil') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition
+                      {{ request()->routeIs('mi-cuenta.perfil') ? 'bg-red-600 text-white' : 'text-slate-400 hover:bg-slate-800/70 hover:text-white' }}">
+                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+                </svg>
+                <span class="font-medium">Mi Perfil</span>
+            </a>
             @endif
         </nav>
 
@@ -500,6 +505,7 @@
                 </div>
             @endif
             <div class="p-4 sm:p-6">
+                @include('partials.breadcrumbs')
                 @yield('content')
             </div>
         </main>

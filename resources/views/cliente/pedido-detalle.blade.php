@@ -8,6 +8,8 @@
 
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
+    @include('cliente.partials.menu')
+
     <div class="mb-8 flex items-start justify-between gap-4 flex-wrap">
         <div>
             <p class="text-xs text-slate-500 mb-2">
@@ -29,12 +31,12 @@
                     Pedido: {{ $envio->estadoPedidoEtiqueta() }}
                 </span>
                 @if($envio->payment_status === 'APPROVED')
-                    <a href="{{ route('mi-cuenta.pedido.factura', $venta->id) }}" target="_blank"
+                    <a href="{{ route('mi-cuenta.pedido.orden', $venta->id) }}" target="_blank"
                        class="mt-1 inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 hover:text-red-700 border border-red-200 hover:bg-red-50 px-3 py-1.5 rounded-lg transition">
                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
-                        Descargar factura
+                        Ver orden de venta
                     </a>
                 @endif
             @endif
@@ -104,7 +106,7 @@
             @if($envio)
             {{-- Envío --}}
             <div class="bg-white border border-slate-200 rounded-2xl p-6">
-                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4">Datos de envío y facturación</h2>
+                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4">Datos de envío y contacto</h2>
                 <div class="text-sm space-y-1">
                     <p class="font-semibold text-slate-800">{{ $envio->nombre_envio }}</p>
                     @if($envio->numero_documento)

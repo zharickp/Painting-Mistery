@@ -37,6 +37,8 @@ class Auditoria extends Model
     public const ACCIONES = [
         'creado'      => 'Creado',
         'actualizado' => 'Actualizado',
+        'activado'    => 'Activado',
+        'desactivado' => 'Desactivado',
         'eliminado'   => 'Eliminado',
         'login'       => 'Inicio de sesión',
         'logout'      => 'Cierre de sesión',
@@ -57,6 +59,8 @@ class Auditoria extends Model
         return match ($this->accion) {
             'creado'      => 'bg-green-100 text-green-700',
             'actualizado' => 'bg-blue-100 text-blue-700',
+            'activado'    => 'bg-emerald-100 text-emerald-700',
+            'desactivado' => 'bg-amber-100 text-amber-800',
             'eliminado'   => 'bg-red-100 text-red-700',
             'login'       => 'bg-gray-700 text-white',
             'logout'      => 'bg-gray-500 text-white',

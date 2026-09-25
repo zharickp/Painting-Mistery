@@ -6,6 +6,8 @@
 
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
+    @include('cliente.partials.menu')
+
     {{-- Banner de bienvenida --}}
     <div class="relative rounded-2xl overflow-hidden bg-gradient-to-br from-red-600 to-red-800 p-6 sm:p-8 mb-6">
         <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -162,39 +164,102 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                     </svg>
                 </a>
-                @if($tieneCursos)
-                <a href="{{ route('cliente.cursos') }}"
+                <a href="{{ route('mi-cuenta.cursos') }}"
                    class="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition group">
-                    <div class="flex items-center gap-3">
-                        <div class="h-9 w-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                            <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
-                            </svg>
-                        </div>
-                        <span class="text-sm font-semibold text-slate-700 group-hover:text-red-600">Mis cursos</span>
-                    </div>
-                    <svg class="h-4 w-4 text-slate-300 group-hover:text-red-600 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                    </svg>
+                    <span class="text-sm font-semibold text-slate-700 group-hover:text-red-600">Mis cursos</span>
+                    <svg class="h-4 w-4 text-slate-300 group-hover:text-red-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                 </a>
-                @else
-                <a href="{{ route('inicio') }}#cursos"
-                   class="flex items-center justify-between p-3 rounded-xl border border-dashed border-slate-200 hover:bg-slate-50 transition group">
-                    <div class="flex items-center gap-3">
-                        <div class="h-9 w-9 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center">
-                            <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-sm font-semibold text-slate-700 group-hover:text-red-600">Explorar cursos</p>
-                            <p class="text-[11px] text-slate-400">Aún no tienes inscripciones</p>
-                        </div>
-                    </div>
+                <a href="{{ route('mi-cuenta.perfil') }}"
+                   class="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition group">
+                    <span class="text-sm font-semibold text-slate-700 group-hover:text-red-600">Mi perfil</span>
+                    <svg class="h-4 w-4 text-slate-300 group-hover:text-red-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                 </a>
-                @endif
+                <a href="{{ route('academia') }}"
+                   class="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition group">
+                    <span class="text-sm font-semibold text-slate-700 group-hover:text-red-600">Explorar la academia</span>
+                    <svg class="h-4 w-4 text-slate-300 group-hover:text-red-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </a>
             </div>
         </div>
+    </div>
+
+    {{-- Resumen de actividad --}}
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        <div class="bg-white border border-slate-200 rounded-2xl p-5">
+            <p class="text-[11px] uppercase tracking-wider font-bold text-slate-400">Última compra</p>
+            @if($ultimaOrden)
+                <p class="font-mono font-bold text-slate-800 mt-1">{{ $ultimaOrden->envio->numero_orden }}</p>
+                <p class="text-xs text-slate-500">{{ $ultimaOrden->fecha?->format('d/m/Y') }} · ${{ number_format($ultimaOrden->total, 0, ',', '.') }}</p>
+                <a href="{{ route('mi-cuenta.pedido.orden', $ultimaOrden->id) }}" target="_blank" class="inline-block mt-2 text-xs font-semibold text-red-600 hover:text-red-700">Ver orden de venta →</a>
+            @else
+                <p class="text-sm text-slate-500 mt-1">Aún no tienes compras pagadas.</p>
+            @endif
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-5">
+            <p class="text-[11px] uppercase tracking-wider font-bold text-slate-400">Cursos inscritos</p>
+            <p class="text-2xl font-black text-slate-800 mt-1">{{ $inscripciones->count() }}</p>
+            <a href="{{ route('mi-cuenta.cursos') }}" class="inline-block mt-1 text-xs font-semibold text-red-600 hover:text-red-700">Gestionar cursos →</a>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-5">
+            <p class="text-[11px] uppercase tracking-wider font-bold text-slate-400">Próximo curso</p>
+            @if($proximoCurso)
+                <p class="font-bold text-slate-800 mt-1 leading-snug">{{ $proximoCurso->curso->nombre }}</p>
+                <p class="text-xs text-slate-500">{{ $proximoCurso->agenda->fecha_confirmada->format('d/m/Y') }} · {{ $proximoCurso->curso->info?->ubicacion ?: 'Taller Painting Mistery' }}</p>
+            @else
+                <p class="text-sm text-slate-500 mt-1">Sin fecha confirmada por ahora.</p>
+            @endif
+        </div>
+    </div>
+
+    {{-- Cursos para ti --}}
+    @if($cursosDisponibles->isNotEmpty())
+    <div class="mt-10">
+        <div class="flex items-end justify-between mb-4">
+            <h2 class="text-lg font-bold text-slate-800">Cursos para ti</h2>
+            <a href="{{ route('academia') }}" class="text-xs font-semibold text-red-600 hover:text-red-700">Ver academia →</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            @foreach($cursosDisponibles as $c)
+            <a href="{{ route('academia') }}#curso-{{ $c->id }}" class="bg-white border border-slate-200 hover:border-red-300 hover:shadow-md rounded-2xl p-5 transition block">
+                <p class="font-bold text-slate-800 leading-snug">{{ $c->nombre }}</p>
+                <p class="text-red-600 font-extrabold mt-2">${{ number_format($c->costo, 0, ',', '.') }}</p>
+                <p class="text-xs font-semibold text-slate-500 mt-3">Ver detalles →</p>
+            </a>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
+    {{-- Recomendados --}}
+    @if($recomendados->isNotEmpty())
+    <div class="mt-10">
+        <div class="flex items-end justify-between mb-4">
+            <h2 class="text-lg font-bold text-slate-800">Productos destacados</h2>
+            <a href="{{ route('tienda.index') }}" class="text-xs font-semibold text-red-600 hover:text-red-700">Ver tienda →</a>
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            @foreach($recomendados as $p)
+            <a href="{{ route('producto.show', $p) }}" class="group bg-white border border-slate-200 hover:border-red-300 hover:shadow-md rounded-2xl overflow-hidden transition block">
+                <div class="h-32 bg-slate-100 overflow-hidden">
+                    @if($p->imagen)<img src="{{ $p->imagen }}" alt="{{ $p->nombre }}" loading="lazy" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">@endif
+                </div>
+                <div class="p-3">
+                    <p class="text-sm font-semibold text-slate-800 line-clamp-2">{{ $p->nombre }}</p>
+                    <p class="text-red-600 font-bold text-sm mt-1">${{ number_format($p->precio, 0, ',', '.') }}</p>
+                </div>
+            </a>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
+    {{-- Ayuda --}}
+    <div class="mt-10 bg-slate-900 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+            <p class="text-white font-bold">¿Necesitas ayuda con un pedido, un curso o un servicio?</p>
+            <p class="text-slate-400 text-sm">Escríbenos y te respondemos lo antes posible.</p>
+        </div>
+        <a href="https://wa.me/573144557602" target="_blank" rel="noopener" class="bg-green-500 hover:bg-green-600 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition shrink-0">Contactar por WhatsApp</a>
     </div>
 </div>
 
