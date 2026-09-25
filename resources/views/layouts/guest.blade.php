@@ -12,6 +12,15 @@
     <link rel="apple-touch-icon" sizes="256x256" href="{{ asset('images/logo-painting-mistery.png') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    {{-- Tras crear una orden, el checkout deja la cookie pm_vaciar_carrito: se vacía el carrito local una sola vez. --}}
+    <script>
+        (function () {
+            if (document.cookie.split('; ').some(function (c) { return c.indexOf('pm_vaciar_carrito=') === 0; })) {
+                try { localStorage.removeItem('pm_carrito'); } catch (e) {}
+                document.cookie = 'pm_vaciar_carrito=; Max-Age=0; path=/';
+            }
+        })();
+    </script>
 </head>
 <body class="antialiased">
     @yield('content')
