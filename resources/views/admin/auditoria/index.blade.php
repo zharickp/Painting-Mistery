@@ -6,7 +6,7 @@
 <div class="mb-6 flex items-start justify-between gap-4">
     <div>
         <h1 class="text-2xl font-bold text-gray-800">Auditoría</h1>
-        <p class="text-sm text-gray-500 mt-1">Registro de las acciones realizadas dentro del sistema.</p>
+        <p class="text-sm text-gray-500 mt-1">Acciones hechas por los usuarios en el sistema.</p>
     </div>
     <a href="{{ route('dashboard') }}" class="text-sm text-gray-500 hover:text-red-600">← Volver</a>
 </div>
@@ -23,7 +23,7 @@
             </select>
         </div>
         <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Tipo</label>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Módulo</label>
             <select name="tipo" class="w-full border-gray-300 rounded-md text-sm">
                 <option value="todos">Todos</option>
                 @foreach($tipos as $tipo)
@@ -68,7 +68,7 @@
                 <th class="px-4 py-3 text-left">Fecha</th>
                 <th class="px-4 py-3 text-left">Usuario</th>
                 <th class="px-4 py-3 text-left">Acción</th>
-                <th class="px-4 py-3 text-left">Tipo</th>
+                <th class="px-4 py-3 text-left">Módulo</th>
                 <th class="px-4 py-3 text-left">Descripción</th>
                 <th class="px-4 py-3 text-center">Acciones</th>
             </tr>

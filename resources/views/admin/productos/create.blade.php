@@ -46,7 +46,7 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Precio anterior <span class="text-gray-400">(opcional, para mostrar descuento)</span>
+                    Precio antes del descuento <span class="text-gray-400">(opcional)</span>
                 </label>
                 <input type="number" name="precio_anterior" value="{{ old('precio_anterior') }}"
                        min="0" step="0.01"
@@ -90,27 +90,25 @@
             <div id="previewImagenPrincipal" class="flex flex-wrap gap-2 mt-2"></div>
         </div>
 
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-                Galería de fotos <span class="text-gray-400">(opcional, puedes elegir varias)</span>
-            </label>
-            <input type="file" name="imagenes[]" multiple accept="image/jpg,image/jpeg,image/png,image/webp" data-preview="previewGaleria"
-                   class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-red-50 file:text-red-600 hover:file:bg-red-100">
-            <p class="text-xs text-gray-400 mt-1">Se muestran en el detalle del producto para que el cliente navegue entre fotos. Puedes elegir varias a la vez o repetir la acción para agregar más.</p>
-            <div id="previewGaleria" class="flex flex-wrap gap-2 mt-2"></div>
-        </div>
+        <div class="border-t border-gray-100 pt-5">
+            <p class="text-sm font-semibold text-gray-800">Fotos del producto</p>
 
-        <div class="border-t border-gray-100 pt-4">
-            <p class="text-sm font-medium text-gray-700 mb-2">
-                Variantes de color <span class="text-gray-400 font-normal">(opcional)</span>
-            </p>
-            <div id="gruposColorNuevos" class="mb-2 space-y-3"></div>
+            <div class="border border-gray-200 rounded-xl p-4 mt-3 mb-4">
+                <p class="text-sm font-semibold text-gray-700">Fotos generales <span class="text-gray-400 font-normal">(opcional)</span></p>
+                <p class="text-[11px] text-gray-400 mb-2">Se muestran cuando el cliente no ha elegido un color. Puedes subir varias a la vez.</p>
+                <input type="file" name="imagenes[]" multiple accept="image/jpg,image/jpeg,image/png,image/webp" data-preview="previewGaleria"
+                       class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-red-50 file:text-red-600 hover:file:bg-red-100">
+                <div id="previewGaleria" class="flex flex-wrap gap-2 mt-2"></div>
+            </div>
+
+            <p class="text-sm font-semibold text-gray-700">Colores <span class="text-gray-400 font-normal">(opcional)</span></p>
+            <p class="text-[11px] text-gray-400 mb-2">Si el producto viene en varios colores, agrega uno por color con sus fotos. En la tienda cada color aparece como un círculo con su propia galería. El stock se maneja en Inventario.</p>
+            <div id="gruposColorNuevos" class="space-y-3"></div>
             <button type="button" onclick="agregarGrupoColor()"
-                    class="text-sm font-medium text-red-600 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 transition inline-flex items-center gap-1.5">
+                    class="mt-3 text-sm font-medium text-red-600 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 transition inline-flex items-center gap-1.5">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Agregar grupo de color
+                Agregar color
             </button>
-            <p class="text-xs text-gray-400 mt-1.5">Si tu producto viene en varios colores, crea un grupo por cada color, define su stock y sube sus fotos ahí — aparecerán como círculos seleccionables en la página del producto, cada uno con su propia galería y su propio stock.</p>
         </div>
 
         <button type="submit"
@@ -136,22 +134,22 @@ function agregarGrupoColor() {
 </script>
 
 <template id="plantillaGrupoColor">
-<div class="grupo-color-nuevo border border-dashed border-gray-300 rounded-xl p-3 bg-gray-50/60">
+<div class="grupo-color-nuevo border border-dashed border-red-200 rounded-xl p-4 bg-red-50/30">
     <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-semibold text-gray-500">Nuevo grupo de color</span>
-        <button type="button" onclick="this.closest('.grupo-color-nuevo').remove()" class="text-gray-400 hover:text-red-600 text-xs">Quitar ✕</button>
+        <span class="text-xs font-semibold text-gray-600">Color nuevo</span>
+        <button type="button" onclick="this.closest('.grupo-color-nuevo').remove()" class="text-xs font-medium text-gray-500 hover:text-red-600">Quitar</button>
     </div>
-    <div class="flex items-center gap-2 mb-2">
-        <input type="color" name="grupos_color[__CLAVE__][hex]" value="#dc2626" class="h-8 w-8 rounded border border-gray-200 cursor-pointer flex-shrink-0">
+    <div class="flex items-center gap-2 mb-3">
+        <input type="color" name="grupos_color[__CLAVE__][hex]" value="#dc2626" class="h-8 w-8 rounded border border-gray-200 cursor-pointer flex-shrink-0" title="Tono del círculo en la tienda">
         <input type="text" name="grupos_color[__CLAVE__][nombre]" placeholder="Nombre del color (ej. Tornasol)" maxlength="40"
                class="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:border-red-400">
-        <input type="number" name="grupos_color[__CLAVE__][stock]" placeholder="Stock" min="0" value="0"
-               class="w-24 rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:border-red-400" title="Stock disponible de este color">
     </div>
+    <span class="text-xs font-medium text-gray-600">Fotos de este color</span>
     <input type="file" name="grupos_color[__CLAVE__][archivos][]" multiple accept="image/jpg,image/jpeg,image/png,image/webp"
            data-preview="previewGrupo__CLAVE__"
-           class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-red-50 file:text-red-600 hover:file:bg-red-100">
+           class="mt-1 w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-red-50 file:text-red-600 hover:file:bg-red-100">
     <div id="previewGrupo__CLAVE__" class="flex flex-wrap gap-2 mt-2"></div>
+    <p class="text-[11px] text-gray-400 mt-2">Si no subes fotos, el color no se crea.</p>
 </div>
 </template>
 

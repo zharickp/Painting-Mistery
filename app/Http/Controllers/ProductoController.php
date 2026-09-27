@@ -13,20 +13,15 @@ class ProductoController extends Controller
 
         $producto->load(['categoria', 'imagenes', 'resenas.usuario', 'inventario', 'colores']);
 
-        $recomendados = $producto->relacionadosManual()
-            ->where('estado', true)
+        // Recomendados automáticos: primero los de la misma categoría y, si no
+        // alcanzan, se completa con los más recientes de otras categorías.
+        $recomendados = Producto::where('estado', true)
+            ->where('id', '!=', $producto->id)
             ->with(['categoria', 'imagenes', 'inventario', 'resenas', 'colores'])
+            ->orderByRaw('CASE WHEN categoria_producto_id = ? THEN 0 ELSE 1 END', [$producto->categoria_producto_id])
+            ->orderByDesc('created_at')
+            ->take(8)
             ->get();
-
-        if ($recomendados->isEmpty()) {
-            $recomendados = Producto::where('estado', true)
-                ->where('id', '!=', $producto->id)
-                ->with(['categoria', 'imagenes', 'inventario', 'resenas', 'colores'])
-                ->orderByRaw('CASE WHEN categoria_producto_id = ? THEN 0 ELSE 1 END', [$producto->categoria_producto_id])
-                ->orderByDesc('created_at')
-                ->take(8)
-                ->get();
-        }
 
         return view('productos.show', compact('producto', 'recomendados'));
     }

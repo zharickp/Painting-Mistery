@@ -28,7 +28,6 @@ class InscripcionController extends Controller
 
         $existente = Inscripcion::where('usuario_id', auth()->id())
             ->where('curso_id', $curso->id)
-            ->with('agenda')
             ->first();
 
         if ($existente && in_array($existente->estado, ['pendiente', 'confirmada', 'completada'], true)) {
@@ -40,17 +39,15 @@ class InscripcionController extends Controller
             return back()->with('error', 'No quedan cupos disponibles para este curso por ahora.');
         }
 
-        $inscripcion = Inscripcion::firstOrCreate(
+        $inscripcion = Inscripcion::updateOrCreate(
             ['usuario_id' => auth()->id(), 'curso_id' => $curso->id],
-            ['estado' => 'inscrito']
+            [
+                'estado'           => 'pendiente',
+                'fecha_preferida'  => $fecha->fecha,
+                'fecha_confirmada' => null,
+                'notas'            => null,
+            ]
         );
-
-        $inscripcion->agenda()->updateOrCreate([], [
-            'fecha_preferida'  => $fecha->fecha,
-            'fecha_confirmada' => null,
-            'notas'            => null,
-        ]);
-        $inscripcion->cambiarEstado('pendiente');
 
         return redirect()->route('mi-cuenta.cursos.comprobante', $inscripcion->id)->with('success', "¡Listo! Reservaste tu cupo: {$fecha->etiqueta($curso->dias())}. Ahora escríbenos por WhatsApp para el abono, el hospedaje y los detalles.");
     }

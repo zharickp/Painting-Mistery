@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Cursos')
 @section('content')
+@php $puedeEditar = auth()->user()->tieneRol('Administrador', 'Asesor'); @endphp
 
 <div class="mb-6 flex items-center justify-between">
     <div>
@@ -41,7 +42,7 @@
                     <th class="px-5 py-3.5 text-center">Inscritos</th>
                     <th class="px-5 py-3.5 text-right">Costo</th>
                     <th class="px-5 py-3.5 text-center">Estado</th>
-                    <th class="px-5 py-3.5 text-center">Acciones</th>
+                    @if ($puedeEditar)<th class="px-5 py-3.5 text-center">Acciones</th>@endif
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-50">
@@ -88,9 +89,9 @@
                             {{ $c->estado ? 'Activo' : 'Inactivo' }}
                         </span>
                     </td>
+                    @if ($puedeEditar)
                     <td class="px-5 py-4 text-center">
                         <div class="flex items-center justify-center gap-2">
-                            @if(auth()->user()->tieneRol('Administrador', 'Asesor'))
                                 <a href="{{ route('admin.cursos.edit', $c) }}"
                                    class="h-7 w-7 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 flex items-center justify-center transition">
                                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,15 +109,13 @@
                                         {{ $c->estado ? 'Desactivar' : 'Activar' }}
                                     </button>
                                 </form>
-                            @else
-                                <span class="text-xs text-gray-400">Solo lectura</span>
-                            @endif
                         </div>
                     </td>
+                    @endif
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="px-5 py-16 text-center">
+                    <td colspan="{{ $puedeEditar ? 7 : 6 }}" class="px-5 py-16 text-center">
                         <svg class="h-12 w-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                   d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard')
+@section('title', 'Inicio')
 
 @section('content')
 
@@ -18,26 +18,26 @@
                 </svg>
             </div>
             <div>
-                <h1 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 dark:text-slate-100 rest:text-stone-800 tracking-tight">Panel de Control</h1>
-                <p class="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 rest:text-stone-600 mt-0.5">Resumen general del sistema</p>
+                <h1 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 dark:text-slate-100 tracking-tight">Inicio</h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-400 mt-0.5">Hola, {{ auth()->user()->primer_nombre }}</p>
             </div>
         </div>
         <div class="mt-4 flex flex-wrap items-center gap-2">
-            <div class="flex items-center gap-2 bg-white dark:bg-slate-800 rest:bg-amber-100 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 rest:border-amber-200 text-xs text-slate-500 dark:text-slate-400 dark:text-slate-300 rest:text-stone-700">
+            <div class="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400 dark:text-slate-300">
                 <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
                 <span class="font-medium">{{ now()->translatedFormat('d \d\e F, Y') }}</span>
             </div>
             <span class="inline-flex items-center gap-1.5 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900 text-red-700 dark:text-red-400 text-xs font-bold px-3 py-1.5 rounded-xl">
-                <span class="h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
+                <span class="h-2 w-2 rounded-full bg-red-500"></span>
                 {{ auth()->user()->roles->pluck('nombre')->join(' · ') }}
             </span>
         </div>
     </div>
 
     {{-- Banner decorativo "Ideas que se convierten en arte" --}}
-    <div class="relative rounded-2xl overflow-hidden bg-gradient-to-br from-red-600 via-red-700 to-slate-900 dark:from-red-700 dark:via-red-900 dark:to-black rest:from-amber-600 rest:via-amber-800 rest:to-stone-900 p-6 flex items-center justify-between shadow-lg">
+    <div class="relative rounded-2xl overflow-hidden bg-gradient-to-br from-red-600 via-red-700 to-slate-900 dark:from-red-700 dark:via-red-900 dark:to-black p-6 flex items-center justify-between shadow-lg">
         <div class="absolute -right-6 -bottom-6 w-40 h-40 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
         <div class="absolute -left-4 -top-4 w-32 h-32 bg-red-400/10 rounded-full blur-2xl pointer-events-none"></div>
         <div class="relative">
@@ -95,7 +95,7 @@
 
     {{-- 1. VENTAS HOY --}}
     <a href="{{ route('admin.ventas') }}"
-       class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition group block">
+       class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition group block">
         <div class="flex items-center justify-between mb-4">
             <div class="h-10 w-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -104,7 +104,7 @@
             </div>
             <div class="h-8 w-20 opacity-90">{!! $sparkline($spark, '#10b981', 'rgba(16,185,129,0.15)') !!}</div>
         </div>
-        <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total ventas hoy</p>
+        <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ventas de hoy</p>
         <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">${{ number_format($ventasHoy, 0, ',', '.') }}</p>
         <p class="mt-2 text-[11px] flex items-center gap-1">
             @if($delta > 0)
@@ -120,7 +120,7 @@
 
     {{-- 2. ÓRDENES DEL MES --}}
     <a href="{{ route('admin.ventas') }}"
-       class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition group block">
+       class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition group block">
         <div class="flex items-center justify-between mb-4">
             <div class="h-10 w-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -129,34 +129,33 @@
             </div>
             <div class="h-8 w-20 opacity-90">{!! $sparkline(collect($ventasMensuales)->pluck('total')->take(-7)->all(), '#6366f1', 'rgba(99,102,241,0.15)') !!}</div>
         </div>
-        <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total órdenes</p>
+        <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Órdenes pagadas</p>
         <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">{{ number_format($stats['ordenes_mes'] ?? 0) }}</p>
         <p class="mt-2 text-[11px] text-slate-400 dark:text-slate-500">
-            <span class="font-bold text-slate-600 dark:text-slate-300">este mes</span> · órdenes registradas
+            <span class="font-bold text-slate-600 dark:text-slate-300">este mes</span>
         </p>
     </a>
 
     {{-- 3. NUEVOS CLIENTES / USUARIOS --}}
     <a href="{{ route('admin.usuarios.index') }}"
-       class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition group block">
+       class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition group block">
         <div class="flex items-center justify-between mb-4">
             <div class="h-10 w-10 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
             </div>
-            <div class="h-8 w-20 opacity-90">{!! $sparkline([2,3,3,5,8,10,$stats['usuarios'] ?? 13], '#f59e0b', 'rgba(245,158,11,0.15)') !!}</div>
         </div>
-        <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nuevos clientes</p>
+        <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Usuarios registrados</p>
         <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">{{ number_format($stats['usuarios'] ?? 0) }}</p>
         <p class="mt-2 text-[11px] text-slate-400 dark:text-slate-500">
-            <span class="font-bold text-slate-600 dark:text-slate-300">total</span> · usuarios en sistema
+            <span class="font-bold text-slate-600 dark:text-slate-300">en total</span>
         </p>
     </a>
 
     {{-- 4. INGRESOS DEL MES --}}
     <a href="{{ route('admin.reportes') }}"
-       class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition group block">
+       class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition group block">
         <div class="flex items-center justify-between mb-4">
             <div class="h-10 w-10 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -165,16 +164,16 @@
             </div>
             <div class="h-8 w-20 opacity-90">{!! $sparkline($spark, '#ef4444', 'rgba(239,68,68,0.15)') !!}</div>
         </div>
-        <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ingresos totales</p>
+        <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ingresos del mes</p>
         <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">${{ number_format($stats['ventas_mes'] ?? 0, 0, ',', '.') }}</p>
         <p class="mt-2 text-[11px] text-slate-400 dark:text-slate-500">
-            <span class="font-bold text-slate-600 dark:text-slate-300">este mes</span> · ingresos del mes
+            <span class="font-bold text-slate-600 dark:text-slate-300">ventas pagadas</span>
         </p>
     </a>
 
     {{-- 5. INGRESOS ANUALES --}}
     <a href="{{ route('admin.reportes') }}"
-       class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition group block">
+       class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition group block">
         <div class="flex items-center justify-between mb-4">
             <div class="h-10 w-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -183,10 +182,10 @@
             </div>
             <div class="h-8 w-20 opacity-90">{!! $sparkline(collect($ventasMensuales)->pluck('total')->all(), '#a855f7', 'rgba(168,85,247,0.15)') !!}</div>
         </div>
-        <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ingresos anuales</p>
+        <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ingresos del año</p>
         <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">${{ number_format($stats['ventas_anio'] ?? 0, 0, ',', '.') }}</p>
         <p class="mt-2 text-[11px] text-slate-400 dark:text-slate-500">
-            <span class="font-bold text-slate-600 dark:text-slate-300">{{ now()->year }}</span> · acumulado del año
+            <span class="font-bold text-slate-600 dark:text-slate-300">{{ now()->year }}</span>
         </p>
     </a>
 
@@ -199,7 +198,7 @@
     <div class="lg:col-span-8 space-y-6">
 
         {{-- Gráfico Línea: Ventas en el tiempo --}}
-        <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 p-6 shadow-xs">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
                 <div>
                     <h2 class="text-base font-bold text-slate-800 dark:text-slate-100">Ventas en el tiempo</h2>
@@ -222,11 +221,11 @@
         </div>
 
         {{-- Desglose de Estado de Ventas --}}
-        <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 p-6 shadow-xs">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <div>
-                    <h2 class="text-base font-bold text-slate-800 dark:text-slate-100">Estado de los Pedidos</h2>
-                    <p class="text-xs text-slate-400 mt-0.5">Distribución total de ventas según su estado</p>
+                    <h2 class="text-base font-bold text-slate-800 dark:text-slate-100">Estado de las ventas</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Todas las ventas según su estado</p>
                 </div>
             </div>
 
@@ -270,7 +269,7 @@
     <div class="lg:col-span-4 space-y-6">
 
         {{-- Tarjeta: Accesos Directos --}}
-        <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 p-6 shadow-xs">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
             <div class="mb-4 pb-3 border-b border-slate-100 dark:border-slate-800 dark:border-slate-800 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
                     <div class="h-8 w-8 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center">
@@ -295,7 +294,7 @@
                         </div>
                         <div class="text-left">
                             <p class="text-[13px] font-bold text-slate-800 dark:text-slate-100 dark:text-slate-100 group-hover:text-red-600 transition">Productos</p>
-                            <p class="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">Gestiona los productos</p>
+                            <p class="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">Catálogo, precios y fotos</p>
                         </div>
                     </div>
                     <svg class="h-4 w-4 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -314,7 +313,7 @@
                         </div>
                         <div class="text-left">
                             <p class="text-[13px] font-bold text-slate-800 dark:text-slate-100 dark:text-slate-100 group-hover:text-red-600 transition">Cursos</p>
-                            <p class="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">Administra los cursos</p>
+                            <p class="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">Fechas e inscripciones</p>
                         </div>
                     </div>
                     <svg class="h-4 w-4 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -333,7 +332,7 @@
                         </div>
                         <div class="text-left">
                             <p class="text-[13px] font-bold text-slate-800 dark:text-slate-100 dark:text-slate-100 group-hover:text-red-600 transition">Ventas</p>
-                            <p class="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">Consulta y gestiona las ventas</p>
+                            <p class="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">Órdenes y pagos</p>
                         </div>
                     </div>
                     <svg class="h-4 w-4 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -352,7 +351,7 @@
                         </div>
                         <div class="text-left">
                             <p class="text-[13px] font-bold text-slate-800 dark:text-slate-100 dark:text-slate-100 group-hover:text-red-600 transition">Inventario</p>
-                            <p class="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">Controla el stock</p>
+                            <p class="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">Existencias y stock mínimo</p>
                         </div>
                     </div>
                     <svg class="h-4 w-4 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -371,7 +370,7 @@
                         </div>
                         <div class="text-left">
                             <p class="text-[13px] font-bold text-slate-800 dark:text-slate-100 dark:text-slate-100 group-hover:text-red-600 transition">Reportes</p>
-                            <p class="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">Visualiza estadísticas y reportes</p>
+                            <p class="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">Ingresos y más vendidos</p>
                         </div>
                     </div>
                     <svg class="h-4 w-4 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -390,7 +389,7 @@
                         </div>
                         <div class="text-left">
                             <p class="text-[13px] font-bold text-slate-800 dark:text-slate-100 dark:text-slate-100 group-hover:text-red-600 transition">Usuarios</p>
-                            <p class="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">Control de usuarios y cuentas</p>
+                            <p class="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">Cuentas y roles</p>
                         </div>
                     </div>
                     <svg class="h-4 w-4 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -405,11 +404,11 @@
 </div>
 
 {{-- TABLA DE ÚLTIMAS VENTAS --}}
-<div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 shadow-xs mb-6 overflow-hidden">
+<div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs mb-6 overflow-hidden">
     <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
         <div>
-            <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100">Transacciones Recientes</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Últimas órdenes registradas en la tienda</p>
+            <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100">Últimas ventas</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Las órdenes más recientes de la tienda</p>
         </div>
         <a href="{{ route('admin.ventas') }}" class="text-xs text-red-600 hover:text-red-700 font-bold flex items-center gap-1 transition">
             Ver todas las ventas
@@ -423,7 +422,7 @@
             <thead>
                 <tr class="bg-slate-50 text-left text-[11px] text-slate-400 uppercase tracking-wider">
                     <th class="px-6 py-3 font-semibold">Cliente</th>
-                    <th class="px-6 py-3 font-semibold">Fecha y Hora</th>
+                    <th class="px-6 py-3 font-semibold">Fecha y hora</th>
                     <th class="px-6 py-3 font-semibold text-center">Estado</th>
                     <th class="px-6 py-3 font-semibold text-right">Total</th>
                 </tr>
@@ -468,7 +467,7 @@
                         <svg class="h-10 w-10 text-slate-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                         </svg>
-                        <p class="text-slate-400 text-xs font-medium">No hay ventas registradas aún en el sistema.</p>
+                        <p class="text-slate-400 text-xs font-medium">Todavía no hay ventas.</p>
                     </td>
                 </tr>
                 @endforelse
@@ -490,12 +489,12 @@
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     @foreach([
-        ['Productos Activos', $stats['productos'], 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10', 'bg-red-50 text-red-600'],
-        ['Cursos Disponibles', $stats['cursos'], 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253', 'bg-indigo-50 text-indigo-600'],
-        ['Ventas del Mes', '$'.number_format($stats['ventas_mes'],0,',','.'), 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'bg-emerald-50 text-emerald-600'],
-        ['Inventario Total', number_format($stats['inventario']).' uds', 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4', 'bg-amber-50 text-amber-600'],
+        ['Productos activos', $stats['productos'], 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10', 'bg-red-50 text-red-600'],
+        ['Cursos disponibles', $stats['cursos'], 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253', 'bg-indigo-50 text-indigo-600'],
+        ['Ventas del mes', '$'.number_format($stats['ventas_mes'],0,',','.'), 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'bg-emerald-50 text-emerald-600'],
+        ['Unidades en inventario', number_format($stats['inventario']).' uds', 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4', 'bg-amber-50 text-amber-600'],
     ] as [$label, $value, $icon, $color])
-    <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 p-5 flex items-center gap-4 shadow-xs hover:shadow-md transition">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 flex items-center gap-4 shadow-xs hover:shadow-md transition">
         <div class="rounded-xl p-3 {{ explode(' ',$color)[0] }}">
             <svg class="h-6 w-6 {{ explode(' ',$color)[1] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icon }}"/>
@@ -509,9 +508,9 @@
     @endforeach
 </div>
 
-<div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 shadow-xs overflow-hidden">
+<div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
     <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-        <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100">Últimas Ventas</h2>
+        <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100">Últimas ventas</h2>
         <a href="{{ route('admin.ventas') }}" class="text-xs text-red-600 hover:text-red-700 font-bold">Ver todas →</a>
     </div>
     <div class="overflow-x-auto">
@@ -548,53 +547,54 @@
 ══════════════════════════════════════════════════════ --}}
 @elseif($esGerente)
 
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
+{{-- Indicadores: 4 tarjetas para que la cuadrícula quede pareja (2 o 4 por fila) --}}
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
     @foreach([
-        ['Productos Activos', $stats['productos'], 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10', 'bg-red-50 text-red-600'],
-        ['Cursos Activos', $stats['cursos'], 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253', 'bg-indigo-50 text-indigo-600'],
-        ['Ventas del Mes', '$'.number_format($stats['ventas_mes'],0,',','.'), 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'bg-emerald-50 text-emerald-600'],
-        ['Inventario Total', number_format($stats['inventario']).' uds', 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4', 'bg-amber-50 text-amber-600'],
-        ['Ventas del Año', '$'.number_format($stats['ventas_anio'],0,',','.'), 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6', 'bg-purple-50 text-purple-600'],
+        ['Productos activos', number_format($stats['productos']), 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10', 'bg-red-50 text-red-600'],
+        ['Cursos activos', number_format($stats['cursos']), 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253', 'bg-indigo-50 text-indigo-600'],
+        ['Ventas del mes', '$'.number_format($stats['ventas_mes'],0,',','.'), 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'bg-emerald-50 text-emerald-600'],
+        ['Ventas del año', '$'.number_format($stats['ventas_anio'],0,',','.'), 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6', 'bg-purple-50 text-purple-600'],
     ] as [$label, $value, $icon, $color])
-    <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 p-5 flex items-center gap-4 shadow-xs hover:shadow-md transition">
-        <div class="rounded-xl p-3 {{ explode(' ',$color)[0] }}">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 flex items-center gap-4 shadow-xs min-w-0">
+        <div class="rounded-xl p-3 shrink-0 {{ explode(' ',$color)[0] }}">
             <svg class="h-6 w-6 {{ explode(' ',$color)[1] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icon }}"/>
             </svg>
         </div>
-        <div>
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">{{ $label }}</p>
-            <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-0.5">{{ $value }}</p>
+        <div class="min-w-0">
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider truncate">{{ $label }}</p>
+            <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-0.5 truncate">{{ $value }}</p>
         </div>
     </div>
     @endforeach
 </div>
 
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-    <a href="{{ route('admin.productos.index') }}"
-       class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 p-5 flex items-center gap-4 hover:shadow-md hover:border-red-200 transition">
-        <div class="h-12 w-12 rounded-xl bg-red-50 flex items-center justify-center text-red-600 shrink-0">
+{{-- Accesos a los módulos que consulta el Gerente --}}
+<h2 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3">Módulos</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+    @foreach([
+        ['Productos',  'Catálogo, precios e IVA',          route('admin.productos.index'),      'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10',  'bg-red-50 text-red-600',         'hover:border-red-200'],
+        ['Cursos',     'Cursos, fechas e inscritos',       route('admin.cursos.index'),         'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',     'bg-indigo-50 text-indigo-600',   'hover:border-indigo-200'],
+        ['Ventas',     'Historial de ventas y pagos',      route('admin.ventas'),               'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z',     'bg-emerald-50 text-emerald-600', 'hover:border-emerald-200'],
+        ['Inventario', $stats['inventario_bajo'] > 0
+                          ? $stats['inventario_bajo'] . ' producto(s) con stock bajo'
+                          : 'Existencias por producto',   route('admin.inventario'),           'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4', 'bg-amber-50 text-amber-600',     'hover:border-amber-200'],
+        ['Reportes',   'Ingresos por mes y más vendidos',  route('admin.reportes'),             'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',   'bg-sky-50 text-sky-600',         'hover:border-sky-200'],
+        ['Auditoría',  'Registro de acciones en el sistema', route('admin.auditoria.index'),    'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',  'bg-slate-100 text-slate-600',    'hover:border-slate-300'],
+    ] as [$titulo, $detalle, $url, $icon, $color, $hover])
+    <a href="{{ $url }}"
+       class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 flex items-center gap-4 hover:shadow-md {{ $hover }} transition min-w-0">
+        <div class="h-12 w-12 rounded-xl flex items-center justify-center shrink-0 {{ $color }}">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icon }}"/>
             </svg>
         </div>
-        <div>
-            <p class="font-bold text-slate-800 dark:text-slate-100 text-sm">Gestionar Productos</p>
-            <p class="text-xs text-slate-400 mt-0.5">Catálogo general y precios</p>
+        <div class="min-w-0">
+            <p class="font-bold text-slate-800 dark:text-slate-100 text-sm">{{ $titulo }}</p>
+            <p class="text-xs mt-0.5 truncate {{ $titulo === 'Inventario' && $stats['inventario_bajo'] > 0 ? 'text-amber-600 font-semibold' : 'text-slate-400' }}">{{ $detalle }}</p>
         </div>
     </a>
-    <a href="{{ route('admin.cursos.index') }}"
-       class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 p-5 flex items-center gap-4 hover:shadow-md hover:border-indigo-200 transition">
-        <div class="h-12 w-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-            </svg>
-        </div>
-        <div>
-            <p class="font-bold text-slate-800 dark:text-slate-100 text-sm">Gestionar Cursos</p>
-            <p class="text-xs text-slate-400 mt-0.5">Oferta académica y cursos</p>
-        </div>
-    </a>
+    @endforeach
 </div>
 
 {{-- ══════════════════════════════════════════════════════
@@ -615,11 +615,11 @@
 
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
     @foreach([
-        ['Mis Pedidos',   $stats['mis_pedidos'], 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z', 'bg-red-50 text-red-600'],
-        ['Mis Cursos',    $stats['mis_cursos'], 'M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z', 'bg-indigo-50 text-indigo-600'],
-        ['Total Compras', '$'.number_format($stats['total_gastado'],0,',','.'), 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'bg-emerald-50 text-emerald-600'],
+        ['Mis compras',   $stats['mis_pedidos'], 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z', 'bg-red-50 text-red-600'],
+        ['Mis cursos',    $stats['mis_cursos'], 'M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z', 'bg-indigo-50 text-indigo-600'],
+        ['Total comprado', '$'.number_format($stats['total_gastado'],0,',','.'), 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'bg-emerald-50 text-emerald-600'],
     ] as [$label, $value, $icon, $color])
-    <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 p-5 flex items-center gap-4 shadow-xs hover:shadow-md transition">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 flex items-center gap-4 shadow-xs hover:shadow-md transition">
         <div class="rounded-xl p-3 {{ explode(' ',$color)[0] }}">
             <svg class="h-6 w-6 {{ explode(' ',$color)[1] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $icon }}"/>
@@ -633,10 +633,10 @@
     @endforeach
 </div>
 
-<div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 shadow-xs overflow-hidden">
+<div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
     <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
-        <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100">Mis últimos pedidos</h2>
-        <p class="text-xs text-slate-400 mt-0.5">Historial de tus compras realizadas</p>
+        <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100">Mis últimas compras</h2>
+        <p class="text-xs text-slate-400 mt-0.5">Tus compras más recientes</p>
     </div>
     <div class="overflow-x-auto">
         <table class="w-full text-sm">
@@ -665,7 +665,7 @@
                         <svg class="h-10 w-10 text-slate-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                         </svg>
-                        <p class="text-slate-400 text-xs font-medium">Aún no tienes pedidos registrados.</p>
+                        <p class="text-slate-400 text-xs font-medium">Aún no tienes compras.</p>
                         <a href="{{ route('inicio') }}" class="mt-2 inline-block text-red-600 font-bold text-xs hover:underline">Ver catálogo en la tienda →</a>
                     </td>
                 </tr>

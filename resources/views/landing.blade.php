@@ -320,10 +320,10 @@
                 <h2 class="text-3xl font-bold text-white mt-2">Lo que dicen nuestros clientes</h2>
             </div>
 
-            @if($resenasSitio->isNotEmpty())
+            @if($resenasClientes->isNotEmpty())
             <div class="relative overflow-hidden" id="reviewsWrapper">
                 <div class="flex gap-6 transition-transform duration-500 ease-in-out" id="reviewsTrack">
-                    @foreach($resenasSitio as $r)
+                    @foreach($resenasClientes as $r)
                     <div class="flex-none w-full sm:w-1/2 lg:w-1/3 bg-gray-800 rounded-2xl p-7 border border-gray-700">
                         <div class="flex gap-1 mb-4">
                             @for($i=0;$i<5;$i++)
@@ -332,8 +332,11 @@
                         </div>
                         <p class="text-gray-300 text-sm leading-relaxed italic mb-5">"{{ $r->comentario }}"</p>
                         <div class="flex items-center gap-3">
-                            <div class="h-9 w-9 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-sm">{{ mb_strtoupper(mb_substr($r->nombre,0,1)) }}</div>
-                            <p class="font-semibold text-white text-sm">{{ $r->nombre }}</p>
+                            <div class="h-9 w-9 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-sm">{{ mb_strtoupper(mb_substr($r->nombreMostrar(),0,1)) }}</div>
+                            <div>
+                                <p class="font-semibold text-white text-sm">{{ $r->nombreMostrar() }}</p>
+                                @if($r->producto)<p class="text-gray-400 text-xs">Sobre {{ $r->producto->nombre }}</p>@endif
+                            </div>
                         </div>
                     </div>
                     @endforeach
@@ -349,38 +352,19 @@
                 </div>
             </div>
             @else
-            <p class="text-center text-gray-400 text-sm mb-2">Aún no hay reseñas publicadas aquí. ¡Sé la primera persona en dejar la suya!</p>
+            <p class="text-center text-gray-400 text-sm mb-2">Aún no hay reseñas publicadas. ¡Sé la primera persona en dejar la suya desde la ficha de un producto!</p>
             @endif
 
             {{-- Dejar reseña + Google --}}
             <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 sm:p-8">
+                <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 sm:p-8 flex flex-col justify-center gap-4">
                     <h3 class="font-bold text-white text-lg">Cuéntanos tu experiencia</h3>
-                    <p class="text-gray-400 text-sm mb-5">Tu opinión se publica después de una breve revisión.</p>
-
-                    @if(session('resena_ok'))
-                        <div class="mb-4 bg-green-500/10 border border-green-500/30 text-green-300 text-sm px-4 py-3 rounded-xl">{{ session('resena_ok') }}</div>
-                    @endif
-                    @if($errors->has('nombre') || $errors->has('calificacion') || $errors->has('comentario'))
-                        <div class="mb-4 bg-red-500/10 border border-red-500/30 text-red-300 text-sm px-4 py-3 rounded-xl">Revisa los datos: escribe tu nombre, elige estrellas y un comentario de al menos 10 caracteres.</div>
-                    @endif
-
-                    <form method="POST" action="{{ route('resenas-sitio.store') }}" class="space-y-4">
-                        @csrf
-                        <input type="text" name="nombre" value="{{ old('nombre', auth()->user()->primer_nombre ?? '') }}" maxlength="80" required placeholder="Tu nombre"
-                               class="w-full rounded-lg bg-gray-900 border border-gray-700 text-white placeholder-gray-500 px-3 py-2.5 text-sm focus:outline-none focus:border-red-500">
-                        <div class="flex items-center gap-3">
-                            <span class="text-gray-400 text-sm">Tu calificación:</span>
-                            <select name="calificacion" class="rounded-lg bg-gray-900 border border-gray-700 text-yellow-400 px-3 py-2 text-sm">
-                                @for($i=5;$i>=1;$i--)
-                                    <option value="{{ $i }}" @selected((int) old('calificacion', 5) === $i)>{{ str_repeat('★', $i) }} ({{ $i }})</option>
-                                @endfor
-                            </select>
-                        </div>
-                        <textarea name="comentario" rows="3" minlength="10" maxlength="600" required placeholder="¿Qué te pareció el servicio?"
-                                  class="w-full rounded-lg bg-gray-900 border border-gray-700 text-white placeholder-gray-500 px-3 py-2.5 text-sm focus:outline-none focus:border-red-500 resize-none">{{ old('comentario') }}</textarea>
-                        <button class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl text-sm transition">Enviar reseña</button>
-                    </form>
+                    <p class="text-gray-400 text-sm">Las reseñas se publican desde la ficha de cada producto, con tu cuenta de cliente. Así cada opinión viene de una persona real.</p>
+                    <a href="{{ route('tienda.index') }}"
+                       class="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition text-center">Ir a la tienda y opinar</a>
+                    @guest
+                        <p class="text-gray-500 text-xs text-center">¿Aún no tienes cuenta? <a href="{{ route('login') }}" class="text-red-400 hover:underline">Inicia sesión o regístrate</a>.</p>
+                    @endguest
                 </div>
 
                 <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 sm:p-8 flex flex-col justify-center gap-5">
@@ -422,10 +406,9 @@
             <div class="space-y-3">
                 @php
                     $faqs = [
-                        ['¿Cuánto tarda un pedido?', 'Los pedidos de productos en stock se despachan en 1 a 2 días hábiles. Los trabajos de pintura y personalización dependen del diseño y se acuerdan contigo al momento de agendar.'],
-                        ['¿Realizan envíos?', 'Sí, realizamos envíos a nivel nacional. El costo se calcula automáticamente al finalizar la compra según el valor de tu carrito.'],
+                        ['¿Cuánto tarda un trabajo de pintura?', 'Depende del diseño. El tiempo se acuerda contigo al momento de agendar.'],
                         ['¿Aceptan diseños personalizados?', 'Claro. Puedes traernos tu idea o referencia y la adaptamos a tu moto — escríbenos por WhatsApp para cotizar tu diseño.'],
-                        ['¿Qué medios de pago reciben?', 'En la tienda online el pago se procesa de forma segura durante el checkout. Para trabajos de taller también aceptamos pagos por transferencia o en efectivo.'],
+                        ['¿Qué medios de pago reciben?', 'En la tienda puedes elegir tarjeta, PSE, Nequi o Daviplata al finalizar la compra. Para trabajos de taller también recibimos transferencia o efectivo.'],
                         ['¿Los productos tienen garantía?', 'Sí, todos nuestros productos y accesorios cuentan con garantía por defectos de fábrica. Los trabajos de pintura tienen garantía sobre el acabado — consulta condiciones con nosotros.'],
                     ];
                 @endphp

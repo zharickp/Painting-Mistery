@@ -81,7 +81,6 @@
                     $ins = $misInscripciones->get($curso->id);
                     $activa = $ins && in_array($ins->estado, ['pendiente','confirmada','completada'], true);
                     $libres = $curso->cuposDisponibles();
-                    $info = $curso->info;
                     $destacado = $cursos->count() > 1 && (float) $curso->costo === (float) $maxCosto;
                     $lineas = array_values(array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', (string) $curso->descripcion))));
                     $intro = $lineas[0] ?? 'Curso práctico dictado en el taller.';
@@ -122,14 +121,14 @@
                                 <p class="text-3xl font-black {{ $destacado ? 'text-white' : 'text-gray-900' }}">${{ number_format($curso->costo, 0, ',', '.') }}</p>
                             </div>
                             <div class="flex flex-wrap gap-2 text-[11px] font-semibold">
-                                @if($info?->duracion)<span class="px-2.5 py-1 rounded-full {{ $destacado ? 'bg-white/10 text-gray-200' : 'bg-gray-100 text-gray-600' }}">{{ $info->duracion }}</span>@endif
+                                @if($curso->duracion)<span class="px-2.5 py-1 rounded-full {{ $destacado ? 'bg-white/10 text-gray-200' : 'bg-gray-100 text-gray-600' }}">{{ $curso->duracion }}</span>@endif
                                 <span class="px-2.5 py-1 rounded-full {{ $destacado ? 'bg-white/10 text-gray-200' : 'bg-gray-100 text-gray-600' }}">{{ $libres === null ? 'Cupos limitados' : $libres . ' cupos libres' }}</span>
-                                @if($info?->incluye_certificado ?? true)<span class="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-500">Con certificado</span>@endif
+                                @if($curso->incluye_certificado ?? true)<span class="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-500">Con certificado</span>@endif
                             </div>
                         </div>
 
-                        @if($info?->requisitos)
-                            <p class="mt-4 text-xs {{ $destacado ? 'text-gray-400' : 'text-gray-500' }}"><strong class="{{ $destacado ? 'text-gray-200' : 'text-gray-700' }}">Debes traer:</strong> {{ $info->requisitos }}</p>
+                        @if($curso->requisitos)
+                            <p class="mt-4 text-xs {{ $destacado ? 'text-gray-400' : 'text-gray-500' }}"><strong class="{{ $destacado ? 'text-gray-200' : 'text-gray-700' }}">Debes traer:</strong> {{ $curso->requisitos }}</p>
                         @endif
 
                         {{-- Reserva --}}

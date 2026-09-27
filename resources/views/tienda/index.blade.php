@@ -24,7 +24,6 @@
     ];
     $rangoActivo = fn ($min, $max) => (float) ($precioMin ?: 0) === (float) ($min ?: 0) && (float) ($precioMax ?: 0) === (float) ($max ?: 0) && ($precioMin || $precioMax);
     $hayFiltros = $buscar || $categoria || $precioMin || $precioMax || $soloStock || $soloOferta;
-    $umbral = (int) config('envios.umbral_envio_gratis', 400000);
 @endphp
 <div class="bg-gray-50 min-h-screen">
 
@@ -33,7 +32,6 @@
     {{-- Franja de beneficios --}}
     <div class="bg-gray-900 text-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-center gap-x-8 gap-y-1 text-xs">
-            <span class="flex items-center gap-1.5"><svg class="h-4 w-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10m10 0H3m10 0h2m4 0h1a1 1 0 001-1v-3.65a1 1 0 00-.22-.624l-3.48-4.35A1 1 0 0017.52 6H14v10m-4 0a2 2 0 11-4 0 2 2 0 014 0zm10 0a2 2 0 11-4 0 2 2 0 014 0z"/></svg>Envío gratis desde ${{ number_format($umbral, 0, ',', '.') }}</span>
             <span class="flex items-center gap-1.5"><svg class="h-4 w-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>Garantía por defectos de fábrica</span>
             <span class="flex items-center gap-1.5"><svg class="h-4 w-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>Asesoría por WhatsApp</span>
         </div>

@@ -1,11 +1,12 @@
 @extends('layouts.app')
-@section('title', 'Orden ' . ($venta->envio->numero_orden ?? $venta->id))
+@section('title', 'Orden ' . ($venta->numero_orden ?? $venta->id))
 @section('content')
 
 @php
-    $e = $venta->envio;
+    // Datos del comprador y del pago (ventas antiguas sin número de orden no los tienen).
+    $e = $venta->numero_orden ? $venta : null;
+    $pago = $venta->pago;
     $puedeGestionar = auth()->user()->tieneRol('Administrador', 'Asesor');
-    $noCancelable = in_array($e?->estado_pedido, ['enviado', 'entregado'], true);
 @endphp
 
 <div class="mb-6 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
@@ -21,7 +22,7 @@
             <a href="{{ route('admin.ventas.orden', $venta->id) }}" target="_blank" class="px-4 py-2 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 hover:border-gray-400 transition">Orden de venta</a>
         @endif
         @if($puedeGestionar && $venta->estado === 'pendiente')
-            <form method="POST" action="{{ route('admin.ventas.confirmar-pago', $venta->id) }}" onsubmit="return confirm('¿Confirmar el pago de esta orden? Se descontará el inventario.')">
+            <form method="POST" action="{{ route('admin.ventas.confirmar-pago', $venta->id) }}" onsubmit="return confirm('¿Confirmar el pago de esta venta? Se registra como pago en efectivo y se descuenta el inventario.')">
                 @csrf
                 <button class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold transition">Confirmar pago</button>
             </form>
@@ -55,29 +56,23 @@
             </table>
             @php $iva = (float) $venta->detalleProductos->sum('iva'); @endphp
             <div class="px-5 py-4 border-t border-gray-50 text-sm space-y-1 ml-auto max-w-xs">
-                @if($e)<div class="flex justify-between text-gray-500"><span>Subtotal</span><span>${{ number_format($e->subtotal, 0, ',', '.') }}</span></div>
-                <div class="flex justify-between text-gray-500"><span>Envío</span><span>{{ (float) $e->envio === 0.0 ? 'Gratis' : '$' . number_format($e->envio, 0, ',', '.') }}</span></div>@endif
                 @if($iva > 0)<div class="flex justify-between text-gray-400 text-xs"><span>IVA (incluido)</span><span>${{ number_format($iva, 0, ',', '.') }}</span></div>@endif
-                <div class="flex justify-between font-bold text-gray-900 text-base pt-1 border-t border-gray-100"><span>Total</span><span>${{ number_format($venta->total, 0, ',', '.') }}</span></div>
+                <div class="flex justify-between font-bold text-gray-900 text-base"><span>Total</span><span>${{ number_format($venta->total, 0, ',', '.') }}</span></div>
             </div>
         </div>
 
         @if($puedeGestionar && $venta->estado !== 'cancelada')
         <div class="bg-white rounded-xl border border-rose-100 shadow-sm p-5">
-            <h2 class="text-sm font-bold text-rose-700 mb-1">Cancelar orden</h2>
-            <p class="text-xs text-gray-500 mb-3">La orden no se elimina: queda como Cancelada con quién, cuándo y por qué.
+            <h2 class="text-sm font-bold text-rose-700 mb-1">Cancelar venta</h2>
+            <p class="text-xs text-gray-500 mb-3">La venta no se elimina: queda como cancelada con quién, cuándo y por qué.
                 @if($venta->estado === 'pagada') Como ya estaba pagada, el inventario se devolverá. @endif</p>
-            @if($noCancelable)
-                <p class="text-sm text-gray-500">Esta orden ya fue enviada o entregada y no puede cancelarse.</p>
-            @else
             <form method="POST" action="{{ route('admin.ventas.cancelar', $venta->id) }}" class="flex flex-col sm:flex-row gap-3"
-                  onsubmit="return confirm('¿Cancelar esta orden? Esta acción queda registrada en la auditoría.')">
+                  onsubmit="return confirm('¿Cancelar esta venta? Queda registrado en la auditoría.')">
                 @csrf
                 <input type="text" name="motivo" required minlength="3" maxlength="255" placeholder="Motivo de la cancelación"
                        class="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-rose-400">
-                <button class="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold transition">Cancelar orden</button>
+                <button class="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold transition">Cancelar venta</button>
             </form>
-            @endif
         </div>
         @endif
     </div>
@@ -89,13 +84,13 @@
             <p class="text-gray-500 text-xs">{{ $venta->usuario->correo ?? '' }}</p>
             <p><span class="text-gray-400">Creada:</span> {{ $venta->fecha?->format('d/m/Y H:i') }}</p>
             <p><span class="text-gray-400">Última actualización:</span> {{ $venta->updated_at?->format('d/m/Y H:i') }}</p>
-            @if($e?->fecha_pago)
-                <p><span class="text-gray-400">Pago confirmado:</span> {{ $e->fecha_pago->format('d/m/Y H:i') }}
-                    @if($e->pagoConfirmadoPor) <span class="text-gray-400">por</span> {{ $e->pagoConfirmadoPor->primer_nombre }} {{ $e->pagoConfirmadoPor->primer_apellido }}@endif</p>
+            @if($pago?->estado === 'aprobado' && $pago->fecha_pago)
+                <p><span class="text-gray-400">Pagada:</span> {{ $pago->fecha_pago->format('d/m/Y H:i') }}
+                    @if($venta->pagoConfirmadoPor) <span class="text-gray-400">(confirmó</span> {{ $venta->pagoConfirmadoPor->primer_nombre }} {{ $venta->pagoConfirmadoPor->primer_apellido }}<span class="text-gray-400">)</span>@endif</p>
             @endif
             @if($venta->estado === 'cancelada')
                 <div class="rounded-lg bg-rose-50 border border-rose-100 p-3 text-xs text-rose-800 space-y-1">
-                    <p class="font-bold">Orden cancelada</p>
+                    <p class="font-bold">Venta cancelada</p>
                     <p>Fecha: {{ $e?->cancelada_at?->format('d/m/Y H:i') ?? '—' }}</p>
                     <p>Responsable: {{ $e?->canceladaPor ? $e->canceladaPor->primer_nombre . ' ' . $e->canceladaPor->primer_apellido : 'Sistema / cliente' }}</p>
                     <p>Motivo: {{ $e?->motivo_cancelacion ?: '—' }}</p>
@@ -105,12 +100,19 @@
 
         @if($e)
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 text-sm space-y-1.5">
-            <h2 class="text-sm font-bold text-gray-800 mb-1">Pago y envío</h2>
-            <p><span class="text-gray-400">Pago:</span> {{ $e->paymentStatusEtiqueta() }} @if($e->wompi_payment_method)<span class="text-gray-400">({{ $e->wompi_payment_method }})</span>@endif</p>
-            <p><span class="text-gray-400">Pedido:</span> {{ $e->estadoPedidoEtiqueta() }}</p>
-            <p class="text-gray-700">{{ $e->nombre_envio }} · {{ $e->telefono_envio }}</p>
-            <p class="text-gray-500 text-xs">{{ $e->direccion_envio }}, {{ $e->ciudad_envio }}, {{ $e->departamento_envio }}</p>
-            @if($e->referencia_envio)<p class="text-gray-400 text-xs">Obs.: {{ $e->referencia_envio }}</p>@endif
+            <h2 class="text-sm font-bold text-gray-800 mb-1">Comprador</h2>
+            <p class="text-gray-700">{{ $e->nombre_cliente }}</p>
+            <p class="text-gray-500 text-xs">{{ $e->tipo_documento }} {{ $e->numero_documento }}</p>
+            <p class="text-gray-500 text-xs">{{ $e->telefono_cliente }} · {{ $e->correo_cliente }}</p>
+        </div>
+        @endif
+
+        @if($pago)
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 text-sm space-y-1.5">
+            <h2 class="text-sm font-bold text-gray-800 mb-1">Pago</h2>
+            <p><span class="text-gray-400">Método:</span> {{ $pago->metodoPago?->nombre ?? '—' }}</p>
+            <p><span class="text-gray-400">Estado:</span> {{ $pago->estadoEtiqueta() }}</p>
+            <p><span class="text-gray-400">Comprobante:</span> <span class="font-mono text-xs">{{ $pago->numero_comprobante }}</span></p>
         </div>
         @endif
     </div>

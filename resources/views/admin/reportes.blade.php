@@ -39,7 +39,7 @@
     $canceladas = Venta::where('estado','cancelada')->count();
     $totalV     = $pagadas + $pendientes + $canceladas;
 
-    // Top productos vendidos
+    // Productos más vendidos
     $topProductos = DetalleVentaProducto::whereHas('venta', fn ($q) => $q->where('estado', 'pagada'))->selectRaw('producto_id, SUM(cantidad) as unidades, SUM(subtotal) as ingresos')
         ->with('producto:id,nombre')
         ->groupBy('producto_id')
@@ -60,7 +60,7 @@
             </svg>
         </div>
         <div>
-            <h1 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 rest:text-stone-800">Reportes de ventas</h1>
+            <h1 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100">Reportes de ventas</h1>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Ingresos, órdenes y desempeño de {{ now()->year }}</p>
         </div>
     </div>
@@ -79,9 +79,9 @@
         ['Esta semana',$semana,'indigo',  'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
         ['Este mes',   $mes,   'purple',  'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2'],
         ['Este año',   $anio,  'amber',   'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'],
-        ['Histórico',  $total, 'emerald', 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1'],
+        ['Desde el inicio',  $total, 'emerald', 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1'],
     ] as [$label, $val, $color, $path])
-    <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition">
         <div class="flex items-start justify-between mb-3">
             <div class="h-10 w-10 rounded-xl bg-{{ $color }}-50 dark:bg-{{ $color }}-900/30 text-{{ $color }}-600 dark:text-{{ $color }}-400 flex items-center justify-center">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -98,7 +98,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
 
     {{-- Gráfica principal: ventas mensuales (2 cols) --}}
-    <div class="lg:col-span-2 bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
+    <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
         <div class="flex items-center justify-between mb-5">
             <div>
                 <h2 class="text-base font-bold text-slate-800 dark:text-slate-100">Ingresos mensuales</h2>
@@ -120,11 +120,11 @@
         </div>
     </div>
 
-    {{-- Estado de pedidos (dona) --}}
-    <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
+    {{-- Estado de las ventas (dona) --}}
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
         <div class="mb-4">
-            <h2 class="text-base font-bold text-slate-800 dark:text-slate-100">Estado de pedidos</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Distribución del histórico</p>
+            <h2 class="text-base font-bold text-slate-800 dark:text-slate-100">Estado de las ventas</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Todas las ventas registradas</p>
         </div>
         <div class="relative flex items-center justify-center" style="height: 180px;">
             <canvas id="doughnut"></canvas>
@@ -156,10 +156,10 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
     {{-- Top productos --}}
-    <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
         <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
             <h2 class="text-base font-bold text-slate-800 dark:text-slate-100">Top productos vendidos</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Los 5 más vendidos del histórico</p>
+            <p class="text-xs text-slate-400 mt-0.5">Los 5 con más unidades vendidas</p>
         </div>
         @if($topProductos->isEmpty())
             <div class="px-6 py-12 text-center text-sm text-slate-400">Sin datos de ventas todavía.</div>
@@ -190,15 +190,15 @@
         @endif
     </div>
 
-    {{-- Desglose mensual --}}
-    <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+    {{-- Ventas por mes --}}
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
         <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <div>
                 <h2 class="text-base font-bold text-slate-800 dark:text-slate-100">Desglose mensual</h2>
                 <p class="text-xs text-slate-400 mt-0.5">Detalle por mes de {{ now()->year }}</p>
             </div>
             <span class="text-xs text-slate-500 dark:text-slate-400">
-                Ticket promedio: <span class="font-bold text-slate-800 dark:text-slate-100">${{ number_format($ticketPromedio, 0, ',', '.') }}</span>
+                Promedio por venta: <span class="font-bold text-slate-800 dark:text-slate-100">${{ number_format($ticketPromedio, 0, ',', '.') }}</span>
             </span>
         </div>
         <div class="overflow-x-auto">
@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Dona de estado de pedidos
+    // Dona de estado de las ventas
     new Chart(document.getElementById('doughnut').getContext('2d'), {
         type: 'doughnut',
         data: {

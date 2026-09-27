@@ -2,41 +2,39 @@
 
 namespace App\Console\Commands;
 
-use App\Models\VentaEnvio;
+use App\Models\Venta;
 use App\Services\OrdenEstadoService;
 use Illuminate\Console\Command;
 
 /**
- * Cancela automáticamente las órdenes cuyo pago nunca se confirmó
- * (siguen en PENDING para Wompi) después de un tiempo límite de espera.
- * No descuenta ni restaura inventario: como el stock solo se descuenta
- * al aprobar el pago (ver PagoOrdenService), estas órdenes nunca lo
- * tocaron — no hay nada que revertir.
+ * Cancela las ventas que se crearon pero nunca se pagaron (el cliente llegó a
+ * la pantalla de pago y no terminó). No toca el inventario: el stock
+ * solo se descuenta cuando el pago se aprueba.
  */
 class ExpirarPedidosPendientesCommand extends Command
 {
     protected $signature = 'pedidos:expirar-pendientes {--horas=24 : Horas de espera antes de cancelar}';
 
-    protected $description = 'Cancela automáticamente órdenes con pago pendiente que superaron el tiempo límite';
+    protected $description = 'Cancela las ventas sin pagar que superaron el tiempo límite';
 
     public function handle(): int
     {
         $horas  = (int) $this->option('horas');
         $limite = now()->subHours($horas);
 
-        $envios = VentaEnvio::where('payment_status', 'PENDING')
-            ->where('estado_pedido', '!=', 'cancelado')
-            ->whereHas('venta', fn($q) => $q->where('fecha', '<', $limite))
-            ->with('venta')
+        // Solo ventas de la tienda (con número de orden) que siguen pendientes.
+        $ventas = Venta::whereNotNull('numero_orden')
+            ->where('estado', 'pendiente')
+            ->where('fecha', '<', $limite)
             ->get();
 
         $svc = app(OrdenEstadoService::class);
 
-        foreach ($envios as $envio) {
-            $svc->cancelar($envio, null, "Expiración automática: sin confirmación de pago tras {$horas} h", 'expiracion');
+        foreach ($ventas as $venta) {
+            $svc->cancelar($venta, null, "Expiración automática: sin confirmación de pago tras {$horas} h", 'expiracion');
         }
 
-        $this->info("Órdenes canceladas por expiración: {$envios->count()}");
+        $this->info("Órdenes canceladas por expiración: {$ventas->count()}");
         return self::SUCCESS;
     }
 }

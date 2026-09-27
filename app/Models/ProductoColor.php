@@ -12,7 +12,6 @@ class ProductoColor extends Model
         'producto_id',
         'nombre',
         'hex',
-        'stock',
         'orden',
     ];
 

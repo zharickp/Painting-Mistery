@@ -11,10 +11,15 @@ class Resena extends Model
     protected $fillable = [
         'producto_id',
         'usuario_id',
-        'nombre_invitado',
-        'correo_invitado',
         'calificacion',
         'comentario',
+        'estado',
+    ];
+
+    public const ESTADOS = [
+        'pendiente' => 'Pendiente',
+        'aprobada'  => 'Aprobada',
+        'rechazada' => 'Rechazada',
     ];
 
     protected $casts = [
@@ -31,8 +36,19 @@ class Resena extends Model
         return $this->belongsTo(Usuario::class);
     }
 
+    /** Solo las aprobadas se muestran en la tienda. */
+    public function scopeAprobadas($query)
+    {
+        return $query->where('estado', 'aprobada');
+    }
+
+    public function estadoEtiqueta(): string
+    {
+        return self::ESTADOS[$this->estado] ?? ucfirst((string) $this->estado);
+    }
+
     public function nombreMostrar(): string
     {
-        return $this->usuario?->nombreCompleto() ?? $this->nombre_invitado ?? 'Cliente';
+        return $this->usuario?->nombreCompleto() ?? 'Cliente';
     }
 }

@@ -1,16 +1,19 @@
 @extends('layouts.app')
 @section('title', 'Tipos de IVA')
 @section('content')
+@php $puedeEditar = auth()->user()->tieneRol('Administrador'); @endphp
 
 <div class="mb-6 flex items-center justify-between">
     <div>
         <h1 class="text-xl font-bold text-gray-800">Tipos de IVA</h1>
-        <p class="text-sm text-gray-400 mt-1">Gestiona los tipos de IVA aplicables a los productos.</p>
+        <p class="text-sm text-gray-400 mt-1">Tipos de IVA que se pueden asignar a los productos.</p>
     </div>
+    @if ($puedeEditar)
     <a href="{{ route('admin.tipo-iva.create') }}"
        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
         + Nuevo tipo de IVA
     </a>
+    @endif
 </div>
 
 @if (session('success'))
@@ -34,7 +37,7 @@
                     <th class="px-5 py-3 text-center">Porcentaje</th>
                     <th class="px-5 py-3 text-center">Productos</th>
                     <th class="px-5 py-3 text-center">Estado</th>
-                    <th class="px-5 py-3 text-center">Acciones</th>
+                    @if ($puedeEditar)<th class="px-5 py-3 text-center">Acciones</th>@endif
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-50">
@@ -56,6 +59,7 @@
                             {{ $tipo->activo ? 'Activo' : 'Inactivo' }}
                         </span>
                     </td>
+                    @if ($puedeEditar)
                     <td class="px-5 py-3 text-center">
                         <div class="flex items-center justify-center gap-2">
                             <a href="{{ route('admin.tipo-iva.edit', $tipo) }}"
@@ -71,10 +75,11 @@
                             </form>
                         </div>
                     </td>
+                    @endif
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="px-5 py-12 text-center text-gray-400">
+                    <td colspan="{{ $puedeEditar ? 5 : 4 }}" class="px-5 py-12 text-center text-gray-400">
                         No hay tipos de IVA registrados.
                     </td>
                 </tr>

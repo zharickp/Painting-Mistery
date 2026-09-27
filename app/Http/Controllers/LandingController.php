@@ -6,7 +6,7 @@ use App\Models\Banner;
 use App\Models\Curso;
 use App\Models\Inscripcion;
 use App\Models\Producto;
-use App\Models\ResenaSitio;
+use App\Models\Resena;
 
 class LandingController extends Controller
 {
@@ -24,9 +24,17 @@ class LandingController extends Controller
             ->get();
 
         $banners = Banner::activos()->get();
-        $resenasSitio = ResenaSitio::aprobadas()->latest()->take(12)->get();
+        // Testimonios: las reseñas mejor calificadas que los clientes (con cuenta)
+        // dejaron en los productos.
+        $resenasClientes = Resena::with(['usuario', 'producto'])
+            ->aprobadas()
+            ->whereNotNull('usuario_id')
+            ->where('calificacion', '>=', 4)
+            ->latest()
+            ->take(12)
+            ->get();
 
-        return view('landing', compact('productosDestacados', 'cursosDestacados', 'banners', 'resenasSitio'));
+        return view('landing', compact('productosDestacados', 'cursosDestacados', 'banners', 'resenasClientes'));
     }
 
     public function nosotros()
@@ -36,10 +44,10 @@ class LandingController extends Controller
 
     public function academia()
     {
-        $cursos = Curso::where('estado', true)->with(['info', 'fechas' => fn ($q) => $q->whereDate('fecha', '>=', today())])->orderBy('id')->get();
+        $cursos = Curso::where('estado', true)->with(['fechas' => fn ($q) => $q->whereDate('fecha', '>=', today())])->orderBy('id')->get();
 
         $misInscripciones = auth()->check()
-            ? Inscripcion::with('agenda')->where('usuario_id', auth()->id())->get()->keyBy('curso_id')
+            ? Inscripcion::where('usuario_id', auth()->id())->get()->keyBy('curso_id')
             : collect();
 
         return view('academia', compact('cursos', 'misInscripciones'));

@@ -15,8 +15,6 @@
         'auditoria'     => ['Auditoría',          'admin.auditoria.index'],
         'banners'       => ['Banners',            'admin.banners.index'],
         'respaldos'     => ['Copias de seguridad', 'admin.respaldos.index'],
-        'tarifas-envio' => ['Tarifas de envío',   'admin.tarifas-envio.index'],
-        'resenas-sitio' => ['Reseñas',            'admin.resenas-sitio.index'],
         'agenda-cursos' => ['Agenda de cursos',   'admin.agenda-cursos.index'],
     ];
     $acciones = ['create' => 'Nuevo', 'edit' => 'Editar', 'show' => 'Detalle', 'inscripciones' => 'Inscripciones', 'orden' => 'Orden de venta'];
@@ -27,8 +25,6 @@
         $accion = $acciones[$partes[2] ?? ''] ?? null;
         $migas[] = [$etiqueta, $accion ? $rutaIndice : null];
         if ($accion) { $migas[] = [$accion, null]; }
-    } elseif (($partes[0] ?? '') === 'mayorista') {
-        $migas[] = ['Mayoristas', null];
     }
 @endphp
 @if($migas)

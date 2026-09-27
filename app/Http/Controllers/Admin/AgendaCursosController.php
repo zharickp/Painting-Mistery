@@ -23,7 +23,7 @@ class AgendaCursosController extends Controller
         $finGrid    = $mes->copy()->endOfMonth()->endOfWeek(Carbon::SUNDAY);
 
         // Sesiones que empiezan hasta 30 días antes (por si un curso largo cruza de mes).
-        $sesiones = CursoFecha::with('curso.info')
+        $sesiones = CursoFecha::with('curso')
             ->whereBetween('fecha', [$inicioGrid->copy()->subDays(30)->toDateString(), $finGrid->toDateString()])
             ->orderBy('fecha')
             ->get()
@@ -36,13 +36,13 @@ class AgendaCursosController extends Controller
             ->values();
 
         $inscritos = Inscripcion::activas()
-            ->with(['usuario', 'agenda'])
+            ->with('usuario')
             ->whereIn('curso_id', $sesiones->pluck('curso_id')->unique())
             ->get();
 
         foreach ($sesiones as $s) {
             $s->inscritos = $inscritos->filter(function ($i) use ($s) {
-                $f = $i->agenda?->fecha_confirmada ?? $i->agenda?->fecha_preferida;
+                $f = $i->fecha_confirmada ?? $i->fecha_preferida;
                 return $i->curso_id === $s->curso_id && $f && $f->isSameDay($s->fecha);
             })->values();
         }

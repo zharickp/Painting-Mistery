@@ -4,8 +4,8 @@
 
 <div class="mb-6 flex items-center justify-between">
     <div>
-        <h1 class="text-xl font-bold text-gray-800">Gestión de Usuarios</h1>
-        <p class="text-sm text-gray-400 mt-1">Listado completo de usuarios registrados.</p>
+        <h1 class="text-xl font-bold text-gray-800">Usuarios</h1>
+        <p class="text-sm text-gray-400 mt-1">Usuarios registrados en el sistema.</p>
     </div>
     <a href="{{ route('admin.usuarios.create') }}"
        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
@@ -75,7 +75,7 @@
                     </td>
                     <td class="px-5 py-3 text-center">
                         <span class="text-xs {{ $u->correo_verificado_at ? 'text-green-600' : 'text-yellow-600' }}">
-                            {{ $u->correo_verificado_at ? '✅ Sí' : '⏳ No' }}
+                            {{ $u->correo_verificado_at ? 'Sí' : 'No' }}
                         </span>
                     </td>
                     <td class="px-5 py-3 text-center">

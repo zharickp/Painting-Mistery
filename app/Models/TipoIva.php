@@ -17,11 +17,13 @@ class TipoIva extends Model
 
     protected $fillable = [
         'descripcion',
-        'porcentaje'
+        'porcentaje',
+        'activo',
     ];
 
     protected $casts = [
         'porcentaje' => 'decimal:2',
+        'activo'     => 'boolean',
     ];
 
     public function productos()
@@ -29,19 +31,19 @@ class TipoIva extends Model
         return $this->hasMany(Producto::class);
     }
 
-    public function estadoRegistro()
+    /**
+     * Parte de IVA que ya viene dentro de un valor. Los precios de la tienda
+     * se publican con IVA incluido: con 19 %, de $119.000 el IVA es $19.000.
+     */
+    public function ivaIncluido(float $valor): float
     {
-        return $this->hasOne(TipoIvaEstado::class);
-    }
+        $porcentaje = (float) $this->porcentaje;
 
-    /** Sin fila en tipo_iva_estado se considera activo. */
-    public function getActivoAttribute(): bool
-    {
-        return $this->estadoRegistro?->activo ?? true;
+        return $porcentaje > 0 ? round($valor * $porcentaje / (100 + $porcentaje), 2) : 0.0;
     }
 
     public function scopeActivos($query)
     {
-        return $query->whereDoesntHave('estadoRegistro', fn ($q) => $q->where('activo', false));
+        return $query->where('activo', true);
     }
 }

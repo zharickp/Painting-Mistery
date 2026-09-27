@@ -17,6 +17,22 @@ class Pago extends Model
         'estado'
     ];
 
+    protected $casts = [
+        'valor'      => 'decimal:2',
+        'fecha_pago' => 'datetime',
+    ];
+
+    public const ESTADOS = [
+        'pendiente' => 'Pendiente',
+        'aprobado'  => 'Aprobado',
+        'rechazado' => 'Rechazado',
+    ];
+
+    public function estadoEtiqueta(): string
+    {
+        return self::ESTADOS[$this->estado] ?? ucfirst((string) $this->estado);
+    }
+
     // 🔗 Relación con venta
     public function venta()
     {

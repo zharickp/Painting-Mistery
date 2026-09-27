@@ -2,8 +2,8 @@
 @section('title', 'Usuarios')
 @section('content')
 <div class="mb-6">
-    <h1 class="text-xl font-bold text-gray-800">Gestión de Usuarios</h1>
-    <p class="text-sm text-gray-400 mt-1">Listado completo de usuarios registrados.</p>
+    <h1 class="text-xl font-bold text-gray-800">Usuarios</h1>
+    <p class="text-sm text-gray-400 mt-1">Usuarios registrados en el sistema.</p>
 </div>
 
 @php $usuarios = \App\Models\Usuario::with('roles','tipoDocumento')->orderByDesc('created_at')->paginate(15); @endphp
@@ -43,7 +43,7 @@
                     </td>
                     <td class="px-5 py-3">
                         <span class="text-xs {{ $u->correo_verificado_at ? 'text-green-600' : 'text-yellow-600' }}">
-                            {{ $u->correo_verificado_at ? '✅ Sí' : '⏳ No' }}
+                            {{ $u->correo_verificado_at ? 'Sí' : 'No' }}
                         </span>
                     </td>
                 </tr>

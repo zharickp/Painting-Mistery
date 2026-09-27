@@ -8,16 +8,23 @@ class Inscripcion extends Model
 {
     public const ESTADOS = ['pendiente', 'confirmada', 'completada', 'cancelada'];
 
-    // La columna `estado` de la BD solo admite 'inscrito' | 'cancelado' (CHECK). El estado
-    // detallado vive en inscripcion_agenda.estado_solicitud y se expone como $inscripcion->estado.
-
+    /** Estados que ocupan cupo. */
+    public const ESTADOS_ACTIVOS = ['pendiente', 'confirmada', 'completada'];
 
     protected $table = 'inscripcion';
 
     protected $fillable = [
         'usuario_id',
         'curso_id',
-        'estado'
+        'estado',
+        'fecha_preferida',
+        'fecha_confirmada',
+        'notas',
+    ];
+
+    protected $casts = [
+        'fecha_preferida'  => 'date',
+        'fecha_confirmada' => 'date',
     ];
 
     // 🔗 Relación con usuario
@@ -32,11 +39,6 @@ class Inscripcion extends Model
         return $this->belongsTo(Curso::class);
     }
 
-    public function agenda()
-    {
-        return $this->hasOne(InscripcionAgenda::class);
-    }
-
     public function codigoReserva(): string
     {
         return 'RES-' . str_pad((string) $this->id, 5, '0', STR_PAD_LEFT);
@@ -45,31 +47,19 @@ class Inscripcion extends Model
     /** Fecha (o rango de días) vigente de la reserva: la confirmada por el taller o, si no, la elegida por el cliente. */
     public function fechaTexto(): ?string
     {
-        $fecha = $this->agenda?->fecha_confirmada ?? $this->agenda?->fecha_preferida;
+        $fecha = $this->fecha_confirmada ?? $this->fecha_preferida;
 
         return $fecha ? CursoFecha::etiquetaDe($fecha, $this->curso?->dias() ?? 1) : null;
     }
 
-    public function getEstadoAttribute($valor): string
-    {
-        if ($valor === 'cancelado') {
-            return 'cancelada';
-        }
-
-        return $this->agenda?->estado_solicitud ?? 'pendiente';
-    }
-
     public function cambiarEstado(string $estado): void
     {
-        $this->forceFill(['estado' => $estado === 'cancelada' ? 'cancelado' : 'inscrito'])->save();
-
-        $this->agenda()->updateOrCreate([], ['estado_solicitud' => $estado]);
-        $this->unsetRelation('agenda');
+        $this->update(['estado' => $estado]);
     }
 
     public function scopeActivas($query)
     {
-        return $query->where('estado', 'inscrito');
+        return $query->whereIn('estado', self::ESTADOS_ACTIVOS);
     }
 
     public function estadoEtiqueta(): string

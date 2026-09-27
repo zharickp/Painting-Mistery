@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orden de venta {{ $venta->envio->numero_orden }} — Painting Mistery</title>
+    <title>Orden de venta {{ $venta->numero_orden }} — Painting Mistery</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <style>
@@ -14,7 +14,7 @@
     </style>
 </head>
 <body class="bg-slate-100 py-10 print:py-0 print:bg-white">
-@php $envio = $venta->envio; @endphp
+@php $compra = $venta; @endphp
 
 <div class="max-w-3xl mx-auto px-4">
 
@@ -54,27 +54,21 @@
             </div>
             <div class="text-right">
                 <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Orden de venta</p>
-                <p class="font-mono font-black text-slate-800 text-lg">{{ $envio->numero_orden }}</p>
+                <p class="font-mono font-black text-slate-800 text-lg">{{ $compra->numero_orden }}</p>
                 <p class="text-xs text-slate-500 mt-0.5">{{ $venta->fecha?->format('d/m/Y h:i A') }}</p>
                 <p class="mt-1.5 inline-block px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wide border {{ $venta->estadoColor() }}">Estado: {{ $venta->estado === 'pagada' ? 'Pagada / Confirmada' : $venta->estadoEtiqueta() }}</p>
             </div>
         </div>
 
         {{-- Datos del cliente --}}
-        <div class="grid grid-cols-2 gap-6 mb-8 text-sm">
+        <div class="mb-8 text-sm">
             <div>
                 <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Cliente</p>
-                <p class="font-semibold text-slate-800">{{ $envio->nombre_envio }}</p>
-                @if($envio->numero_documento)
-                    <p class="text-slate-500 text-xs">{{ $envio->tipo_documento }} {{ $envio->numero_documento }}</p>
+                <p class="font-semibold text-slate-800">{{ $compra->nombre_cliente }}</p>
+                @if($compra->numero_documento)
+                    <p class="text-slate-500 text-xs">{{ $compra->tipo_documento }} {{ $compra->numero_documento }}</p>
                 @endif
-                <p class="text-slate-500 text-xs">{{ $envio->correo_envio }} · {{ $envio->telefono_envio }}</p>
-            </div>
-            <div>
-                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Enviado a</p>
-                <p class="text-slate-700">{{ $envio->direccion_envio }}</p>
-                <p class="text-slate-500 text-xs">{{ $envio->ciudad_envio }}, {{ $envio->departamento_envio }}</p>
-                @if($envio->referencia_envio)<p class="text-slate-400 text-xs mt-0.5">Ref.: {{ $envio->referencia_envio }}</p>@endif
+                <p class="text-slate-500 text-xs">{{ $compra->correo_cliente }} · {{ $compra->telefono_cliente }}</p>
             </div>
         </div>
 
@@ -103,17 +97,6 @@
         {{-- Totales --}}
         <div class="flex justify-end mb-8">
             <div class="w-56 space-y-1.5 text-sm">
-                <div class="flex justify-between text-slate-600">
-                    <span>Subtotal</span>
-                    <span>${{ number_format($envio->subtotal, 0, ',', '.') }}</span>
-                </div>
-                <div class="flex justify-between text-slate-600">
-                    <span>Envío</span>
-                    <span>
-                        @if((float) $envio->envio === 0.0) GRATIS
-                        @else ${{ number_format($envio->envio, 0, ',', '.') }} @endif
-                    </span>
-                </div>
                 @php $ivaTotal = (float) $venta->detalleProductos->sum('iva'); @endphp
                 @if($ivaTotal > 0)
                     <div class="flex justify-between text-slate-400 text-xs">
@@ -121,7 +104,7 @@
                         <span>${{ number_format($ivaTotal, 0, ',', '.') }}</span>
                     </div>
                 @endif
-                <div class="flex justify-between font-bold text-slate-800 text-base pt-2 border-t border-slate-200">
+                <div class="flex justify-between font-bold text-slate-800 text-base">
                     <span>{{ $venta->estado === 'pagada' ? 'Total pagado' : 'Total' }}</span>
                     <span class="text-red-600">${{ number_format($venta->total, 0, ',', '.') }}</span>
                 </div>
@@ -130,19 +113,19 @@
 
         {{-- Pago y observaciones --}}
         <div class="border-t border-slate-100 pt-6 text-xs text-slate-500 space-y-1">
-            <p>Método de pago: <span class="font-semibold text-slate-700">{{ $envio->wompi_payment_method ?: 'Pago en línea' }}</span></p>
-            <p>Estado del pago: <span class="font-semibold text-slate-700">{{ $envio->paymentStatusEtiqueta() }}</span>@if($envio->fecha_pago) · {{ $envio->fecha_pago->format('d/m/Y h:i A') }}@endif</p>
+            @php $pago = $venta->pago; @endphp
+            <p>Método de pago: <span class="font-semibold text-slate-700">{{ $pago?->metodoPago?->nombre ?? '—' }}</span></p>
+            <p>Estado del pago: <span class="font-semibold text-slate-700">{{ $pago?->estadoEtiqueta() ?? 'Sin registro' }}</span>@if($pago?->estado === 'aprobado' && $pago->fecha_pago) · {{ $pago->fecha_pago->format('d/m/Y h:i A') }}@endif</p>
             @if($venta->estado === 'cancelada')
-                <p class="text-rose-700">Cancelada el {{ $envio->cancelada_at?->format('d/m/Y h:i A') ?? '—' }}@if($envio->motivo_cancelacion) · Motivo: {{ $envio->motivo_cancelacion }}@endif</p>
+                <p class="text-rose-700">Cancelada el {{ $compra->cancelada_at?->format('d/m/Y h:i A') ?? '—' }}@if($compra->motivo_cancelacion) · Motivo: {{ $compra->motivo_cancelacion }}@endif</p>
             @elseif($venta->estado === 'pendiente')
-                <p class="text-amber-700">Pago pendiente de confirmación. Este documento no acredita el pago.</p>
+                <p class="text-amber-700">Pago pendiente. Este documento no acredita el pago.</p>
             @endif
-            <p>Referencia de pago: <span class="font-mono">{{ $envio->wompi_reference }}</span></p>
-            <p class="text-slate-400">Observaciones: {{ $envio->referencia_envio ?: 'Sin observaciones.' }}</p>
+            @if($pago)<p>Comprobante: <span class="font-mono">{{ $pago->numero_comprobante }}</span></p>@endif
         </div>
 
         <div class="mt-6 rounded-xl bg-slate-50 border border-slate-100 px-4 py-3 text-[11px] text-slate-400 leading-relaxed">
-            Documento interno generado por el sistema de Painting Mistery para el seguimiento de la orden.
+            Documento interno generado por el sistema de Painting Mistery como soporte de la venta.
             No constituye factura de venta ni factura electrónica.
         </div>
         <p class="pt-4 text-xs text-slate-400 text-center">Gracias por tu compra en Painting Mistery.</p>

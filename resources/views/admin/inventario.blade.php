@@ -4,7 +4,7 @@
 
 <div class="mb-6">
     <h1 class="text-xl font-bold text-gray-800">Inventario</h1>
-    <p class="text-sm text-gray-400 mt-1">Stock actual de productos. Las alertas en rojo indican stock por debajo del mínimo.</p>
+    <p class="text-sm text-gray-400 mt-1">Existencias por producto. En rojo aparecen los que están por debajo del stock mínimo.</p>
 </div>
 
 @if(session('success'))
@@ -130,7 +130,7 @@
                 <input type="number" name="stock_minimo" id="inputStockMinimo"
                        min="0" required
                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
-                <p class="text-xs text-gray-400 mt-1">El sistema alertará cuando el stock baje de este número.</p>
+                <p class="text-xs text-gray-400 mt-1">Se marca en rojo cuando el stock baja de este número.</p>
             </div>
             <div class="flex gap-3 pt-2">
                 <button type="button" onclick="cerrarModal()"

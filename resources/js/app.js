@@ -32,6 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('form').forEach(form => {
         form.addEventListener('submit', (e) => {
+            // Si el envío fue cancelado (p. ej. el usuario pulsó "Cancelar" en un
+            // confirm() del onsubmit), no se bloquea el botón ni se muestra "Procesando...".
+            if (e.defaultPrevented) return;
+
             const btn = form.querySelector('button[type="submit"]');
             if (!btn) return;
 

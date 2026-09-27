@@ -74,8 +74,6 @@
                     </button>
                 </form>
             </div>
-            @else
-            <p class="text-xs text-gray-400">Solo lectura</p>
             @endif
         </div>
     </div>

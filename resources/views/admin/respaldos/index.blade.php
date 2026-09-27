@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Copias de Seguridad')
+@section('title', 'Copias de seguridad')
 
 @section('content')
 
@@ -13,9 +13,9 @@
             </svg>
         </div>
         <div>
-            <h1 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 rest:text-stone-800">Copias de Seguridad</h1>
+            <h1 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100">Copias de seguridad</h1>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                Se generan automáticamente cada 15 días. También puedes generar una manualmente.
+                Copias automáticas y manuales de la base de datos.
             </p>
         </div>
     </div>
@@ -55,7 +55,7 @@
 @endphp
 
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-    <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5">
         <div class="flex items-center gap-3">
             <div class="h-10 w-10 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -69,7 +69,7 @@
         </div>
     </div>
 
-    <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5">
         <div class="flex items-center gap-3">
             <div class="h-10 w-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -83,7 +83,7 @@
         </div>
     </div>
 
-    <div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5">
         <div class="flex items-center gap-3">
             <div class="h-10 w-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -101,7 +101,7 @@
 </div>
 
 {{-- Listado --}}
-<div class="bg-white dark:bg-slate-900 rest:bg-amber-100/70 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs">
+<div class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs">
     <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
         <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">Historial de copias</h2>
         <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Más reciente primero</span>
@@ -131,6 +131,11 @@
                             {{ $copia['nombre'] }}
                         </p>
                         <div class="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            @if($copia['automatica'])
+                                <span class="px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold uppercase tracking-wider">Automática</span>
+                            @else
+                                <span class="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wider">Manual</span>
+                            @endif
                             <span class="inline-flex items-center gap-1">
                                 <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -154,7 +159,7 @@
                             </svg>
                         </a>
                         <form method="POST" action="{{ route('admin.respaldos.destroy', $copia['nombre']) }}"
-                              onsubmit="return confirm('¿Está seguro de eliminar esta copia de seguridad?');" class="inline">
+                              onsubmit="return confirm('¿Eliminar esta copia de seguridad?');" class="inline">
                             @csrf
                             @method('DELETE')
                             <button type="submit"
@@ -171,16 +176,4 @@
     @endif
 </div>
 
-{{-- Info sobre el proceso --}}
-<div class="mt-6 bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900 rounded-2xl p-4 flex items-start gap-3">
-    <svg class="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-    </svg>
-    <div class="text-sm text-blue-800 dark:text-blue-200">
-        <p class="font-semibold">Sobre las copias automáticas</p>
-        <p class="text-xs text-blue-700 dark:text-blue-300 mt-1 leading-relaxed">
-            El sistema genera copias los días 1 y 16 de cada mes a las 3:00 a.m. (aproximadamente cada 15 días). Los archivos se guardan en un directorio privado del servidor y no son accesibles públicamente. La restauración de una copia es un procedimiento técnico manual — no se ejecuta desde esta interfaz por seguridad.
-        </p>
-    </div>
-</div>
 @endsection

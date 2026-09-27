@@ -16,7 +16,6 @@
 <body class="bg-slate-100 py-10 print:py-0 print:bg-white">
 @php
     $curso = $ins->curso;
-    $info = $curso->info;
     $usuario = $ins->usuario;
     $fechaTxt = $ins->fechaTexto() ?? 'Por confirmar';
     $mensajeWa = "Hola Painting Mistery! Reservé el {$curso->nombre} ({$fechaTxt}). Mi comprobante es {$ins->codigoReserva()} a nombre de " . trim($usuario->primer_nombre . ' ' . $usuario->primer_apellido) . ". Quiero coordinar el abono y los detalles.";
@@ -71,7 +70,7 @@
                 <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Curso</p>
                 <p class="font-semibold text-slate-800">{{ $curso->nombre }}</p>
                 <p class="text-slate-600">{{ $fechaTxt }}</p>
-                <p class="text-slate-500 text-xs">{{ $curso->duracionTexto() }} · {{ $info?->ubicacion ?: 'Taller Painting Mistery, Melgar – Tolima' }}</p>
+                <p class="text-slate-500 text-xs">{{ $curso->duracionTexto() }} · {{ $curso->ubicacion ?: 'Taller Painting Mistery, Melgar – Tolima' }}</p>
             </div>
         </div>
 
@@ -79,9 +78,9 @@
             <div class="flex justify-between px-4 py-3"><span class="text-slate-500">Valor del curso</span><span class="font-bold text-slate-800">${{ number_format($curso->costo, 0, ',', '.') }}</span></div>
             <div class="flex justify-between px-4 py-3"><span class="text-slate-500">Abono para asegurar el cupo</span><span class="font-semibold text-slate-700">Te lo confirmamos por WhatsApp</span></div>
             <div class="flex justify-between px-4 py-3"><span class="text-slate-500">Saldo</span><span class="font-semibold text-slate-700">Se cancela después del abono, según lo acordado</span></div>
-            @if($info?->incluye_certificado ?? true)<div class="flex justify-between px-4 py-3"><span class="text-slate-500">Certificado</span><span class="font-semibold text-emerald-600">Incluido al finalizar</span></div>@endif
-            @if($info?->requisitos)<div class="flex justify-between gap-6 px-4 py-3"><span class="text-slate-500 shrink-0">Debes traer</span><span class="text-slate-700 text-right">{{ $info->requisitos }}</span></div>@endif
-            @if($ins->agenda?->notas)<div class="flex justify-between gap-6 px-4 py-3"><span class="text-slate-500 shrink-0">Indicaciones</span><span class="text-slate-700 text-right">{{ $ins->agenda->notas }}</span></div>@endif
+            @if($curso->incluye_certificado ?? true)<div class="flex justify-between px-4 py-3"><span class="text-slate-500">Certificado</span><span class="font-semibold text-emerald-600">Incluido al finalizar</span></div>@endif
+            @if($curso->requisitos)<div class="flex justify-between gap-6 px-4 py-3"><span class="text-slate-500 shrink-0">Debes traer</span><span class="text-slate-700 text-right">{{ $curso->requisitos }}</span></div>@endif
+            @if($ins->notas)<div class="flex justify-between gap-6 px-4 py-3"><span class="text-slate-500 shrink-0">Indicaciones</span><span class="text-slate-700 text-right">{{ $ins->notas }}</span></div>@endif
         </div>
 
         <div class="mb-8">

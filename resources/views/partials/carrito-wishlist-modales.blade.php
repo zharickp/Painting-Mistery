@@ -43,7 +43,6 @@
                 <span>Total:</span>
                 <span id="carritoTotal" class="text-red-600"></span>
             </div>
-            <p class="text-[11px] text-gray-400">Envío calculado al finalizar la compra.</p>
 
             @auth
                 <button type="button" onclick="irACheckout(this)"

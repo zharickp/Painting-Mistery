@@ -14,7 +14,7 @@
 
 <div class="mb-5">
     <h1 class="text-xl font-bold text-gray-800">Historial de ventas</h1>
-    <p class="text-sm text-gray-400 mt-1">Todas las órdenes se conservan: las canceladas no se eliminan.</p>
+    <p class="text-sm text-gray-400 mt-1">Las órdenes canceladas también quedan en el historial.</p>
 </div>
 
 @if(session('success'))<div class="mb-4 bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-xl">{{ session('success') }}</div>@endif
@@ -33,7 +33,7 @@
     </div>
     <form method="GET" class="flex flex-wrap items-center gap-2">
         @if($estado)<input type="hidden" name="estado" value="{{ $estado }}">@endif
-        <input type="text" name="buscar" value="{{ $buscar }}" placeholder="Orden (#0015), cliente o correo…"
+        <input type="text" name="buscar" value="{{ $buscar }}" placeholder="Buscar por n.º de orden, cliente o correo"
                class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-red-400 w-56">
         <input type="date" name="fecha" value="{{ $fecha }}" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-red-400">
         <button class="bg-gray-900 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Buscar</button>
@@ -46,7 +46,7 @@
         <table class="w-full text-sm">
             <thead class="bg-gray-50">
                 <tr class="text-xs text-gray-400 uppercase tracking-wide text-left">
-                    <th class="px-5 py-3"># Orden</th>
+                    <th class="px-5 py-3">N.º de orden</th>
                     <th class="px-5 py-3">Cliente</th>
                     <th class="px-5 py-3">Fecha</th>
                     <th class="px-5 py-3 text-center">Estado</th>
@@ -57,7 +57,7 @@
             <tbody class="divide-y divide-gray-50">
                 @forelse($ventas as $v)
                 <tr class="hover:bg-gray-50 {{ $v->estado === 'cancelada' ? 'bg-rose-50/30' : '' }}">
-                    <td class="px-5 py-3 font-mono text-gray-600">{{ $v->envio?->numero_orden ?? '#' . str_pad($v->id, 4, '0', STR_PAD_LEFT) }}</td>
+                    <td class="px-5 py-3 font-mono text-gray-600">{{ $v->numero_orden ?? '#' . str_pad($v->id, 4, '0', STR_PAD_LEFT) }}</td>
                     <td class="px-5 py-3 font-medium text-gray-800">{{ $v->usuario->primer_nombre ?? '—' }} {{ $v->usuario->primer_apellido ?? '' }}</td>
                     <td class="px-5 py-3 text-gray-500">{{ $v->fecha?->format('d/m/Y H:i') }}</td>
                     <td class="px-5 py-3 text-center">@include('partials.estado-orden', ['venta' => $v])</td>
@@ -67,7 +67,7 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="6" class="px-5 py-12 text-center text-gray-400">No hay órdenes que coincidan con el filtro.</td></tr>
+                <tr><td colspan="6" class="px-5 py-12 text-center text-gray-400">No se encontraron ventas con esos filtros.</td></tr>
                 @endforelse
             </tbody>
         </table>

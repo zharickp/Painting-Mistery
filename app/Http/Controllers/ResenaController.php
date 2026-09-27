@@ -11,35 +11,19 @@ class ResenaController extends Controller
 {
     public function store(Request $request, Producto $producto): JsonResponse
     {
+        // La ruta exige sesión (middleware auth): toda reseña queda ligada a un usuario.
         $usuario = $request->user();
 
-        $reglas = [
+        $request->validate([
             'calificacion' => 'required|integer|min:1|max:5',
             'comentario'   => 'required|string|min:5|max:1000',
-        ];
+        ]);
 
-        if (! $usuario) {
-            $reglas['nombre'] = 'required|string|max:100';
-            $reglas['correo'] = 'required|email|max:150';
-        }
-
-        $request->validate($reglas);
-
-        if ($usuario) {
-            $resena = Resena::updateOrCreate(
-                ['producto_id' => $producto->id, 'usuario_id' => $usuario->id],
-                ['calificacion' => $request->calificacion, 'comentario' => $request->comentario]
-            );
-        } else {
-            $resena = Resena::create([
-                'producto_id'     => $producto->id,
-                'usuario_id'      => null,
-                'nombre_invitado' => $request->nombre,
-                'correo_invitado' => $request->correo,
-                'calificacion'    => $request->calificacion,
-                'comentario'      => $request->comentario,
-            ]);
-        }
+        // Nueva o editada, la reseña vuelve a revisión antes de publicarse.
+        $resena = Resena::updateOrCreate(
+            ['producto_id' => $producto->id, 'usuario_id' => $usuario->id],
+            ['calificacion' => $request->calificacion, 'comentario' => $request->comentario, 'estado' => 'pendiente']
+        );
 
         $resena->load('usuario');
         $producto->load('resenas');
@@ -53,6 +37,7 @@ class ResenaController extends Controller
                 'comentario'   => $resena->comentario,
                 'fecha'        => $resena->created_at->diffForHumans(),
                 'propia'       => true,
+                'estado'       => $resena->estado,
             ],
             'resumen' => $producto->resumenResenas(),
         ]);

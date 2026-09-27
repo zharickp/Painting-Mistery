@@ -12,7 +12,7 @@
 <div class="mb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
     <div>
         <h1 class="text-xl font-bold text-gray-800">Agenda de cursos</h1>
-        <p class="text-sm text-gray-400 mt-1">Qué día hay curso y quién está inscrito. Las fechas se publican en Cursos → Editar.</p>
+        <p class="text-sm text-gray-400 mt-1">Días con curso y personas inscritas. Las fechas se publican al editar cada curso.</p>
     </div>
     <div class="flex items-center gap-2">
         <a href="{{ route('admin.agenda-cursos.index', ['mes' => $anterior]) }}" class="h-9 w-9 rounded-lg border border-gray-200 bg-white hover:border-gray-400 flex items-center justify-center" aria-label="Mes anterior">‹</a>
@@ -38,7 +38,7 @@
                         @php $s = $chip['sesion']; $largo = $s->dias > 1; @endphp
                         <a href="#sesion-{{ $s->id }}" class="block mb-1 rounded px-1.5 py-1 text-[10px] leading-tight font-semibold truncate {{ $largo ? 'bg-gray-900 text-white' : 'bg-red-100 text-red-800' }}"
                            title="{{ $s->curso->nombre }}">
-                            {{ $largo ? 'Completo' : 'Polichado' }}@if($largo) · día {{ $chip['dia'] }}/{{ $s->dias }}@endif
+                            {{ $s->curso->nombre }}@if($largo) · día {{ $chip['dia'] }}/{{ $s->dias }}@endif
                             @if($chip['dia'] === 1 && $s->inscritos->count()) · {{ $s->inscritos->count() }} insc.@endif
                         </a>
                     @endforeach
@@ -61,7 +61,7 @@
             </div>
             <div class="flex items-center gap-3">
                 <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700">{{ $s->inscritos->count() }} inscrito(s)</span>
-                <a href="{{ route('admin.cursos.inscripciones', $s->curso_id) }}" class="text-xs font-semibold text-red-600 hover:text-red-700">Gestionar inscripciones →</a>
+                <a href="{{ route('admin.cursos.inscripciones', $s->curso_id) }}" class="text-xs font-semibold text-red-600 hover:text-red-700">{{ $puedeGestionar ? 'Gestionar inscripciones' : 'Ver inscripciones' }} →</a>
             </div>
         </div>
         @if($s->inscritos->isNotEmpty())

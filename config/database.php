@@ -19,6 +19,13 @@ return [
     'default' => env('DB_CONNECTION', 'sqlite'),
 
     /*
+    | Ruta opcional al ejecutable de respaldo (pg_dump / mysqldump).
+    | Si se deja vacía, BackupService la busca automáticamente.
+    | Ej: DB_DUMP_PATH="C:\Program Files\PostgreSQL\18\bin\pg_dump.exe"
+    */
+    'dump_path' => env('DB_DUMP_PATH'),
+
+    /*
     |--------------------------------------------------------------------------
     | Database Connections
     |--------------------------------------------------------------------------

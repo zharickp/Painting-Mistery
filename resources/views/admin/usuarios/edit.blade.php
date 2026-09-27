@@ -40,7 +40,7 @@
             <div>
                 <span class="text-gray-400">Verificado:</span>
                 <span class="ml-1 text-xs {{ $usuario->correo_verificado_at ? 'text-green-600' : 'text-yellow-600' }}">
-                    {{ $usuario->correo_verificado_at ? '✅ Sí' : '⏳ No' }}
+                    {{ $usuario->correo_verificado_at ? 'Sí' : 'No' }}
                 </span>
             </div>
         </div>

@@ -14,7 +14,6 @@ class TipoIvaController extends Controller
     public function index(): View
     {
         $tiposIva = TipoIva::withCount('productos')
-            ->with('estadoRegistro')
             ->orderBy('porcentaje')
             ->paginate(10);
 
@@ -92,7 +91,8 @@ class TipoIvaController extends Controller
     public function toggleEstado(TipoIva $tipoIva): RedirectResponse
     {
         $anterior = $tipoIva->activo;
-        $tipoIva->estadoRegistro()->updateOrCreate([], ['activo' => ! $anterior]);
+        // saveQuietly: la auditoría de este cambio se registra abajo con más detalle.
+        $tipoIva->forceFill(['activo' => ! $anterior])->saveQuietly();
 
         AuditoriaService::registrar([
             'accion'             => $anterior ? 'desactivado' : 'activado',

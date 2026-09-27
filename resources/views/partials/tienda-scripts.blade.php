@@ -246,7 +246,7 @@ function quitarDelCarrito(id) {
 }
 
 // ── Envía el carrito local (localStorage) al carrito real del backend
-//    antes de ir al checkout, para que Wompi cobre exactamente lo que
+//    antes de ir al checkout, para que la compra tenga exactamente lo que
 //    el cliente ve en el modal. ──
 async function irACheckout(btn) {
     const cart = getCarrito();

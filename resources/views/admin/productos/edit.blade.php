@@ -53,7 +53,7 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Precio anterior <span class="text-gray-400">(opcional, para mostrar descuento)</span>
+                    Precio antes del descuento <span class="text-gray-400">(opcional)</span>
                 </label>
                 <input type="number" name="precio_anterior"
                        value="{{ old('precio_anterior', $producto->precio_anterior) }}"
@@ -98,7 +98,7 @@
                 <div class="mb-3">
                     <img src="{{ $producto->imagen }}" alt="{{ $producto->nombre }}"
                          class="h-32 w-32 object-cover rounded-lg border border-gray-200">
-                    <p class="text-xs text-gray-400 mt-1">Imagen actual. Sube una nueva para reemplazarla, o marca "Portada" en una foto de la galería.</p>
+                    <p class="text-xs text-gray-400 mt-1">Imagen actual. Sube una nueva para reemplazarla, o marca "Portada" en una de las fotos generales.</p>
                 </div>
             @endif
             <input type="file" name="imagen" accept="image/jpg,image/jpeg,image/png,image/webp" data-preview="previewImagenPrincipal"
@@ -106,88 +106,87 @@
             <div id="previewImagenPrincipal" class="flex flex-wrap gap-2 mt-2"></div>
         </div>
 
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Galería de fotos</label>
+        {{-- ── FOTOS ─────────────────────────────────────────────── --}}
+        <div class="border-t border-gray-100 pt-5">
+            <p class="text-sm font-semibold text-gray-800">Fotos del producto</p>
+            <p class="text-xs text-gray-400 mt-0.5 mb-4">
+                El botón <span class="font-semibold text-red-600">Eliminar</span> borra la foto de inmediato.
+                Las fotos nuevas, el orden (arrastrando) y la portada se guardan con <span class="font-semibold">Actualizar producto</span>.
+            </p>
 
-            @if ($producto->colores->isNotEmpty() || $fotosCompartidas->isNotEmpty())
-                <p class="text-xs text-gray-400 mb-3">Arrastra las fotos para reordenarlas dentro de su grupo, ajusta el stock de cada color, o táchalas para eliminarlas al guardar.</p>
-                <div id="gruposFotosExistentes" class="space-y-4 mb-4">
-                    @foreach ($producto->colores as $color)
-                        <div class="grupo-fotos border border-gray-200 rounded-xl p-3">
-                            <div class="flex flex-wrap items-center gap-2 mb-2">
-                                <input type="color" name="colores_existentes[{{ $color->id }}][hex]" value="{{ $color->hex ?: '#dc2626' }}"
-                                       class="h-7 w-7 rounded border border-gray-200 cursor-pointer flex-shrink-0" title="Color de esta variante">
-                                <input type="text" name="colores_existentes[{{ $color->id }}][nombre]" value="{{ $color->nombre }}" maxlength="40"
-                                       class="flex-1 min-w-[8rem] rounded-md border border-gray-200 px-2 py-1 text-xs font-semibold text-gray-700 focus:outline-none focus:border-red-400">
-                                <label class="flex items-center gap-1.5 text-xs text-gray-500 flex-shrink-0">
-                                    Stock
-                                    <input type="number" name="colores_existentes[{{ $color->id }}][stock]" value="{{ $color->stock }}" min="0"
-                                           class="w-20 rounded-md border border-gray-200 px-2 py-1 text-xs focus:outline-none focus:border-red-400">
-                                </label>
-                            </div>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                @foreach ($color->imagenes as $img)
-                                    <div class="foto-card border border-gray-200 rounded-lg p-2 bg-white cursor-move" data-id="{{ $img->id }}">
-                                        <div class="relative">
-                                            <img src="{{ $img->ruta }}" draggable="false" class="h-20 w-20 object-cover rounded-lg mx-auto pointer-events-none">
-                                            <label class="absolute -top-2 -right-2 bg-white rounded-full shadow border border-gray-200 h-6 w-6 flex items-center justify-center cursor-pointer" title="Eliminar">
-                                                <input type="checkbox" name="eliminar_imagenes[]" value="{{ $img->id }}" class="accent-red-600">
-                                            </label>
-                                        </div>
-                                        <p class="text-[10px] text-gray-400 text-center mt-1.5 truncate">Foto de "{{ $color->nombre }}"</p>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
+            <div id="avisoFotos" class="hidden mb-3 text-xs rounded-lg px-3 py-2"></div>
+
+            {{-- Fotos generales (sin color) --}}
+            <div class="grupo-fotos border border-gray-200 rounded-xl p-4 mb-4">
+                <div class="flex items-center justify-between gap-2 mb-3">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-700">Fotos generales</p>
+                        <p class="text-[11px] text-gray-400">Se muestran cuando el cliente no ha elegido un color.</p>
+                    </div>
+                </div>
+
+                <div class="grilla-fotos grid grid-cols-3 sm:grid-cols-4 gap-3">
+                    @foreach ($fotosCompartidas as $img)
+                        @include('admin.productos._foto', ['img' => $img, 'conPortada' => true])
                     @endforeach
-
-                    @if ($fotosCompartidas->isNotEmpty())
-                        <div class="grupo-fotos border border-gray-200 rounded-xl p-3">
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Fotos compartidas (sin color específico)</span>
-                            </div>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                @foreach ($fotosCompartidas as $img)
-                                    <div class="foto-card border border-gray-200 rounded-lg p-2 bg-white cursor-move" data-id="{{ $img->id }}">
-                                        <div class="relative">
-                                            <img src="{{ $img->ruta }}" draggable="false" class="h-20 w-20 object-cover rounded-lg mx-auto pointer-events-none">
-                                            <label class="absolute -top-2 -right-2 bg-white rounded-full shadow border border-gray-200 h-6 w-6 flex items-center justify-center cursor-pointer" title="Eliminar">
-                                                <input type="checkbox" name="eliminar_imagenes[]" value="{{ $img->id }}" class="accent-red-600">
-                                            </label>
-                                        </div>
-                                        <label class="flex items-center gap-1 mt-1.5 text-[11px] text-gray-500 cursor-pointer">
-                                            <input type="radio" name="imagen_portada" value="{{ $img->id }}" class="accent-red-600"
-                                                   {{ $producto->imagen === $img->ruta ? 'checked' : '' }}>
-                                            Portada
-                                        </label>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
                 </div>
-                <div id="ordenImagenesContainer"></div>
-            @endif
+                <p class="vacio-fotos text-xs text-gray-400 {{ $fotosCompartidas->isEmpty() ? '' : 'hidden' }}">Sin fotos generales.</p>
 
-            <div class="border-t border-gray-100 pt-4 mt-1">
-                <p class="text-sm font-semibold text-gray-700 mb-2">Agregar fotos nuevas</p>
-
-                <div class="mb-3">
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Fotos sin color específico</label>
+                <label class="mt-3 block">
+                    <span class="text-xs font-medium text-gray-600">Agregar fotos generales</span>
                     <input type="file" name="imagenes[]" multiple accept="image/jpg,image/jpeg,image/png,image/webp" data-preview="previewGaleria"
-                           class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-red-50 file:text-red-600 hover:file:bg-red-100">
-                    <div id="previewGaleria" class="flex flex-wrap gap-2 mt-2"></div>
-                </div>
-
-                <div id="gruposColorNuevos" class="mb-2 space-y-3"></div>
-
-                <button type="button" onclick="agregarGrupoColor()"
-                        class="text-sm font-medium text-red-600 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 transition inline-flex items-center gap-1.5">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    Agregar grupo de color
-                </button>
-                <p class="text-xs text-gray-400 mt-1.5">Si tu producto viene en varios colores, crea un grupo por cada color, define su stock y sube sus fotos ahí — aparecerán como círculos seleccionables en la página del producto, cada uno con su propia galería y su propio stock. Si escribes el nombre de un color que ya existe, las fotos nuevas se agregan a ese mismo color (el stock que pongas aquí solo aplica al crear el color).</p>
+                           class="mt-1 w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-red-50 file:text-red-600 hover:file:bg-red-100">
+                </label>
+                <div id="previewGaleria" class="flex flex-wrap gap-2 mt-2"></div>
             </div>
+
+            {{-- Colores existentes --}}
+            <p class="text-sm font-semibold text-gray-700">Colores</p>
+            <p class="text-[11px] text-gray-400 mb-2">Cada color aparece en la tienda como un círculo con sus propias fotos. El stock se maneja en Inventario.</p>
+
+            <div id="coloresExistentes" class="space-y-4">
+                @foreach ($producto->colores as $color)
+                    <div class="grupo-fotos tarjeta-color border border-gray-200 rounded-xl p-4" data-color-id="{{ $color->id }}">
+                        <div class="flex flex-wrap items-center gap-2 mb-3">
+                            <input type="color" name="colores_existentes[{{ $color->id }}][hex]" value="{{ $color->hex ?: '#dc2626' }}"
+                                   class="h-8 w-8 rounded border border-gray-200 cursor-pointer flex-shrink-0" title="Tono del círculo en la tienda">
+                            <input type="text" name="colores_existentes[{{ $color->id }}][nombre]" value="{{ $color->nombre }}" maxlength="40"
+                                   class="flex-1 min-w-[8rem] rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-semibold text-gray-700 focus:outline-none focus:border-red-400">
+                            <button type="button"
+                                    onclick="eliminarColor(this, @js(route('admin.productos.colores.destroy', [$producto, $color])), @js($color->nombre), {{ $color->imagenes->count() }})"
+                                    class="text-xs font-medium text-red-600 border border-red-200 rounded-lg px-2.5 py-1.5 hover:bg-red-50 transition">
+                                Eliminar color
+                            </button>
+                        </div>
+
+                        <div class="grilla-fotos grid grid-cols-3 sm:grid-cols-4 gap-3">
+                            @foreach ($color->imagenes as $img)
+                                @include('admin.productos._foto', ['img' => $img, 'conPortada' => false])
+                            @endforeach
+                        </div>
+                        <p class="vacio-fotos text-xs text-gray-400 {{ $color->imagenes->isEmpty() ? '' : 'hidden' }}">Este color no tiene fotos.</p>
+
+                        <label class="mt-3 block">
+                            <span class="text-xs font-medium text-gray-600">Agregar fotos a "{{ $color->nombre }}"</span>
+                            <input type="file" name="fotos_color[{{ $color->id }}][]" multiple accept="image/jpg,image/jpeg,image/png,image/webp"
+                                   data-preview="previewColor{{ $color->id }}"
+                                   class="mt-1 w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-red-50 file:text-red-600 hover:file:bg-red-100">
+                        </label>
+                        <div id="previewColor{{ $color->id }}" class="flex flex-wrap gap-2 mt-2"></div>
+                    </div>
+                @endforeach
+            </div>
+            <p id="sinColores" class="text-xs text-gray-400 {{ $producto->colores->isEmpty() ? '' : 'hidden' }}">Este producto no tiene colores. Si viene en varios, agrégalos abajo.</p>
+
+            <div id="ordenImagenesContainer"></div>
+
+            {{-- Colores nuevos --}}
+            <div id="gruposColorNuevos" class="mt-4 space-y-3"></div>
+            <button type="button" onclick="agregarGrupoColor()"
+                    class="mt-3 text-sm font-medium text-red-600 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 transition inline-flex items-center gap-1.5">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Agregar color
+            </button>
         </div>
 
         <button type="submit"
@@ -197,37 +196,8 @@
     </form>
 </div>
 
-<div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 max-w-2xl mt-6">
-    <p class="text-sm font-semibold text-gray-700 mb-1">Productos recomendados</p>
-    <p class="text-xs text-gray-400 mb-3">Elige qué productos aparecen en "También te puede interesar" en la página de este producto. Si no eliges ninguno, se muestran automáticamente productos de la misma categoría.</p>
-
-    <div class="relative mb-3">
-        <input type="text" id="buscarRelacionado" placeholder="Buscar producto por nombre..." autocomplete="off"
-               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
-        <div id="resultadosRelacionados" class="hidden absolute z-10 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto"></div>
-    </div>
-
-    <ul id="listaRelacionados" data-orientacion="vertical" class="space-y-2">
-        @foreach ($relacionadosActuales as $rel)
-            <li class="rel-item flex items-center gap-3 border border-gray-200 rounded-lg p-2 bg-gray-50 cursor-move" data-id="{{ $rel->id }}">
-                <svg class="h-4 w-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/></svg>
-                <div class="h-9 w-9 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
-                    @if ($rel->imagen)<img src="{{ $rel->imagen }}" draggable="false" class="h-full w-full object-cover">@endif
-                </div>
-                <span class="text-sm text-gray-700 flex-1 truncate">{{ $rel->nombre }}</span>
-                <button type="button" onclick="quitarRelacionado(this)" class="text-gray-400 hover:text-red-600 text-sm px-1">✕</button>
-            </li>
-        @endforeach
-    </ul>
-    <p id="relacionadosVacio" class="text-xs text-gray-400 {{ $relacionadosActuales->isNotEmpty() ? 'hidden' : '' }}">Aún no has elegido recomendados manuales.</p>
-
-    <div id="relacionadosOrdenContainer"></div>
-</div>
-
 <script>
-window.productosDisponibles = @json($productosDisponibles->map(fn ($p) => ['id' => $p->id, 'nombre' => $p->nombre, 'imagen' => $p->imagen])->values());
-
-// ── Arrastre genérico (galería agrupada por color + lista de recomendados) ──
+// ── Arrastre genérico (galería agrupada por color) ──
 function habilitarArrastre(contenedor, selectorItem, alSoltar) {
     if (!contenedor) return;
     let arrastrando = null;
@@ -259,6 +229,83 @@ function sincronizarOrden() {
     });
 }
 
+// ── Eliminación inmediata de fotos y colores ──
+const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+function mostrarAviso(texto, tipo = 'ok') {
+    const aviso = document.getElementById('avisoFotos');
+    aviso.textContent = texto;
+    aviso.className = 'mb-3 text-xs rounded-lg px-3 py-2 ' + (tipo === 'ok'
+        ? 'bg-green-50 text-green-700 border border-green-200'
+        : 'bg-red-50 text-red-700 border border-red-200');
+    clearTimeout(window.__avisoFotosTimer);
+    window.__avisoFotosTimer = setTimeout(() => aviso.classList.add('hidden'), 5000);
+}
+
+async function pedirEliminacion(url) {
+    const resp = await fetch(url, {
+        method: 'DELETE',
+        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return resp.json();
+}
+
+function actualizarVacios(grupo) {
+    if (!grupo) return;
+    const vacio = grupo.querySelector('.vacio-fotos');
+    if (vacio) vacio.classList.toggle('hidden', grupo.querySelectorAll('.foto-card').length > 0);
+}
+
+function quitarTarjetaColor(tarjeta) {
+    tarjeta?.remove();
+    if (!document.querySelector('.tarjeta-color')) {
+        document.getElementById('sinColores')?.classList.remove('hidden');
+    }
+}
+
+async function eliminarFoto(boton, url) {
+    if (!confirm('¿Eliminar esta foto? Se borra de inmediato.')) return;
+    const card = boton.closest('.foto-card');
+    const grupo = boton.closest('.grupo-fotos');
+    boton.disabled = true;
+    card.classList.add('opacity-40');
+    try {
+        const data = await pedirEliminacion(url);
+        card.remove();
+        actualizarVacios(grupo);
+        if (data.color_eliminado) {
+            quitarTarjetaColor(grupo);
+            mostrarAviso('Foto eliminada. El color quedó sin fotos, así que también se eliminó.');
+        } else {
+            mostrarAviso('Foto eliminada.');
+        }
+        sincronizarOrden();
+    } catch (e) {
+        card.classList.remove('opacity-40');
+        boton.disabled = false;
+        mostrarAviso('No se pudo eliminar la foto. Recarga la página e inténtalo de nuevo.', 'error');
+    }
+}
+
+async function eliminarColor(boton, url, nombre, cantidad) {
+    const detalle = cantidad > 0 ? ` y sus ${cantidad} foto(s)` : '';
+    if (!confirm(`¿Eliminar el color "${nombre}"${detalle}? Se borra de inmediato.`)) return;
+    const tarjeta = boton.closest('.tarjeta-color');
+    boton.disabled = true;
+    tarjeta.classList.add('opacity-40');
+    try {
+        await pedirEliminacion(url);
+        quitarTarjetaColor(tarjeta);
+        mostrarAviso(`Color "${nombre}" eliminado.`);
+        sincronizarOrden();
+    } catch (e) {
+        tarjeta.classList.remove('opacity-40');
+        boton.disabled = false;
+        mostrarAviso('No se pudo eliminar el color. Recarga la página e inténtalo de nuevo.', 'error');
+    }
+}
+
 // ── Grupos de color nuevos (subir varias fotos de un color en un solo paso) ──
 let contadorGrupoColor = 0;
 function agregarGrupoColor() {
@@ -273,113 +320,34 @@ function agregarGrupoColor() {
     if (input && window.attachFilePreview) window.attachFilePreview(input);
 }
 
-// ── Recomendados manuales ──
-function sincronizarRelacionados() {
-    const contenedor = document.getElementById('relacionadosOrdenContainer');
-    if (!contenedor) return;
-    contenedor.innerHTML = '';
-    document.querySelectorAll('#listaRelacionados .rel-item').forEach(li => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'relacionados[]';
-        input.value = li.dataset.id;
-        contenedor.appendChild(input);
-    });
-}
-
-function rebindArrastreRelacionados() {
-    habilitarArrastre(document.getElementById('listaRelacionados'), '.rel-item', sincronizarRelacionados);
-}
-
-function agregarRelacionado(p) {
-    const lista = document.getElementById('listaRelacionados');
-    const li = document.createElement('li');
-    li.className = 'rel-item flex items-center gap-3 border border-gray-200 rounded-lg p-2 bg-gray-50 cursor-move';
-    li.dataset.id = p.id;
-    li.innerHTML = `
-        <svg class="h-4 w-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/></svg>
-        <div class="h-9 w-9 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">${p.imagen ? `<img src="${p.imagen}" draggable="false" class="h-full w-full object-cover">` : ''}</div>
-        <span class="text-sm text-gray-700 flex-1 truncate">${p.nombre}</span>
-        <button type="button" onclick="quitarRelacionado(this)" class="text-gray-400 hover:text-red-600 text-sm px-1">✕</button>
-    `;
-    lista.appendChild(li);
-    document.getElementById('buscarRelacionado').value = '';
-    document.getElementById('resultadosRelacionados').classList.add('hidden');
-    document.getElementById('relacionadosVacio')?.classList.add('hidden');
-    rebindArrastreRelacionados();
-    sincronizarRelacionados();
-}
-
-function quitarRelacionado(btn) {
-    btn.closest('.rel-item').remove();
-    if (!document.querySelectorAll('#listaRelacionados .rel-item').length) {
-        document.getElementById('relacionadosVacio')?.classList.remove('hidden');
-    }
-    sincronizarRelacionados();
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-    const buscarInput = document.getElementById('buscarRelacionado');
-    const resultadosBox = document.getElementById('resultadosRelacionados');
-
-    buscarInput?.addEventListener('input', () => {
-        const q = buscarInput.value.trim().toLowerCase();
-        resultadosBox.innerHTML = '';
-        if (!q) { resultadosBox.classList.add('hidden'); return; }
-
-        const yaElegidos = new Set(Array.from(document.querySelectorAll('#listaRelacionados .rel-item')).map(li => li.dataset.id));
-        const coincidencias = window.productosDisponibles
-            .filter(p => p.nombre.toLowerCase().includes(q) && !yaElegidos.has(String(p.id)))
-            .slice(0, 6);
-
-        if (!coincidencias.length) { resultadosBox.classList.add('hidden'); return; }
-
-        coincidencias.forEach(p => {
-            const item = document.createElement('button');
-            item.type = 'button';
-            item.className = 'w-full text-left px-3 py-2 text-sm hover:bg-red-50 flex items-center gap-2';
-            item.innerHTML = `<div class="h-7 w-7 rounded bg-gray-100 overflow-hidden flex-shrink-0">${p.imagen ? `<img src="${p.imagen}" class="h-full w-full object-cover">` : ''}</div><span class="truncate">${p.nombre}</span>`;
-            item.onclick = () => agregarRelacionado(p);
-            resultadosBox.appendChild(item);
-        });
-        resultadosBox.classList.remove('hidden');
-    });
-
-    document.addEventListener('click', (e) => {
-        if (resultadosBox && !resultadosBox.contains(e.target) && e.target !== buscarInput) {
-            resultadosBox.classList.add('hidden');
-        }
-    });
 
     document.querySelectorAll('.grupo-fotos').forEach(grupo => habilitarArrastre(grupo, '.foto-card', sincronizarOrden));
-    rebindArrastreRelacionados();
     sincronizarOrden();
-    sincronizarRelacionados();
 
     document.getElementById('formProducto')?.addEventListener('submit', () => {
         sincronizarOrden();
-        sincronizarRelacionados();
     });
 });
 </script>
 
 <template id="plantillaGrupoColor">
-<div class="grupo-color-nuevo border border-dashed border-gray-300 rounded-xl p-3 bg-gray-50/60">
+<div class="grupo-color-nuevo border border-dashed border-red-200 rounded-xl p-4 bg-red-50/30">
     <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-semibold text-gray-500">Nuevo grupo de color</span>
-        <button type="button" onclick="this.closest('.grupo-color-nuevo').remove()" class="text-gray-400 hover:text-red-600 text-xs">Quitar ✕</button>
+        <span class="text-xs font-semibold text-gray-600">Color nuevo <span class="font-normal text-gray-400">(se crea al guardar)</span></span>
+        <button type="button" onclick="this.closest('.grupo-color-nuevo').remove()" class="text-xs font-medium text-gray-500 hover:text-red-600">Quitar</button>
     </div>
-    <div class="flex items-center gap-2 mb-2">
-        <input type="color" name="grupos_color[__CLAVE__][hex]" value="#dc2626" class="h-8 w-8 rounded border border-gray-200 cursor-pointer flex-shrink-0">
+    <div class="flex items-center gap-2 mb-3">
+        <input type="color" name="grupos_color[__CLAVE__][hex]" value="#dc2626" class="h-8 w-8 rounded border border-gray-200 cursor-pointer flex-shrink-0" title="Tono del círculo en la tienda">
         <input type="text" name="grupos_color[__CLAVE__][nombre]" placeholder="Nombre del color (ej. Tornasol)" maxlength="40"
                class="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:border-red-400">
-        <input type="number" name="grupos_color[__CLAVE__][stock]" placeholder="Stock" min="0" value="0"
-               class="w-24 rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:border-red-400" title="Stock disponible de este color">
     </div>
+    <span class="text-xs font-medium text-gray-600">Fotos de este color</span>
     <input type="file" name="grupos_color[__CLAVE__][archivos][]" multiple accept="image/jpg,image/jpeg,image/png,image/webp"
            data-preview="previewGrupo__CLAVE__"
-           class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-red-50 file:text-red-600 hover:file:bg-red-100">
+           class="mt-1 w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-red-50 file:text-red-600 hover:file:bg-red-100">
     <div id="previewGrupo__CLAVE__" class="flex flex-wrap gap-2 mt-2"></div>
+    <p class="text-[11px] text-gray-400 mt-2">Si no subes fotos, el color no se crea.</p>
 </div>
 </template>
 

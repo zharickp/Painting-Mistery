@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es" class="{{ '' }}"
-      x-data="{ theme: localStorage.getItem('pm-theme') || 'light' }"
-      x-init="document.documentElement.classList.remove('dark','rest'); if (theme === 'dark') document.documentElement.classList.add('dark'); if (theme === 'rest') document.documentElement.classList.add('rest');"
-      :class="{ 'dark': theme === 'dark', 'rest': theme === 'rest' }">
+      x-data="{ theme: localStorage.getItem('pm-theme') === 'dark' ? 'dark' : 'light' }"
+      x-init="document.documentElement.classList.toggle('dark', theme === 'dark')"
+      :class="{ 'dark': theme === 'dark' }">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,13 +19,12 @@
         (function() {
             var t = localStorage.getItem('pm-theme');
             if (t === 'dark') document.documentElement.classList.add('dark');
-            if (t === 'rest') document.documentElement.classList.add('rest');
         })();
     </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-slate-100 dark:bg-slate-950 rest:bg-amber-50 transition-colors">
+<body class="bg-slate-100 dark:bg-slate-950 transition-colors">
 @php
     $u = auth()->user();
     $esAdmin   = $u?->tieneRol('Administrador');
@@ -36,16 +35,28 @@
     // inscripción — no tiene sentido mostrarlo vacío a quien solo compra productos.
 
     $productosOpen = request()->routeIs('admin.productos.*')
+        || request()->routeIs('admin.resenas.*')
         || request()->routeIs('admin.tipo-iva.*')
         || request()->routeIs('admin.categorias.*');
 
-    $adminOpen = request()->routeIs('admin.reportes')
-        || request()->routeIs('admin.banners.*')
+    $cursosOpen = request()->routeIs('admin.cursos.*')
+        || request()->routeIs('admin.agenda-cursos.*');
+
+    $seguimientoOpen = request()->routeIs('admin.reportes')
+        || request()->routeIs('admin.auditoria.*');
+
+    $configOpen = request()->routeIs('admin.banners.*')
         || request()->routeIs('admin.usuarios.*')
         || request()->routeIs('admin.roles*')
-        || request()->routeIs('admin.auditoria.*')
-        || request()->routeIs('admin.respaldos.*')
-        || request()->routeIs('admin.tarifas-envio.*');
+        || request()->routeIs('admin.respaldos.*');
+
+    // Texto bajo el logo: refleja el rol de quien está en el sistema.
+    $etiquetaPanel = match (true) {
+        $esAdmin   => 'Administrador',
+        $esGerente => 'Gerente',
+        $esAsesor  => 'Asesor',
+        default    => 'Mi cuenta',
+    };
 
     $verOperaciones = $esAdmin || $esAsesor || $esGerente;
 @endphp
@@ -59,9 +70,7 @@
         notiCount: 0,
         setTheme(t) {
             this.$root.__x?.$data && (this.$root.__x.$data.theme = t);
-            document.documentElement.classList.remove('dark','rest');
-            if (t === 'dark') document.documentElement.classList.add('dark');
-            if (t === 'rest') document.documentElement.classList.add('rest');
+            document.documentElement.classList.toggle('dark', t === 'dark');
             localStorage.setItem('pm-theme', t);
             this.themeMenuOpen = false;
         }
@@ -72,7 +81,7 @@
          SIDEBAR
     ═════════════════════════════════════════════════════════════════ --}}
     <aside class="fixed md:sticky md:top-0 inset-y-0 left-0 z-40 w-64 shrink-0
-                  bg-slate-950 dark:bg-black rest:bg-stone-900 text-slate-300 flex flex-col h-screen
+                  bg-slate-950 dark:bg-black text-slate-300 flex flex-col h-screen
                   transform transition-transform duration-200
                   border-r border-slate-800/60"
            :class="sidebarMobile ? 'translate-x-0' : '-translate-x-full md:translate-x-0'">
@@ -89,7 +98,7 @@
                         Painting <span class="text-red-500">Mistery</span>
                     </p>
                     <p class="text-[9px] font-semibold text-slate-500 tracking-[0.22em] uppercase mt-1.5 truncate">
-                        Panel Administrativo
+                        {{ $etiquetaPanel }}
                     </p>
                 </div>
             </a>
@@ -138,7 +147,7 @@
                         </svg>
                         Productos
                     </a>
-                    @if($esAdmin)
+                    @if($esAdmin || $esGerente)
                     <a href="{{ route('admin.tipo-iva.index') }}"
                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition
                               {{ request()->routeIs('admin.tipo-iva.*') ? 'text-white bg-red-600/85' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
@@ -156,36 +165,49 @@
                         Categorías
                     </a>
                     @endif
+                    <a href="{{ route('admin.resenas.index') }}"
+                       class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition
+                              {{ request()->routeIs('admin.resenas.*') ? 'text-white bg-red-600/85' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <svg class="h-4 w-4 shrink-0 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                        </svg>
+                        Reseñas
+                    </a>
                 </div>
             </div>
 
-            {{-- CURSOS --}}
-            <a href="{{ route('admin.cursos.index') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition
-                      {{ request()->routeIs('admin.cursos.*') ? 'bg-red-600/95 text-white shadow-lg shadow-red-900/30' : 'text-slate-400 hover:bg-slate-800/70 hover:text-white' }}">
-                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                </svg>
-                <span class="font-medium">Cursos</span>
-            </a>
-
-            {{-- AGENDA DE CURSOS --}}
-            <a href="{{ route('admin.agenda-cursos.index') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition
-                      {{ request()->routeIs('admin.agenda-cursos.*') ? 'bg-red-600/95 text-white shadow-lg shadow-red-900/30' : 'text-slate-400 hover:bg-slate-800/70 hover:text-white' }}">
-                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                <span class="font-medium">Agenda de cursos</span>
-            </a>
-
-            {{-- RESEÑAS DEL SITIO --}}
-            @if(auth()->user()->tieneRol('Administrador', 'Asesor', 'Gerente'))
-            <a href="{{ route('admin.resenas-sitio.index') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition
-                      {{ request()->routeIs('admin.resenas-sitio.*') ? 'bg-red-600/95 text-white shadow-lg shadow-red-900/30' : 'text-slate-400 hover:bg-slate-800/70 hover:text-white' }}">
-                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-                <span class="font-medium">Reseñas</span>
-            </a>
-            @endif
+            {{-- CURSOS (grupo desplegable) --}}
+            <div x-data="{ open: {{ $cursosOpen ? 'true' : 'false' }} }">
+                <button type="button" @click="open = !open"
+                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-left
+                               {{ $cursosOpen ? 'text-white bg-slate-800/60' : 'text-slate-400 hover:bg-slate-800/70 hover:text-white' }}">
+                    <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                    <span class="flex-1 font-medium">Cursos</span>
+                    <svg class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div x-show="open" x-collapse class="mt-1 ml-4 pl-3 border-l border-slate-800 space-y-1">
+                    <a href="{{ route('admin.cursos.index') }}"
+                       class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition
+                              {{ request()->routeIs('admin.cursos.*') ? 'text-white bg-red-600/85' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <svg class="h-4 w-4 shrink-0 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        Cursos
+                    </a>
+                    <a href="{{ route('admin.agenda-cursos.index') }}"
+                       class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition
+                              {{ request()->routeIs('admin.agenda-cursos.*') ? 'text-white bg-red-600/85' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <svg class="h-4 w-4 shrink-0 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        Agenda de cursos
+                    </a>
+                </div>
+            </div>
 
             {{-- VENTAS --}}
             <a href="{{ route('admin.ventas') }}"
@@ -214,16 +236,15 @@
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">Gestión del sistema</p>
             </div>
 
-            {{-- ADMINISTRATIVO (grupo desplegable) --}}
-            <div x-data="{ open: {{ $adminOpen ? 'true' : 'false' }} }">
+            {{-- SEGUIMIENTO: reportes y auditoría (Administrador y Gerente) --}}
+            <div x-data="{ open: {{ $seguimientoOpen ? 'true' : 'false' }} }">
                 <button type="button" @click="open = !open"
                         class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-left
-                               {{ $adminOpen ? 'text-white bg-slate-800/60' : 'text-slate-400 hover:bg-slate-800/70 hover:text-white' }}">
+                               {{ $seguimientoOpen ? 'text-white bg-slate-800/60' : 'text-slate-400 hover:bg-slate-800/70 hover:text-white' }}">
                     <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                     </svg>
-                    <span class="flex-1 font-medium">Administrativo</span>
+                    <span class="flex-1 font-medium">Seguimiento</span>
                     <svg class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
                     </svg>
@@ -237,7 +258,33 @@
                         </svg>
                         Reportes
                     </a>
-                    @if($esAdmin)
+                    <a href="{{ route('admin.auditoria.index') }}"
+                       class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition
+                              {{ request()->routeIs('admin.auditoria.*') ? 'text-white bg-red-600/85' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <svg class="h-4 w-4 shrink-0 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Auditoría
+                    </a>
+                </div>
+            </div>
+
+            @if($esAdmin)
+            {{-- CONFIGURACIÓN (solo Administrador) --}}
+            <div x-data="{ open: {{ $configOpen ? 'true' : 'false' }} }">
+                <button type="button" @click="open = !open"
+                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-left
+                               {{ $configOpen ? 'text-white bg-slate-800/60' : 'text-slate-400 hover:bg-slate-800/70 hover:text-white' }}">
+                    <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span class="flex-1 font-medium">Configuración</span>
+                    <svg class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div x-show="open" x-collapse class="mt-1 ml-4 pl-3 border-l border-slate-800 space-y-1">
                     <a href="{{ route('admin.banners.index') }}"
                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition
                               {{ request()->routeIs('admin.banners.*') ? 'text-white bg-red-600/85' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
@@ -262,25 +309,6 @@
                         </svg>
                         Roles y permisos
                     </a>
-                    @endif
-                    <a href="{{ route('admin.auditoria.index') }}"
-                       class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition
-                              {{ request()->routeIs('admin.auditoria.*') ? 'text-white bg-red-600/85' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
-                        <svg class="h-4 w-4 shrink-0 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        Auditoría
-                    </a>
-                    @if($esAdmin)
-                    <a href="{{ route('admin.tarifas-envio.index') }}"
-                       class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition
-                              {{ request()->routeIs('admin.tarifas-envio.*') ? 'text-white bg-red-600/85' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
-                        <svg class="h-4 w-4 shrink-0 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1"/>
-                        </svg>
-                        Tarifas de envío
-                    </a>
                     <a href="{{ route('admin.respaldos.index') }}"
                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition
                               {{ request()->routeIs('admin.respaldos.*') ? 'text-white bg-red-600/85' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
@@ -289,9 +317,9 @@
                         </svg>
                         Copias de seguridad
                     </a>
-                    @endif
                 </div>
             </div>
+            @endif
             @endif
 
             @if($esCliente)
@@ -312,7 +340,7 @@
                 <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                 </svg>
-                <span class="font-medium">Mis Pedidos</span>
+                <span class="font-medium">Mis compras</span>
             </a>
             <a href="{{ route('mi-cuenta.cursos') }}"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition
@@ -320,7 +348,7 @@
                 <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
                 </svg>
-                <span class="font-medium">Mis Cursos</span>
+                <span class="font-medium">Mis cursos</span>
             </a>
             <a href="{{ route('mi-cuenta.perfil') }}"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition
@@ -328,12 +356,12 @@
                 <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
                 </svg>
-                <span class="font-medium">Mi Perfil</span>
+                <span class="font-medium">Mi perfil</span>
             </a>
             @endif
         </nav>
 
-        {{-- Toggle de tema (Claro / Oscuro / Descanso) --}}
+        {{-- Toggle de tema (Claro / Oscuro) --}}
         <div class="px-3 py-3 border-t border-slate-800/60 relative" x-data="{ localOpen: false }" @click.outside="localOpen = false">
             <button @click="localOpen = !localOpen"
                     class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800/70 hover:text-white transition">
@@ -347,14 +375,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
                     </svg>
                 </template>
-                <template x-if="theme === 'rest'">
-                    <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4m0 0l4-4m-4 4l4 4"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 2a10 10 0 100 20 10 10 0 000-20z"/>
-                    </svg>
-                </template>
                 <span class="flex-1 text-left text-sm font-medium"
-                      x-text="theme === 'dark' ? 'Modo oscuro' : (theme === 'rest' ? 'Modo descanso' : 'Modo claro')"></span>
+                      x-text="theme === 'dark' ? 'Modo oscuro' : 'Modo claro'"></span>
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
                 </svg>
@@ -378,14 +400,6 @@
                     </svg>
                     Modo oscuro
                 </button>
-                <button @click="setTheme('rest'); localOpen = false"
-                        class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 transition"
-                        :class="theme === 'rest' ? 'text-white bg-slate-800/60' : ''">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
-                    </svg>
-                    Modo descanso
-                </button>
             </div>
         </div>
     </aside>
@@ -400,7 +414,7 @@
     <div class="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
 
         {{-- HEADER --}}
-        <header class="shrink-0 bg-white dark:bg-slate-900 rest:bg-amber-100/80 border-b border-slate-200 dark:border-slate-800 rest:border-amber-200
+        <header class="shrink-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800
                        px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
 
             <div class="flex items-center gap-3 flex-1 min-w-0">
@@ -417,7 +431,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
                     <input type="search" placeholder="Buscar en el sistema..."
-                           class="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-slate-100 dark:bg-slate-800 rest:bg-amber-50 border border-transparent focus:border-red-400 focus:bg-white dark:focus:bg-slate-900 focus:outline-none text-slate-700 dark:text-slate-200 rest:text-stone-800 placeholder-slate-400">
+                           class="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-red-400 focus:bg-white dark:focus:bg-slate-900 focus:outline-none text-slate-700 dark:text-slate-200 placeholder-slate-400">
                 </div>
             </div>
 
@@ -501,7 +515,7 @@
         </header>
 
         {{-- CONTENT --}}
-        <main class="flex-1 overflow-y-auto pm-scroll bg-slate-50 dark:bg-slate-950 rest:bg-amber-50 text-slate-800 dark:text-slate-100 rest:text-stone-800">
+        <main class="flex-1 overflow-y-auto pm-scroll bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
             @if (session('success'))
                 <div class="bg-emerald-50 dark:bg-emerald-900/30 border-l-4 border-emerald-500 text-emerald-800 dark:text-emerald-200 px-6 py-3 text-sm">
                     {{ session('success') }}

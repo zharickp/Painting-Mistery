@@ -101,6 +101,11 @@ class Usuario extends Authenticatable
 
     public function tieneRol(string ...$nombres): bool
     {
-        return $this->roles()->whereIn('nombre', $nombres)->exists();
+        // Los roles se consultan una sola vez por petición y se reutilizan.
+        // Antes cada verificación era una consulta aparte a la base de datos
+        // (el menú, el middleware y las vistas hacen varias por página).
+        $this->loadMissing('roles');
+
+        return $this->roles->whereIn('nombre', $nombres)->isNotEmpty();
     }
 }

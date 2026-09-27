@@ -80,7 +80,6 @@ class DashboardController extends Controller
             return [
                 'productos'       => Producto::where('estado', true)->count(),
                 'cursos'          => Curso::where('estado', true)->count(),
-                'inventario'      => (int) Inventario::sum('stock_actual'),
                 'inventario_bajo' => Inventario::whereColumn('stock_actual', '<=', 'stock_minimo')->count(),
                 'ventas_mes'      => Venta::pagadas()->whereYear('fecha', now()->year)
                                       ->whereMonth('fecha', now()->month)->sum('total'),

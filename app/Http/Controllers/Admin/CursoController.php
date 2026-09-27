@@ -14,7 +14,7 @@ class CursoController extends Controller
     public function index(): View
     {
         $cursos = Curso::withCount('inscripciones')
-            ->withCount(['inscripciones as pendientes_count' => fn ($q) => $q->whereHas('agenda', fn ($a) => $a->where('estado_solicitud', 'pendiente'))])
+            ->withCount(['inscripciones as pendientes_count' => fn ($q) => $q->where('estado', 'pendiente')])
             ->orderByDesc('created_at')
             ->paginate(10);
 
@@ -50,9 +50,6 @@ class CursoController extends Controller
             'fecha_inicio' => $request->fecha_inicio,
             'fecha_fin'    => $request->fecha_fin,
             'estado'       => true,
-        ]);
-
-        $curso->info()->create([
             'ubicacion'           => $request->ubicacion,
             'duracion'            => $request->duracion,
             'dias'                => (int) $request->dias,
@@ -66,7 +63,7 @@ class CursoController extends Controller
 
     public function edit(Curso $curso): View
     {
-        $curso->load(['info', 'fechas']);
+        $curso->load('fechas');
 
         return view('admin.cursos.edit', compact('curso'));
     }
@@ -94,9 +91,6 @@ class CursoController extends Controller
             'cupos'        => $request->cupos,
             'fecha_inicio' => $request->fecha_inicio,
             'fecha_fin'    => $request->fecha_fin,
-        ]);
-
-        $curso->info()->updateOrCreate([], [
             'ubicacion'           => $request->ubicacion,
             'duracion'            => $request->duracion,
             'dias'                => (int) $request->dias,

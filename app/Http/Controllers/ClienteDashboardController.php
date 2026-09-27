@@ -6,7 +6,6 @@ use App\Models\Curso;
 use App\Models\Inscripcion;
 use App\Models\Producto;
 use App\Models\Venta;
-use App\Models\VentaEnvio;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -21,12 +20,9 @@ class ClienteDashboardController extends Controller
         $userId = auth()->id();
 
         $ventas = Venta::where('usuario_id', $userId)
-            ->with('envio')
             ->orderByDesc('fecha')
             ->limit(5)
             ->get();
-
-        $enviosUsuario = fn() => VentaEnvio::whereHas('venta', fn($q) => $q->where('usuario_id', $userId));
 
         $stats = [
             'total'           => Venta::where('usuario_id', $userId)->count(),
@@ -34,18 +30,17 @@ class ClienteDashboardController extends Controller
             'pendientes'      => Venta::where('usuario_id', $userId)->where('estado', 'pendiente')->count(),
             'aprobadas'       => Venta::where('usuario_id', $userId)->where('estado', 'pagada')->count(),
             'canceladas'      => Venta::where('usuario_id', $userId)->where('estado', 'cancelada')->count(),
-            'entregadas'      => $enviosUsuario()->where('estado_pedido', 'entregado')->count(),
             // Total invertido: SOLO lo realmente pagado (antes se sumaba todo,
             // incluyendo pedidos pendientes o cancelados, lo cual era engañoso).
             'total_pagado'    => (float) Venta::where('usuario_id', $userId)->where('estado', 'pagada')->sum('total'),
             'total_pendiente' => (float) Venta::where('usuario_id', $userId)->where('estado', 'pendiente')->sum('total'),
         ];
 
-        $inscripciones = Inscripcion::with(['curso.info', 'agenda'])
+        $inscripciones = Inscripcion::with('curso')
             ->where('usuario_id', $userId)->activas()->latest()->get();
         $proximoCurso = $inscripciones->where('estado', 'confirmada')
-            ->filter(fn ($i) => $i->agenda?->fecha_confirmada && $i->agenda->fecha_confirmada->gte(today()))
-            ->sortBy(fn ($i) => $i->agenda->fecha_confirmada)->first();
+            ->filter(fn ($i) => $i->fecha_confirmada && $i->fecha_confirmada->gte(today()))
+            ->sortBy(fn ($i) => $i->fecha_confirmada)->first();
         $inscritosIds = $inscripciones->pluck('curso_id');
         $cursosDisponibles = Curso::where('estado', true)->whereNotIn('id', $inscritosIds)->orderBy('costo')->limit(3)->get();
         $ultimaOrden = $ventas->first(fn ($v) => $v->estado === 'pagada');
@@ -59,7 +54,6 @@ class ClienteDashboardController extends Controller
     public function pedidos(): View
     {
         $ventas = Venta::where('usuario_id', auth()->id())
-            ->with('envio')
             ->orderByDesc('fecha')
             ->paginate(10);
 
@@ -68,7 +62,7 @@ class ClienteDashboardController extends Controller
 
     public function pedido(int $ventaId): View
     {
-        $venta = Venta::with(['envio', 'detalleProductos.producto'])
+        $venta = Venta::with(['detalleProductos.producto', 'pago.metodoPago'])
             ->where('id', $ventaId)
             ->where('usuario_id', auth()->id())
             ->firstOrFail();
@@ -82,12 +76,12 @@ class ClienteDashboardController extends Controller
      */
     public function ordenVenta(int $ventaId): View
     {
-        $venta = Venta::with(['envio', 'usuario', 'detalleProductos.producto'])
+        $venta = Venta::with(['usuario', 'detalleProductos.producto', 'pago.metodoPago'])
             ->where('id', $ventaId)
             ->where('usuario_id', auth()->id())
             ->firstOrFail();
 
-        abort_unless($venta->envio, 404);
+        abort_unless($venta->numero_orden, 404);
 
         $volver = route('mi-cuenta.pedido', $venta->id);
 
@@ -98,11 +92,11 @@ class ClienteDashboardController extends Controller
     {
         $userId = auth()->id();
 
-        $inscripciones = Inscripcion::with(['curso.info', 'agenda'])
+        $inscripciones = Inscripcion::with('curso')
             ->where('usuario_id', $userId)->latest()->get();
 
         $inscritosActivos = $inscripciones->whereIn('estado', ['pendiente', 'confirmada', 'completada'])->pluck('curso_id');
-        $disponibles = Curso::with('info')->where('estado', true)->whereNotIn('id', $inscritosActivos)->orderBy('costo')->get();
+        $disponibles = Curso::where('estado', true)->whereNotIn('id', $inscritosActivos)->orderBy('costo')->get();
 
         return view('cliente.cursos', compact('inscripciones', 'disponibles'));
     }
@@ -129,22 +123,22 @@ class ClienteDashboardController extends Controller
 
     public function cancelarPedido(int $ventaId, \App\Services\OrdenEstadoService $svc): RedirectResponse
     {
-        $venta = Venta::with('envio')->where('id', $ventaId)->where('usuario_id', auth()->id())->firstOrFail();
+        $venta = Venta::where('id', $ventaId)->where('usuario_id', auth()->id())->firstOrFail();
 
-        abort_unless($venta->envio, 404);
+        abort_unless($venta->numero_orden, 404);
 
         if ($venta->estado !== 'pendiente') {
-            return back()->with('error', 'Solo puedes cancelar pedidos que aún están pendientes de pago.');
+            return back()->with('error', 'Solo puedes cancelar compras que aún están pendientes de pago.');
         }
 
-        $svc->cancelar($venta->envio, auth()->user(), 'Cancelado por el cliente', 'cliente');
+        $svc->cancelar($venta, auth()->user(), 'Cancelado por el cliente', 'cliente');
 
-        return back()->with('success', 'Tu pedido fue cancelado. Se conserva en tu historial.');
+        return back()->with('success', 'Tu compra fue cancelada. Sigue apareciendo en tu historial.');
     }
 
     public function comprobanteCurso(int $inscripcionId): View
     {
-        $inscripcion = Inscripcion::with(['curso.info', 'agenda', 'usuario'])
+        $inscripcion = Inscripcion::with(['curso', 'usuario'])
             ->where('id', $inscripcionId)
             ->where('usuario_id', auth()->id())
             ->firstOrFail();

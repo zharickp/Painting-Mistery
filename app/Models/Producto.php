@@ -54,16 +54,10 @@ class Producto extends Model
         return $this->hasMany(ProductoImagen::class)->orderBy('orden');
     }
 
+    /** Reseñas publicadas (aprobadas en el panel). */
     public function resenas()
     {
-        return $this->hasMany(Resena::class)->orderByDesc('created_at');
-    }
-
-    public function relacionadosManual()
-    {
-        return $this->belongsToMany(Producto::class, 'producto_relacionado', 'producto_id', 'relacionado_id')
-            ->withPivot('orden')
-            ->orderBy('producto_relacionado.orden');
+        return $this->hasMany(Resena::class)->where('estado', 'aprobada')->orderByDesc('created_at');
     }
 
     public function colores()
@@ -83,8 +77,8 @@ class Producto extends Model
     }
 
     /**
-     * Variantes de color del producto (cada una con su propio stock),
-     * listas para pintar los círculos seleccionables en la ficha del producto.
+     * Variantes de color del producto (solo agrupan fotos; el stock es el de
+     * Inventario), listas para pintar los círculos seleccionables en la ficha.
      */
     public function coloresDisponibles(): array
     {
@@ -92,7 +86,6 @@ class Producto extends Model
             'id'     => $color->id,
             'nombre' => $color->nombre,
             'hex'    => $color->hex ?: '#d1d5db',
-            'stock'  => (int) $color->stock,
         ])->all();
     }
 
@@ -119,15 +112,6 @@ class Producto extends Model
             ->whereNull('producto_color_id')
             ->pluck('ruta')
             ->all();
-    }
-
-    /**
-     * Suma del stock de todas las variantes de color, para el badge de
-     * disponibilidad cuando el producto se vende por color.
-     */
-    public function stockTotalColores(): int
-    {
-        return (int) $this->colores->sum('stock');
     }
 
     public function resumenResenas(): array
@@ -160,10 +144,6 @@ class Producto extends Model
 
     public function estaAgotado(): bool
     {
-        if ($this->colores->isNotEmpty()) {
-            return $this->stockTotalColores() <= 0;
-        }
-
         return $this->stockActual() <= 0;
     }
 

@@ -12,38 +12,41 @@ class Venta extends Model
     protected string $auditoriaTipo = 'Venta';
 
     /**
-     * Usa el número de orden guardado en la tabla auxiliar venta_envio
-     * (la tabla `venta` en sí no tiene esa columna — ver VentaEnvio).
-     *
-     * IMPORTANTE: se usa envio()->first() (consulta directa) y NO la
-     * propiedad mágica $this->envio. El observer de Auditable llama a
-     * este método justo después de crear la Venta —en ese instante el
-     * VentaEnvio hermano todavía no existe (se crea en la siguiente
-     * línea del checkout)— y la propiedad mágica CACHEA ese resultado
-     * null en la relación para siempre en esa instancia del modelo.
-     * envio()->first() consulta cada vez, sin ese efecto secundario.
+     * Etiqueta para la auditoría: número de orden o, si aún no se asigna
+     * (justo al crear la venta), el id.
      */
     public function auditoriaEtiqueta(): ?string
     {
-        return $this->envio()->first()?->numero_orden ?: ('#' . $this->id);
+        return $this->numero_orden ?: ('#' . $this->id);
     }
 
     protected $table = 'venta';
 
-    // Estas son las ÚNICAS columnas reales de la tabla `venta`.
-    // Todo lo demás (numero_orden, subtotal, envio, estados de pago/pedido,
-    // datos de Wompi, dirección de envío) vive en la tabla auxiliar
-    // `venta_envio` — ver el modelo VentaEnvio y la relación envio() abajo.
     protected $fillable = [
         'usuario_id',
         'total',
         'estado',
         'fecha',
+        'numero_orden',
+        // Datos del comprador (se congelan al crear la venta)
+        'nombre_cliente',
+        'telefono_cliente',
+        'correo_cliente',
+        'tipo_documento',
+        'numero_documento',
+        'acepto_terminos',
+        // Trazabilidad
+        'cancelada_at',
+        'cancelada_por',
+        'motivo_cancelacion',
+        'pago_confirmado_por',
     ];
 
     protected $casts = [
-        'total' => 'decimal:2',
-        'fecha' => 'datetime',
+        'total'           => 'decimal:2',
+        'fecha'           => 'datetime',
+        'cancelada_at'    => 'datetime',
+        'acepto_terminos' => 'boolean',
     ];
 
     // ─── Relaciones ────────────────────────────────────────────
@@ -68,9 +71,20 @@ class Venta extends Model
         return $this->hasMany(Pago::class);
     }
 
-    public function envio()
+    /** Último intento de pago (el vigente). */
+    public function pago()
     {
-        return $this->hasOne(VentaEnvio::class);
+        return $this->hasOne(Pago::class)->latestOfMany();
+    }
+
+    public function canceladaPor()
+    {
+        return $this->belongsTo(Usuario::class, 'cancelada_por');
+    }
+
+    public function pagoConfirmadoPor()
+    {
+        return $this->belongsTo(Usuario::class, 'pago_confirmado_por');
     }
 
     // ─── Estado de la orden (fuente única: venta.estado) ───────
@@ -110,44 +124,13 @@ class Venta extends Model
         };
     }
 
-    // ─── Estados legibles ──────────────────────────────────────
-
-    public const ESTADOS_PEDIDO = [
-        'pendiente'   => 'Pendiente',
-        'confirmado'  => 'Confirmado',
-        'preparando'  => 'En preparación',
-        'enviado'     => 'Enviado',
-        'entregado'   => 'Entregado',
-        'cancelado'   => 'Cancelado',
-    ];
-
-    public const PAYMENT_STATUS = [
-        'PENDING'  => 'Pendiente',
-        'APPROVED' => 'Aprobado',
-        'DECLINED' => 'Rechazado',
-        'ERROR'    => 'Error',
-        'VOIDED'   => 'Anulado',
-    ];
-
-    public function estadoPedidoEtiqueta(): string
+    /**
+     * Venta cancelada automáticamente porque nunca se pagó
+     * (ver ExpirarPedidosPendientesCommand).
+     */
+    public function estaExpirada(): bool
     {
-        return self::ESTADOS_PEDIDO[$this->estado_pedido] ?? ucfirst((string) $this->estado_pedido);
-    }
-
-    public function paymentStatusEtiqueta(): string
-    {
-        return self::PAYMENT_STATUS[$this->payment_status] ?? ucfirst((string) $this->payment_status);
-    }
-
-    public function paymentStatusColor(): string
-    {
-        return match ($this->payment_status) {
-            'APPROVED' => 'bg-emerald-100 text-emerald-700',
-            'PENDING'  => 'bg-amber-100 text-amber-700',
-            'DECLINED' => 'bg-rose-100 text-rose-700',
-            'ERROR'    => 'bg-rose-100 text-rose-700',
-            'VOIDED'   => 'bg-slate-200 text-slate-600',
-            default    => 'bg-slate-100 text-slate-600',
-        };
+        return $this->estado === 'cancelada'
+            && str_starts_with((string) $this->motivo_cancelacion, 'Expiración automática');
     }
 }

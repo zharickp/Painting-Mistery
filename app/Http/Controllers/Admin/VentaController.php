@@ -19,13 +19,13 @@ class VentaController extends Controller
         $estado = $request->query('estado');
         $fecha  = $request->query('fecha');
 
-        $ventas = Venta::with(['usuario', 'envio'])
+        $ventas = Venta::with('usuario')
             ->when($buscar !== '', function ($q) use ($buscar) {
                 // "#0015", "15" o "PM-ORD-000015" encuentran la orden; también cliente y correo.
                 $numero = ltrim(Str::of($buscar)->replace('#', '')->trim()->toString(), '0');
                 $q->where(function ($sub) use ($buscar, $numero) {
-                    $sub->whereHas('envio', fn ($e) => $e->where('numero_orden', 'ilike', "%{$buscar}%")
-                            ->orWhere('nombre_envio', 'ilike', "%{$buscar}%"))
+                    $sub->where('numero_orden', 'ilike', "%{$buscar}%")
+                        ->orWhere('nombre_cliente', 'ilike', "%{$buscar}%")
                         ->orWhereHas('usuario', fn ($u) => $u->where('primer_nombre', 'ilike', "%{$buscar}%")
                             ->orWhere('primer_apellido', 'ilike', "%{$buscar}%")
                             ->orWhere('correo', 'ilike', "%{$buscar}%"));
@@ -47,48 +47,49 @@ class VentaController extends Controller
 
     public function show(int $ventaId): View
     {
-        $venta = Venta::with(['envio.canceladaPor', 'envio.pagoConfirmadoPor', 'usuario', 'detalleProductos.producto'])->findOrFail($ventaId);
+        $venta = Venta::with(['canceladaPor', 'pagoConfirmadoPor', 'usuario', 'detalleProductos.producto', 'pago.metodoPago'])->findOrFail($ventaId);
 
         return view('admin.venta-detalle', compact('venta'));
     }
 
     public function confirmarPago(int $ventaId, OrdenEstadoService $svc): RedirectResponse
     {
-        $venta = Venta::with('envio')->findOrFail($ventaId);
+        $venta = Venta::findOrFail($ventaId);
 
         if ($venta->estado !== 'pendiente') {
             return back()->with('error', 'Solo se puede confirmar el pago de una orden pendiente.');
         }
 
-        $svc->confirmarPago($venta->envio, auth()->user(), 'panel administrativo', 'Confirmación manual');
+        // Confirmación manual (p. ej. pago en efectivo en el taller): sin método indicado se registra como Efectivo.
+        $svc->confirmarPago($venta, auth()->user(), 'panel administrativo');
 
-        return back()->with('success', "Pago confirmado. La orden {$venta->envio->numero_orden} quedó como Pagada.");
+        return back()->with('success', "Pago confirmado. La orden {$venta->numero_orden} quedó como Pagada.");
     }
 
     public function cancelar(Request $request, int $ventaId, OrdenEstadoService $svc): RedirectResponse
     {
         $data = $request->validate(['motivo' => ['required', 'string', 'min:3', 'max:255']]);
 
-        $venta = Venta::with('envio')->findOrFail($ventaId);
+        $venta = Venta::findOrFail($ventaId);
 
         if ($venta->estado === 'cancelada') {
             return back()->with('error', 'La orden ya estaba cancelada.');
         }
 
         try {
-            $svc->cancelar($venta->envio, auth()->user(), $data['motivo'], 'panel administrativo');
+            $svc->cancelar($venta, auth()->user(), $data['motivo'], 'panel administrativo');
         } catch (DomainException $e) {
             return back()->with('error', $e->getMessage());
         }
 
-        return back()->with('success', "Orden {$venta->envio->numero_orden} cancelada. Se conserva en el historial.");
+        return back()->with('success', "Orden {$venta->numero_orden} cancelada. Se conserva en el historial.");
     }
 
     public function orden(int $ventaId): View
     {
-        $venta = Venta::with(['envio', 'usuario', 'detalleProductos.producto'])->findOrFail($ventaId);
+        $venta = Venta::with(['usuario', 'detalleProductos.producto', 'pago.metodoPago'])->findOrFail($ventaId);
 
-        abort_unless($venta->envio, 404);
+        abort_unless($venta->numero_orden, 404);
 
         $volver = route('admin.ventas.show', $venta->id);
 

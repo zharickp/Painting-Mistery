@@ -24,7 +24,10 @@
     $galeriaTotalCount = count($galeria);
 
     $resumen = $producto->resumenResenas();
-    $miResena = auth()->check() ? $producto->resenas->firstWhere('usuario_id', auth()->id()) : null;
+    // La propia se busca aparte: puede estar pendiente o rechazada y no salir en la lista.
+    $miResena = auth()->check()
+        ? \App\Models\Resena::where('producto_id', $producto->id)->where('usuario_id', auth()->id())->first()
+        : null;
     $waTexto = "Hola! Me interesa el producto: *{$producto->nombre}* (\${$producto->precio}). ¿Está disponible? 🏍️";
 @endphp
 <div class="bg-gray-50 min-h-screen">
@@ -163,12 +166,11 @@
                                     <div class="flex flex-col items-center" style="width: 72px;">
                                         <button type="button" onclick="seleccionarColor({{ $c['id'] }}, this)"
                                             data-color-id="{{ $c['id'] }}"
-                                            class="color-swatch-btn {{ $c['stock'] <= 0 ? 'agotado' : '' }}"
+                                            class="color-swatch-btn"
                                             style="background-color: {{ $c['hex'] }};"
                                             aria-label="{{ $c['nombre'] }}">
                                         </button>
                                         <span class="mt-3 block text-center text-[12px] font-medium text-gray-700 leading-tight truncate max-w-full">{{ $c['nombre'] }}</span>
-                                        <span class="mt-1 block text-center text-[11px] leading-tight {{ $c['stock'] > 0 ? 'text-gray-400' : 'text-red-400' }}">{{ $c['stock'] > 0 ? 'Stock: ' . $c['stock'] : 'Agotado' }}</span>
                                     </div>
                                 @endforeach
                             </div>
@@ -203,18 +205,6 @@
                     </div>
 
                     <div class="mt-6 pt-6 border-t border-gray-100 space-y-4">
-                        {{-- Tarjeta de envío --}}
-                        <div class="rounded-2xl border border-gray-100 shadow-sm px-5 py-5 flex gap-4">
-                            <div class="h-11 w-11 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0">
-                                <svg class="h-5 w-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7h11v8H3V7zm11 3h4l3 3v2h-7v-5zM6.5 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm12 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>
-                            </div>
-                            <div class="min-w-0">
-                                <p class="text-sm font-semibold text-gray-800">Entrega de 1 a 5 días hábiles</p>
-                                <p class="text-xs text-gray-400 mt-1 leading-relaxed">El tiempo de entrega puede variar según la ciudad y la empresa transportadora.</p>
-                                <p class="text-[11px] text-gray-400 mt-1.5">El costo del envío se calcula automáticamente al finalizar la compra, según la ciudad de destino.</p>
-                            </div>
-                        </div>
-
                         {{-- Acordeón: Garantía y devoluciones --}}
                         <div class="rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                             <button type="button" onclick="toggleAcordeon('garantiaPanel')"
@@ -245,16 +235,7 @@
                                         </div>
                                         <div class="min-w-0">
                                             <p class="text-sm font-semibold text-gray-800 mb-0.5">Cambios y devoluciones</p>
-                                            <p class="text-xs text-gray-400 leading-relaxed">Si el producto presenta un defecto de fabricación o hubo un error en el pedido, podrás comunicarte con nosotros para revisar el caso y ofrecer una solución de acuerdo con nuestras políticas.</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex gap-3">
-                                        <div class="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0">
-                                            <svg class="h-4 w-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7h11v8H3V7zm11 3h4l3 3v2h-7v-5zM6.5 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm12 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>
-                                        </div>
-                                        <div class="min-w-0">
-                                            <p class="text-sm font-semibold text-gray-800 mb-0.5">Envíos</p>
-                                            <p class="text-xs text-gray-400 leading-relaxed">Los pedidos normalmente se entregan entre 1 y 5 días hábiles. El tiempo y el costo del envío dependen de la ciudad de destino y de la empresa transportadora.</p>
+                                            <p class="text-xs text-gray-400 leading-relaxed">Si el producto presenta un defecto de fabricación o hubo un error en la compra, podrás comunicarte con nosotros para revisar el caso y ofrecer una solución de acuerdo con nuestras políticas.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -323,19 +304,22 @@
                     <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
                         <p class="text-sm font-semibold text-gray-700 mb-2" id="resFormTitulo">Danos tu opinión</p>
                         @guest
-                            <div class="grid grid-cols-2 gap-2 mb-2">
-                                <input id="resNombreInput" type="text" placeholder="Tu nombre" maxlength="100"
-                                       class="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-red-400 transition bg-white">
-                                <input id="resCorreoInput" type="email" placeholder="Tu correo" maxlength="150"
-                                       class="px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-red-400 transition bg-white">
-                            </div>
+                            <p class="text-xs text-gray-500 mb-2">
+                                Para publicar una reseña debes
+                                <a href="{{ route('login') }}" class="text-red-600 font-semibold hover:underline">iniciar sesión</a>.
+                            </p>
                         @endguest
+                        @if ($miResena?->estado === 'pendiente')
+                            <p class="text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 mb-3">Tu reseña está en revisión. La verás publicada cuando la aprobemos.</p>
+                        @elseif ($miResena?->estado === 'rechazada')
+                            <p class="text-xs text-rose-700 bg-rose-50 border border-rose-100 rounded-lg px-3 py-2 mb-3">Tu reseña no fue publicada. Puedes editarla y enviarla de nuevo.</p>
+                        @endif
                         <div class="flex items-center gap-1 mb-3" id="resRatingInput"></div>
                         <textarea id="resComentarioInput" rows="3" maxlength="1000" placeholder="¿Qué te pareció el producto?"
                                   class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-red-400 transition resize-none mb-2 bg-white"></textarea>
                         <button onclick="enviarResena()" id="resEnviarBtn"
                                 class="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition w-full sm:w-auto">
-                            Publicar reseña
+                            Enviar reseña
                         </button>
                     </div>
                 </div>
@@ -448,7 +432,7 @@
     window.tieneColores = @json($tieneColores);
     window.galeriaSinColorRutas = @json($producto->galeriaSinColor());
     window.productoPortada = @json($producto->imagen);
-    window.stockGeneral = @json($tieneColores ? $producto->stockTotalColores() : $producto->stockActual());
+    window.stockGeneral = @json($producto->stockActual()); // el stock es del producto (Inventario), no del color
     window.rutaResenaStore = @json(route('resenas.store', $producto));
     window.usuarioActualId = @json(auth()->id());
     let colorActivoId = null;
@@ -616,7 +600,8 @@
         actualizarControlesStock(window.stockGeneral);
     }
 
-    // ── Selector de color: cambia toda la galería (imagen principal primero + miniaturas) + stock.
+    // ── Selector de color: cambia toda la galería (imagen principal primero + miniaturas).
+    // El color solo agrupa fotos; el stock es el del producto.
     // Volver a pulsar el mismo color reinicia su galería mostrando de nuevo la imagen principal. ──
     function seleccionarColor(colorId, btn) {
         colorActivoId = colorId;
@@ -631,7 +616,7 @@
         void btn.offsetWidth; // reinicia la animación aunque se repita el mismo color
         btn.classList.add('seleccionando');
 
-        actualizarControlesStock(color.stock);
+        actualizarControlesStock(window.stockGeneral);
     }
 
     // ── Zoom in-line: ocurre sobre la misma foto, sin modal ni panel aparte ──
@@ -813,13 +798,10 @@
 
         const payload = { calificacion: resRatingSeleccion, comentario };
 
+        // Las reseñas siempre quedan ligadas a un usuario.
         if (!window.usuarioActualId) {
-            const nombre = document.getElementById('resNombreInput').value.trim();
-            const correo = document.getElementById('resCorreoInput').value.trim();
-            if (!nombre) { showToast('Escribe tu nombre'); return; }
-            if (!correo) { showToast('Escribe tu correo'); return; }
-            payload.nombre = nombre;
-            payload.correo = correo;
+            window.location.href = @json(route('login'));
+            return;
         }
 
         const btn = document.getElementById('resEnviarBtn');
@@ -841,7 +823,7 @@
             if (!resp.ok) throw new Error('No se pudo enviar la reseña');
             const data = await resp.json();
 
-            showToast('¡Gracias por tu reseña! 🌟');
+            showToast('Gracias. Tu reseña se publicará cuando la revisemos.');
             setTimeout(() => window.location.reload(), 900);
         } catch (e) {
             showToast('Ocurrió un error, intenta de nuevo');

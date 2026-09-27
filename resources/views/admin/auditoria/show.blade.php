@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Detalle de Auditoría')
+@section('title', 'Detalle de auditoría')
 
 @php
     $etiquetas = [
         'precio_costo'              => 'Precio costo',
         'precio'                    => 'Precio',
-        'precio_anterior'           => 'Precio anterior',
+        'precio_anterior'           => 'Precio antes del descuento',
         'stock_actual'              => 'Stock actual',
         'stock_minimo'              => 'Stock mínimo',
         'unidad_presentacion'       => 'Unidad de presentación',
@@ -62,7 +62,7 @@
             </svg>
         </div>
         <div>
-            <h1 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 rest:text-stone-800">Detalle de Auditoría</h1>
+            <h1 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100">Detalle de auditoría</h1>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-2 flex-wrap">
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $registro->accionColor() }}">
                     {{ $registro->accionEtiqueta() }}
@@ -96,7 +96,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
     {{-- ─── Tarjeta 1: Información general (2 cols) ─── --}}
-    <div class="lg:col-span-2 bg-white dark:bg-slate-900 rest:bg-amber-100/70 border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 rounded-2xl overflow-hidden shadow-xs">
+    <div class="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs">
         <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
             <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -124,7 +124,7 @@
                     </svg>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Tipo afectado</p>
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Módulo</p>
                     <p class="text-slate-800 dark:text-slate-100 font-semibold mt-0.5">
                         {{ $registro->modulo }}
                         @if($registro->registro_id)
@@ -159,7 +159,7 @@
                     </svg>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Quién lo hizo</p>
+                    <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Usuario</p>
                     <p class="text-slate-800 dark:text-slate-100 font-semibold mt-0.5">{{ $registro->usuario_nombre ?: '—' }}</p>
                     @if($registro->usuario_correo)
                         <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ $registro->usuario_correo }}</p>
@@ -183,16 +183,16 @@
         </div>
     </div>
 
-    {{-- ─── Tarjeta 2: Qué cambió (3 cols) ─── --}}
-    <div class="lg:col-span-3 bg-white dark:bg-slate-900 rest:bg-amber-100/70 border border-slate-200/80 dark:border-slate-800 rest:border-amber-200 rounded-2xl overflow-hidden shadow-xs">
+    {{-- ─── Tarjeta 2: Cambios (3 cols) ─── --}}
+    <div class="lg:col-span-3 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs">
         <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                 </svg>
                 <div>
-                    <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">Qué cambió</h2>
-                    <p class="text-[11px] text-slate-400 dark:text-slate-500">Comparación entre el valor anterior y el nuevo</p>
+                    <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">Cambios</h2>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500">Valor anterior y nuevo de cada campo</p>
                 </div>
             </div>
             @if(!empty($cambios))
@@ -211,7 +211,7 @@
                 </div>
                 <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">Sin cambios registrados</p>
                 <p class="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-xs mx-auto">
-                    Esta acción no modificó datos del registro. Habitual en inicios de sesión, cierres de sesión y consultas.
+                    Esta acción no cambió datos, por ejemplo un inicio o cierre de sesión.
                 </p>
             </div>
         @else

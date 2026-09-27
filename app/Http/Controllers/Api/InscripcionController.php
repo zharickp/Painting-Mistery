@@ -38,7 +38,7 @@ class InscripcionController extends Controller
                 properties: [
                     new OA\Property(property: "usuario_id", type: "integer"),
                     new OA\Property(property: "curso_id", type: "integer"),
-                    new OA\Property(property: "estado", type: "string", example: "inscrito")
+                    new OA\Property(property: "estado", type: "string", example: "pendiente")
                 ]
             )
         ),
@@ -53,10 +53,10 @@ class InscripcionController extends Controller
             $data = $request->validate([
                 'usuario_id' => 'required|exists:usuario,id',
                 'curso_id' => 'required|exists:curso,id',
-                'estado' => 'nullable|in:inscrito,cancelado'
+                'estado' => 'nullable|in:pendiente,confirmada,completada,cancelada'
             ]);
 
-            $data['estado'] = $data['estado'] ?? 'inscrito';
+            $data['estado'] = $data['estado'] ?? 'pendiente';
 
             $inscripcion = Inscripcion::create($data);
 
@@ -122,7 +122,7 @@ class InscripcionController extends Controller
             required: true,
             content: new OA\JsonContent(
                 properties: [
-                    new OA\Property(property: "estado", type: "string", example: "cancelado")
+                    new OA\Property(property: "estado", type: "string", example: "cancelada")
                 ]
             )
         ),
@@ -138,7 +138,7 @@ class InscripcionController extends Controller
             $inscripcion = Inscripcion::findOrFail($id);
 
             $data = $request->validate([
-                'estado' => 'sometimes|in:inscrito,cancelado'
+                'estado' => 'sometimes|in:pendiente,confirmada,completada,cancelada'
             ]);
 
             $inscripcion->update($data);

@@ -9,6 +9,8 @@ use App\Models\Producto;
 use App\Models\ProductoColor;
 use App\Models\ProductoImagen;
 use App\Models\TipoIva;
+use App\Services\AuditoriaService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -43,12 +45,11 @@ class ProductoController extends Controller
             'precio'                     => 'required|numeric|min:0',
             'precio_anterior'            => 'nullable|numeric|gt:precio',
             'categoria_producto_id'      => 'required|exists:categoria_producto,id',
-            'tipo_iva_id'                => ['required', Rule::exists('tipo_iva', 'id')->where(fn ($q) => $q->whereNotIn('id', DB::table('tipo_iva_estado')->where('activo', false)->pluck('tipo_iva_id')))],
+            'tipo_iva_id'                => ['required', Rule::exists('tipo_iva', 'id')->where('activo', true)],
             'imagen'                     => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
             'imagenes.*'                 => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
             'grupos_color.*.nombre'      => 'nullable|string|max:40',
             'grupos_color.*.hex'         => 'nullable|string|max:7',
-            'grupos_color.*.stock'       => 'nullable|integer|min:0',
             'grupos_color.*.archivos.*'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
         ]);
 
@@ -109,7 +110,7 @@ class ProductoController extends Controller
      * Busca una variante de color existente por nombre (sin importar mayúsculas)
      * o crea una nueva, para poder agregar fotos a un color ya creado.
      */
-    private function buscarOCrearColor(Producto $producto, string $nombre, ?string $hex, int $stock): ProductoColor
+    private function buscarOCrearColor(Producto $producto, string $nombre, ?string $hex): ProductoColor
     {
         $color = $producto->colores()->whereRaw('LOWER(nombre) = ?', [mb_strtolower($nombre)])->first();
 
@@ -122,14 +123,13 @@ class ProductoController extends Controller
         return $producto->colores()->create([
             'nombre' => $nombre,
             'hex'    => $hex,
-            'stock'  => $stock,
             'orden'  => $orden + 1,
         ]);
     }
 
     /**
-     * Guarda grupos de fotos subidos junto con un color (grupos_color[clave][nombre|hex|stock|archivos][]),
-     * permitiendo cargar una variante de color completa (varias fotos y su stock) en un solo paso.
+     * Guarda grupos de fotos subidos junto con un color (grupos_color[clave][nombre|hex|archivos][]),
+     * permitiendo cargar las fotos de un color en un solo paso.
      */
     private function guardarGaleriaPorColor(Request $request, Producto $producto): void
     {
@@ -150,7 +150,7 @@ class ProductoController extends Controller
                 continue;
             }
 
-            $color = $this->buscarOCrearColor($producto, $nombre, $datos['hex'] ?? null, (int) ($datos['stock'] ?? 0));
+            $color = $this->buscarOCrearColor($producto, $nombre, $datos['hex'] ?? null);
 
             foreach ($archivos as $archivo) {
                 if (! $archivo instanceof UploadedFile) {
@@ -172,8 +172,8 @@ class ProductoController extends Controller
     }
 
     /**
-     * Actualiza nombre, color y stock de las variantes de color ya existentes
-     * (colores_existentes[{id}][nombre|hex|stock]).
+     * Actualiza nombre y color de las variantes de color ya existentes
+     * (colores_existentes[{id}][nombre|hex]).
      */
     private function actualizarColoresExistentes(Request $request, Producto $producto): void
     {
@@ -192,7 +192,6 @@ class ProductoController extends Controller
                 ->update([
                     'nombre' => $nombre,
                     'hex'    => $datos['hex'] ?? null,
-                    'stock'  => (int) ($datos['stock'] ?? 0),
                 ]);
         }
     }
@@ -228,38 +227,13 @@ class ProductoController extends Controller
         }
     }
 
-    private function guardarRelacionados(Request $request, Producto $producto): void
-    {
-        $ids = collect($request->input('relacionados', []))
-            ->map(fn ($id) => (int) $id)
-            ->filter(fn ($id) => $id !== $producto->id)
-            ->unique()
-            ->values();
-
-        $sync = [];
-        foreach ($ids as $posicion => $id) {
-            $sync[$id] = ['orden' => $posicion + 1];
-        }
-
-        $producto->relacionadosManual()->sync($sync);
-    }
-
     public function edit(Producto $producto): View
     {
         $categorias = CategoriaProducto::where('estado', true)->orderBy('nombre')->get();
         $tiposIva   = TipoIva::activos()->orWhere('id', $producto->tipo_iva_id)->orderBy('porcentaje')->get();
         $producto->load(['imagenes', 'colores.imagenes']);
 
-        $productosDisponibles = Producto::where('estado', true)
-            ->where('id', '!=', $producto->id)
-            ->orderBy('nombre')
-            ->get(['id', 'nombre', 'imagen']);
-
-        $relacionadosActuales = $producto->relacionadosManual;
-
-        return view('admin.productos.edit', compact(
-            'producto', 'categorias', 'tiposIva', 'productosDisponibles', 'relacionadosActuales'
-        ));
+        return view('admin.productos.edit', compact('producto', 'categorias', 'tiposIva'));
     }
 
     public function update(Request $request, Producto $producto): RedirectResponse
@@ -270,19 +244,17 @@ class ProductoController extends Controller
             'precio'                     => 'required|numeric|min:0',
             'precio_anterior'            => 'nullable|numeric|gt:precio',
             'categoria_producto_id'      => 'required|exists:categoria_producto,id',
-            'tipo_iva_id'                => ['required', Rule::exists('tipo_iva', 'id')->where(fn ($q) => $q->whereNotIn('id', DB::table('tipo_iva_estado')->where('activo', false)->where('tipo_iva_id', '!=', $producto->tipo_iva_id)->pluck('tipo_iva_id')))],
+            'tipo_iva_id'                => ['required', Rule::exists('tipo_iva', 'id')->where(fn ($q) => $q->where('activo', true)->orWhere('id', $producto->tipo_iva_id))],
             'imagen'                     => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
             'imagenes.*'                 => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
             'grupos_color.*.nombre'      => 'nullable|string|max:40',
             'grupos_color.*.hex'         => 'nullable|string|max:7',
-            'grupos_color.*.stock'       => 'nullable|integer|min:0',
             'grupos_color.*.archivos.*'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
             'colores_existentes.*.nombre' => 'nullable|string|max:40',
             'colores_existentes.*.hex'    => 'nullable|string|max:7',
-            'colores_existentes.*.stock'  => 'nullable|integer|min:0',
+            'fotos_color.*.*'            => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
             'orden_imagenes.*'           => 'nullable|exists:producto_imagen,id',
             'imagen_portada'             => 'nullable|exists:producto_imagen,id',
-            'relacionados.*'             => 'nullable|exists:producto,id',
         ]);
 
         if ($request->hasFile('imagen')) {
@@ -304,28 +276,130 @@ class ProductoController extends Controller
             'imagen'                => $producto->imagen,
         ]);
 
-        if ($request->filled('eliminar_imagenes')) {
-            $aEliminar = ProductoImagen::where('producto_id', $producto->id)
-                ->whereIn('id', $request->eliminar_imagenes)
-                ->get();
-
-            foreach ($aEliminar as $img) {
-                if (file_exists(public_path($img->ruta))) {
-                    unlink(public_path($img->ruta));
-                }
-                $img->delete();
-            }
-        }
-
         $this->actualizarColoresExistentes($request, $producto);
         $this->guardarGaleriaSinColor($request, $producto);
+        $this->guardarFotosColoresExistentes($request, $producto);
         $this->guardarGaleriaPorColor($request, $producto);
         $this->guardarOrden($request, $producto);
         $this->guardarPortada($request, $producto);
-        $this->guardarRelacionados($request, $producto);
 
         return redirect()->route('admin.productos.index')
             ->with('success', 'Producto actualizado correctamente.');
+    }
+
+    /**
+     * Fotos nuevas para un color que ya existe (fotos_color[{colorId}][]).
+     */
+    private function guardarFotosColoresExistentes(Request $request, Producto $producto): void
+    {
+        $archivosPorColor = $request->file('fotos_color', []);
+        if (empty($archivosPorColor)) {
+            return;
+        }
+
+        $orden = (int) $producto->imagenes()->max('orden');
+
+        foreach ($archivosPorColor as $colorId => $archivos) {
+            $color = $producto->colores()->whereKey($colorId)->first();
+            if (! $color) {
+                continue;
+            }
+
+            foreach ((array) $archivos as $archivo) {
+                if (! $archivo instanceof UploadedFile) {
+                    continue;
+                }
+
+                $orden++;
+                $nombreArchivo = time() . '_' . $orden . '_' . $archivo->getClientOriginalName();
+                $archivo->move(public_path('images/productos'), $nombreArchivo);
+
+                ProductoImagen::create([
+                    'producto_id'       => $producto->id,
+                    'ruta'              => '/images/productos/' . $nombreArchivo,
+                    'orden'             => $orden,
+                    'producto_color_id' => $color->id,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Elimina una foto al instante (se llama con fetch desde la edición del producto).
+     * Si era la última foto de su color, el color también se elimina para que
+     * en la tienda no quede un círculo de color sin fotos.
+     */
+    public function eliminarImagen(Producto $producto, ProductoImagen $imagen): JsonResponse
+    {
+        abort_unless($imagen->producto_id === $producto->id, 404);
+
+        $colorId = $imagen->producto_color_id;
+        $this->borrarArchivoImagen($producto, $imagen);
+        $imagen->delete();
+
+        $colorEliminado = null;
+        if ($colorId && ! ProductoImagen::where('producto_color_id', $colorId)->exists()) {
+            $color = ProductoColor::find($colorId);
+            $colorEliminado = $color?->nombre;
+            $color?->delete();
+        }
+
+        AuditoriaService::registrar([
+            'accion'            => 'eliminado',
+            'modulo'            => 'Producto',
+            'registro_id'       => $producto->id,
+            'registro_etiqueta' => $producto->nombre,
+            'descripcion'       => "Eliminó una foto del producto \"{$producto->nombre}\""
+                                   . ($colorEliminado ? " y el color \"{$colorEliminado}\", que quedó sin fotos" : ''),
+        ]);
+
+        return response()->json([
+            'ok'             => true,
+            'color_eliminado'=> $colorEliminado ? $colorId : null,
+        ]);
+    }
+
+    /**
+     * Elimina un color con todas sus fotos.
+     */
+    public function eliminarColor(Producto $producto, ProductoColor $color): JsonResponse
+    {
+        abort_unless($color->producto_id === $producto->id, 404);
+
+        $fotos = ProductoImagen::where('producto_color_id', $color->id)->get();
+        foreach ($fotos as $foto) {
+            $this->borrarArchivoImagen($producto, $foto);
+            $foto->delete();
+        }
+
+        $nombre = $color->nombre;
+        $color->delete();
+
+        AuditoriaService::registrar([
+            'accion'            => 'eliminado',
+            'modulo'            => 'Producto',
+            'registro_id'       => $producto->id,
+            'registro_etiqueta' => $producto->nombre,
+            'descripcion'       => "Eliminó el color \"{$nombre}\" ({$fotos->count()} foto(s)) del producto \"{$producto->nombre}\"",
+        ]);
+
+        return response()->json(['ok' => true]);
+    }
+
+    /**
+     * Borra el archivo físico de una foto, salvo que sea la portada del producto
+     * (la portada usa la misma ruta y se quedaría sin imagen).
+     */
+    private function borrarArchivoImagen(Producto $producto, ProductoImagen $imagen): void
+    {
+        if ($producto->imagen === $imagen->ruta) {
+            return;
+        }
+
+        $ruta = public_path($imagen->ruta);
+        if (is_file($ruta)) {
+            @unlink($ruta);
+        }
     }
 
     public function toggleEstado(Producto $producto): RedirectResponse

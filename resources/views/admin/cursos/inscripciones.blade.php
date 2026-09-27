@@ -20,7 +20,7 @@
 
 <div class="space-y-4">
     @forelse($inscripciones as $ins)
-    @php $ag = $ins->agenda; $puedeEditar = auth()->user()->tieneRol('Administrador', 'Asesor'); @endphp
+    @php $ag = $ins; $puedeEditar = auth()->user()->tieneRol('Administrador', 'Asesor'); @endphp
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
         <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
             <div>

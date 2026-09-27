@@ -27,7 +27,7 @@ class RespaldoController extends Controller
 
             AuditoriaService::registrar([
                 'accion'            => 'creado',
-                'tipo'              => 'Copia de seguridad',
+                'modulo'            => 'Copia de seguridad',
                 'registro_etiqueta' => $nombre,
                 'descripcion'       => "Generó copia de seguridad {$nombre}",
             ]);
@@ -35,6 +35,18 @@ class RespaldoController extends Controller
             return redirect()
                 ->route('admin.respaldos.index')
                 ->with('success', 'Copia de seguridad generada correctamente.');
+        } catch (\Symfony\Component\Process\Exception\ExceptionInterface $e) {
+            // Ej: tiempo agotado. Su mensaje incluye la línea de comando, no se muestra.
+            report($e);
+            return redirect()
+                ->route('admin.respaldos.index')
+                ->with('error', 'La copia de seguridad tardó demasiado o fue interrumpida. Inténtalo de nuevo.');
+        } catch (\RuntimeException $e) {
+            // Mensajes controlados por BackupService: seguros de mostrar.
+            report($e);
+            return redirect()
+                ->route('admin.respaldos.index')
+                ->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             report($e);
             return redirect()
@@ -62,7 +74,7 @@ class RespaldoController extends Controller
 
             AuditoriaService::registrar([
                 'accion'            => 'eliminado',
-                'tipo'              => 'Copia de seguridad',
+                'modulo'            => 'Copia de seguridad',
                 'registro_etiqueta' => $nombre,
                 'descripcion'       => "Eliminó copia de seguridad {$nombre}",
             ]);

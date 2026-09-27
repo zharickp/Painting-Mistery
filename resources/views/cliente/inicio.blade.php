@@ -34,13 +34,13 @@
                 </div>
                 <div>
                     <p class="font-bold text-amber-800 text-sm">
-                        Tienes ${{ number_format($stats['total_pendiente'], 0, ',', '.') }} en pedidos pendientes de pago
+                        Tienes ${{ number_format($stats['total_pendiente'], 0, ',', '.') }} en compras pendientes de pago
                     </p>
                     <p class="text-xs text-amber-700">Se cancelan automáticamente 24 horas después de creados si no se completa el pago.</p>
                 </div>
             </div>
             <a href="{{ route('mi-cuenta.pedidos') }}" class="text-xs font-bold text-amber-800 hover:text-amber-900 underline shrink-0">
-                Ver pedidos →
+                Ver compras →
             </a>
         </div>
     @endif
@@ -53,7 +53,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                 </svg>
             </div>
-            <p class="text-xs uppercase tracking-wider font-bold text-slate-500">Pedidos totales</p>
+            <p class="text-xs uppercase tracking-wider font-bold text-slate-500">Compras totales</p>
             <p class="text-2xl font-black text-slate-800 mt-1">{{ $stats['total'] }}</p>
         </div>
         <div class="bg-white border border-slate-200 rounded-2xl p-5">
@@ -88,10 +88,10 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {{-- Últimos pedidos --}}
+        {{-- Últimas compras --}}
         <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                <h2 class="text-lg font-bold text-slate-800">Últimos pedidos</h2>
+                <h2 class="text-lg font-bold text-slate-800">Últimas compras</h2>
                 <a href="{{ route('mi-cuenta.pedidos') }}" class="text-xs font-semibold text-red-600 hover:text-red-700">
                     Ver todos →
                 </a>
@@ -102,7 +102,7 @@
                     <svg class="h-14 w-14 mx-auto text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                     </svg>
-                    <p class="text-sm text-slate-500">Aún no tienes pedidos.</p>
+                    <p class="text-sm text-slate-500">Aún no tienes compras.</p>
                     <a href="{{ route('tienda.index') }}" class="inline-block mt-4 bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-2 rounded-xl text-sm">
                         Ir a la tienda
                     </a>
@@ -113,7 +113,7 @@
                         <a href="{{ route('mi-cuenta.pedido', $v->id) }}" class="flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition">
                             <div>
                                 <p class="font-mono font-semibold text-slate-800 text-sm">
-                                    {{ $v->envio?->numero_orden ?? '#' . $v->id }}
+                                    {{ $v->numero_orden ?? '#' . $v->id }}
                                 </p>
                                 <p class="text-xs text-slate-500 mt-0.5">{{ $v->fecha?->format('d/m/Y') }}</p>
                             </div>
@@ -156,7 +156,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                             </svg>
                         </div>
-                        <span class="text-sm font-semibold text-slate-700 group-hover:text-red-600">Mis pedidos</span>
+                        <span class="text-sm font-semibold text-slate-700 group-hover:text-red-600">Mis compras</span>
                     </div>
                     <svg class="h-4 w-4 text-slate-300 group-hover:text-red-600 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
@@ -186,7 +186,7 @@
         <div class="bg-white border border-slate-200 rounded-2xl p-5">
             <p class="text-[11px] uppercase tracking-wider font-bold text-slate-400">Última compra</p>
             @if($ultimaOrden)
-                <p class="font-mono font-bold text-slate-800 mt-1">{{ $ultimaOrden->envio->numero_orden }}</p>
+                <p class="font-mono font-bold text-slate-800 mt-1">{{ $ultimaOrden->numero_orden }}</p>
                 <p class="text-xs text-slate-500">{{ $ultimaOrden->fecha?->format('d/m/Y') }} · ${{ number_format($ultimaOrden->total, 0, ',', '.') }}</p>
                 <a href="{{ route('mi-cuenta.pedido.orden', $ultimaOrden->id) }}" target="_blank" class="inline-block mt-2 text-xs font-semibold text-red-600 hover:text-red-700">Ver orden de venta →</a>
             @else
@@ -202,7 +202,7 @@
             <p class="text-[11px] uppercase tracking-wider font-bold text-slate-400">Próximo curso</p>
             @if($proximoCurso)
                 <p class="font-bold text-slate-800 mt-1 leading-snug">{{ $proximoCurso->curso->nombre }}</p>
-                <p class="text-xs text-slate-500">{{ $proximoCurso->agenda->fecha_confirmada->format('d/m/Y') }} · {{ $proximoCurso->curso->info?->ubicacion ?: 'Taller Painting Mistery' }}</p>
+                <p class="text-xs text-slate-500">{{ $proximoCurso->fecha_confirmada->format('d/m/Y') }} · {{ $proximoCurso->curso->ubicacion ?: 'Taller Painting Mistery' }}</p>
             @else
                 <p class="text-sm text-slate-500 mt-1">Sin fecha confirmada por ahora.</p>
             @endif
@@ -254,7 +254,7 @@
     {{-- Ayuda --}}
     <div class="mt-10 bg-slate-900 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
-            <p class="text-white font-bold">¿Necesitas ayuda con un pedido, un curso o un servicio?</p>
+            <p class="text-white font-bold">¿Necesitas ayuda con una compra, un curso o un servicio?</p>
             <p class="text-slate-400 text-sm">Escríbenos y te respondemos lo antes posible.</p>
         </div>
         <a href="https://wa.me/573144557602" target="_blank" rel="noopener" class="bg-green-500 hover:bg-green-600 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition shrink-0">Contactar por WhatsApp</a>

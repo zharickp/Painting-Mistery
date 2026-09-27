@@ -77,19 +77,19 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                     Ubicación <span class="text-gray-400">(opcional)</span>
                 </label>
-                <input type="text" name="ubicacion" value="{{ old('ubicacion', $curso->info?->ubicacion) }}" placeholder="Taller Painting Mistery, Melgar"
+                <input type="text" name="ubicacion" value="{{ old('ubicacion', $curso->ubicacion) }}" placeholder="Taller Painting Mistery, Melgar"
                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Días de duración *</label>
-                <input type="number" name="dias" min="1" max="30" required value="{{ old('dias', $curso->info?->dias ?? 1) }}"
+                <input type="number" name="dias" min="1" max="30" required value="{{ old('dias', $curso->dias ?? 1) }}"
                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                     Texto de duración <span class="text-gray-400">(opcional)</span>
                 </label>
-                <input type="text" name="duracion" value="{{ old('duracion', $curso->info?->duracion) }}" placeholder="4 sesiones · 1 mes"
+                <input type="text" name="duracion" value="{{ old('duracion', $curso->duracion) }}" placeholder="4 sesiones · 1 mes"
                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
             </div>
         </div>
@@ -99,11 +99,11 @@
                 Elementos que debe traer el estudiante <span class="text-gray-400">(opcional)</span>
             </label>
             <textarea name="requisitos" rows="2" placeholder="Overol, guantes, tapabocas..."
-                      class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">{{ old('requisitos', $curso->info?->requisitos) }}</textarea>
+                      class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">{{ old('requisitos', $curso->requisitos) }}</textarea>
         </div>
 
         <label class="flex items-center gap-2 text-sm text-gray-700">
-            <input type="checkbox" name="incluye_certificado" value="1" {{ old('incluye_certificado', $curso->info?->incluye_certificado ?? true) ? 'checked' : '' }}
+            <input type="checkbox" name="incluye_certificado" value="1" {{ old('incluye_certificado', $curso->incluye_certificado ?? true) ? 'checked' : '' }}
                    class="rounded border-gray-300 text-red-600 focus:ring-red-400">
             Entrega certificado al finalizar
         </label>
@@ -123,7 +123,7 @@
 
 <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 max-w-2xl mt-6">
     <h2 class="text-base font-bold text-gray-800">Fechas disponibles</h2>
-    <p class="text-xs text-gray-400 mt-0.5 mb-4">Aproximadamente dos cursos por mes, de lunes a viernes (no se dictan en fin de semana). El cliente solo puede elegir entre las fechas publicadas aquí.</p>
+    <p class="text-xs text-gray-400 mt-0.5 mb-4">Los cursos se dictan de lunes a viernes. El cliente solo puede reservar en las fechas que publiques aquí.</p>
 
     <ul class="divide-y divide-gray-50 mb-4">
         @forelse($curso->fechas as $f)
@@ -135,7 +135,7 @@
                 </form>
             </li>
         @empty
-            <li class="py-2 text-sm text-gray-400">Aún no hay fechas publicadas: el curso se muestra sin fechas y los clientes no pueden solicitar cupo.</li>
+            <li class="py-2 text-sm text-gray-400">Aún no hay fechas publicadas, así que nadie puede reservar este curso.</li>
         @endforelse
     </ul>
 

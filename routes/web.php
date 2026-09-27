@@ -20,18 +20,15 @@ use App\Http\Controllers\Admin\CursoController;
 use App\Http\Controllers\Admin\InscripcionController as AdminInscripcionController;
 use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\Admin\VentaController as AdminVentaController;
-use App\Http\Controllers\ResenaSitioController;
-use App\Http\Controllers\Admin\ResenaSitioController as AdminResenaSitioController;
 use App\Http\Controllers\Admin\InventarioController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Admin\AuditoriaController;
 use App\Http\Controllers\Admin\RespaldoController;
-use App\Http\Controllers\Admin\TarifaEnvioController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ClienteDashboardController;
 use App\Http\Controllers\ResenaController;
-use App\Http\Controllers\WompiWebhookController;
+use App\Http\Controllers\Admin\ResenaController as AdminResenaController;
 // ─── Landing ──────────────────────────────────────────────────────────────────
 Route::get('/', [LandingController::class, 'index'])->name('inicio');
 Route::get('/nosotros', [LandingController::class, 'nosotros'])->name('nosotros');
@@ -41,15 +38,14 @@ Route::redirect('/academia', '/cursos', 301);
 Route::get('/cursos/{curso}/inscribirse', fn (int $curso) => redirect(route('academia') . '#curso-' . $curso))
     ->whereNumber('curso');
 
-Route::post('/resenas-sitio', [ResenaSitioController::class, 'store'])->middleware('throttle:5,10')->name('resenas-sitio.store');
 
 // ─── Tienda pública ───────────────────────────────────────────────────────────
 Route::get('/tienda', [TiendaController::class, 'index'])->name('tienda.index');
 Route::get('/productos/{producto}', [PublicProductoController::class, 'show'])->name('producto.show');
 
-// ── Reseñas de productos (usuarios logueados o invitados con nombre/correo) ───
+// ── Reseñas de productos (solo usuarios con sesión: quedan ligadas al usuario) ───
 Route::post('/productos/{producto}/resenas', [ResenaController::class, 'store'])
-    ->middleware('throttle:10,1')
+    ->middleware(['auth', 'throttle:10,1'])
     ->name('resenas.store');
 
 // ─── Invitados ────────────────────────────────────────────────────────────────
@@ -97,10 +93,10 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::get('/roles',    [RolesController::class, 'index'])->name('roles');
         Route::post('/roles/{usuario}/update-role', [RolesController::class, 'updateRole'])->name('roles.update');
 
-        Route::resource('categorias', CategoriaProductoController::class)->except(['show', 'destroy']);
+        Route::resource('categorias', CategoriaProductoController::class)->except(['index', 'show', 'destroy']);
         Route::post('categorias/{categoria}/toggle', [CategoriaProductoController::class, 'toggleEstado'])->name('categorias.toggle');
 
-        Route::resource('tipo-iva', TipoIvaController::class)->except(['show', 'destroy']);
+        Route::resource('tipo-iva', TipoIvaController::class)->except(['index', 'show', 'destroy']);
         Route::post('tipo-iva/{tipo_iva}/toggle', [TipoIvaController::class, 'toggleEstado'])->name('tipo-iva.toggle');
 
         Route::resource('banners', BannerController::class)->except(['show']);
@@ -112,18 +108,14 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::get('/respaldos/{nombre}',   [RespaldoController::class, 'download'])->name('respaldos.download');
         Route::delete('/respaldos/{nombre}',[RespaldoController::class, 'destroy'])->name('respaldos.destroy');
 
-        // Tarifas de envío — configurables desde admin, alimentan al checkout
-        Route::get('/tarifas-envio',                       [TarifaEnvioController::class, 'index'])->name('tarifas-envio.index');
-        Route::get('/tarifas-envio/create',                [TarifaEnvioController::class, 'create'])->name('tarifas-envio.create');
-        Route::post('/tarifas-envio',                      [TarifaEnvioController::class, 'store'])->name('tarifas-envio.store');
-        Route::get('/tarifas-envio/{tarifas_envio}/edit',  [TarifaEnvioController::class, 'edit'])->name('tarifas-envio.edit');
-        Route::put('/tarifas-envio/{tarifas_envio}',       [TarifaEnvioController::class, 'update'])->name('tarifas-envio.update');
-        Route::post('/tarifas-envio/{tarifas_envio}/toggle',[TarifaEnvioController::class, 'toggleEstado'])->name('tarifas-envio.toggle');
     });
 
     // ── Admin + Gerente + Asesor: AUDITORÍA (solo consulta) ───────────────────
     Route::prefix('admin')->name('admin.')->middleware('role:Administrador,Gerente')->group(function () {
         Route::get('/auditoria',              [AuditoriaController::class, 'index'])->name('auditoria.index');
+        // Categorías y tipos de IVA: el Gerente los consulta; crear/editar sigue siendo solo del Administrador.
+        Route::get('categorias',              [CategoriaProductoController::class, 'index'])->name('categorias.index');
+        Route::get('tipo-iva',                [TipoIvaController::class, 'index'])->name('tipo-iva.index');
         Route::get('/auditoria/{auditoria}',  [AuditoriaController::class, 'show'])->name('auditoria.show');
     });
 
@@ -135,6 +127,8 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::put('productos/{producto}',        [ProductoController::class, 'update'])->name('productos.update');
         Route::patch('productos/{producto}',      [ProductoController::class, 'update']);
         Route::post('productos/{producto}/toggle',[ProductoController::class, 'toggleEstado'])->name('productos.toggle');
+        Route::delete('productos/{producto}/imagenes/{imagen}', [ProductoController::class, 'eliminarImagen'])->name('productos.imagenes.destroy');
+        Route::delete('productos/{producto}/colores/{color}',   [ProductoController::class, 'eliminarColor'])->name('productos.colores.destroy');
 
         Route::get('cursos/create',            [CursoController::class, 'create'])->name('cursos.create');
         Route::post('cursos',                  [CursoController::class, 'store'])->name('cursos.store');
@@ -144,13 +138,16 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::post('cursos/{curso}/toggle',   [CursoController::class, 'toggleEstado'])->name('cursos.toggle');
         Route::post('cursos/{curso}/fechas',   [CursoController::class, 'agregarFecha'])->name('cursos.fechas.store');
         Route::delete('cursos/fechas/{fecha}', [CursoController::class, 'quitarFecha'])->name('cursos.fechas.destroy');
-        Route::put('resenas-sitio/{resena}', [AdminResenaSitioController::class, 'update'])->name('resenas-sitio.update');
         Route::put('inscripciones/{inscripcion}', [AdminInscripcionController::class, 'update'])->name('inscripciones.update');
 
         Route::post('/ventas/{venta}/confirmar-pago', [AdminVentaController::class, 'confirmarPago'])->name('ventas.confirmar-pago');
         Route::post('/ventas/{venta}/cancelar',       [AdminVentaController::class, 'cancelar'])->name('ventas.cancelar');
 
         Route::post('/inventario/{inventario}/actualizar', [InventarioController::class, 'actualizar'])->name('inventario.actualizar');
+
+        Route::post('resenas/{resena}/aprobar',  [AdminResenaController::class, 'aprobar'])->name('resenas.aprobar');
+        Route::post('resenas/{resena}/rechazar', [AdminResenaController::class, 'rechazar'])->name('resenas.rechazar');
+        Route::delete('resenas/{resena}',        [AdminResenaController::class, 'destroy'])->name('resenas.destroy');
     });
 
     // ── Consulta de catálogo, inventario, ventas y reportes (Admin + Asesor + Gerente) ─
@@ -158,18 +155,13 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::get('productos',              [ProductoController::class, 'index'])->name('productos.index');
         Route::get('cursos',                 [CursoController::class, 'index'])->name('cursos.index');
         Route::get('agenda-cursos',          [\App\Http\Controllers\Admin\AgendaCursosController::class, 'index'])->name('agenda-cursos.index');
-        Route::get('resenas-sitio',          [AdminResenaSitioController::class, 'index'])->name('resenas-sitio.index');
         Route::get('cursos/{curso}/inscripciones', [AdminInscripcionController::class, 'index'])->name('cursos.inscripciones');
+        Route::get('resenas',                [AdminResenaController::class, 'index'])->name('resenas.index');
         Route::get('/inventario',            [InventarioController::class, 'index'])->name('inventario');
         Route::get('/ventas',                [AdminVentaController::class, 'index'])->name('ventas');
         Route::get('/ventas/{venta}',             [AdminVentaController::class, 'show'])->whereNumber('venta')->name('ventas.show');
         Route::get('/ventas/{venta}/orden-venta', [AdminVentaController::class, 'orden'])->name('ventas.orden');
         Route::get('/reportes',              fn() => view('admin.reportes'))->name('reportes');
-    });
-
-    // ── Mayorista: informativo (Admin + Gerente) ──────────────────────────────
-    Route::prefix('mayorista')->name('mayorista.')->middleware('role:Administrador,Gerente')->group(function () {
-        Route::get('/', fn() => view('mayorista.index'))->name('index');
     });
 
     // ── Carrito (solo Clientes) ───────────────────────────────────────────────
@@ -185,13 +177,13 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
     Route::post('/cursos/{curso}/inscribirse', [InscripcionController::class, 'store'])
         ->middleware('role:Cliente')->name('cursos.inscribirse');
 
-    // ── Checkout con Wompi (solo Clientes) ────────────────────────────────────
+    // ── Compra en la tienda (solo Clientes) ────────────────────────────────────
     Route::middleware('role:Cliente')->group(function () {
         Route::get('/checkout',                        [CheckoutController::class, 'mostrar'])->name('checkout.mostrar');
         Route::post('/checkout',                       [CheckoutController::class, 'procesar'])->name('checkout.procesar');
+        Route::get('/checkout/{numero}/pago',          [CheckoutController::class, 'pago'])->name('checkout.pago');
+        Route::post('/checkout/{numero}/pago',         [CheckoutController::class, 'pagar'])->name('checkout.pagar');
         Route::get('/checkout/{numero}/resultado',     [CheckoutController::class, 'resultado'])->name('checkout.resultado');
-        Route::get('/checkout/{numero}/demo',          [CheckoutController::class, 'demo'])->name('checkout.demo');
-        Route::post('/checkout/{numero}/demo/confirmar',[CheckoutController::class, 'demoConfirmar'])->name('checkout.demo.confirmar');
 
         // Dashboard cliente
         Route::prefix('mi-cuenta')->name('mi-cuenta.')->group(function () {
@@ -209,8 +201,6 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
 
 });
 
-// ── Webhook Wompi (POST público, sin CSRF configurado en bootstrap/app.php) ──
-Route::post('/api/wompi/webhook', WompiWebhookController::class)->name('wompi.webhook');
 
 Route::get('/send-test-mail', function () {
     Mail::to('sg0077010@gmail.com')->send(new TestMail());

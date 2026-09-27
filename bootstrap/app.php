@@ -21,10 +21,6 @@ return Application::configure(basePath: dirname(__DIR__))
         // Cookie de señal para vaciar el carrito local tras crear una orden (la lee JS)
         $middleware->encryptCookies(except: ['pm_vaciar_carrito']);
 
-        // Webhook de Wompi debe recibir POST sin CSRF (Wompi es el que llama)
-        $middleware->validateCsrfTokens(except: [
-            'api/wompi/webhook',
-        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
