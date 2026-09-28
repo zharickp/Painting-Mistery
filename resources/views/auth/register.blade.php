@@ -98,33 +98,28 @@
                            class="rounded-md block w-full px-3 py-2 border border-gray-300 text-gray-900 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
                 </div>
 
-                <!-- Contraseña con medidor de fortaleza -->
+                <!-- Contraseña con sus requisitos -->
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
                     <div class="relative">
                         <input id="password" name="password" type="password" required
                                class="rounded-md block w-full px-3 py-2 pr-10 border border-gray-300 text-gray-900 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
                                oninput="checkStrength(this.value)" placeholder="Mínimo 8 caracteres">
-                        <button type="button" onclick="togglePass('password', this)"
+                        <button type="button" onclick="togglePass('password', this)" aria-label="Mostrar contraseña" title="Mostrar contraseña"
                                 class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
+                            <svg class="icono-ver h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <svg class="icono-ocultar h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
                         </button>
                     </div>
-                    <!-- Barra de fortaleza -->
-                    <div class="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                        <div id="strengthBar" class="h-full rounded-full transition-all duration-300 w-0"></div>
-                    </div>
-                    <p id="strengthText" class="text-xs mt-1 text-gray-400"></p>
                     <div class="mt-2 grid grid-cols-2 gap-x-4 gap-y-0.5">
-                        <p id="req-len"   class="text-xs text-gray-400">⬜ Mínimo 8 caracteres</p>
-                        <p id="req-upper" class="text-xs text-gray-400">⬜ Una mayúscula</p>
-                        <p id="req-lower" class="text-xs text-gray-400">⬜ Una minúscula</p>
-                        <p id="req-num"   class="text-xs text-gray-400">⬜ Un número</p>
-                        <p id="req-sym"   class="text-xs text-gray-400">⬜ Un símbolo (@, #, !)</p>
+                        <p id="req-len" class="text-xs text-gray-400 flex items-center gap-1.5"><span class="w-3 text-center">•</span>Mínimo 8 caracteres</p>
+                        <p id="req-upper" class="text-xs text-gray-400 flex items-center gap-1.5"><span class="w-3 text-center">•</span>Una mayúscula</p>
+                        <p id="req-lower" class="text-xs text-gray-400 flex items-center gap-1.5"><span class="w-3 text-center">•</span>Una minúscula</p>
+                        <p id="req-num" class="text-xs text-gray-400 flex items-center gap-1.5"><span class="w-3 text-center">•</span>Un número</p>
+                        <p id="req-sym" class="text-xs text-gray-400 flex items-center gap-1.5"><span class="w-3 text-center">•</span>Un símbolo (@, #, !)</p>
                     </div>
+                    <p id="reqAviso" class="text-xs mt-1 text-green-600"></p>
+                    <p class="text-xs mt-1 text-gray-400">Evita tu nombre, tu fecha de nacimiento o palabras fáciles de adivinar.</p>
                 </div>
 
                 <div>
@@ -133,12 +128,10 @@
                         <input id="password_confirmation" name="password_confirmation" type="password" required
                                class="rounded-md block w-full px-3 py-2 pr-10 border border-gray-300 text-gray-900 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
                                placeholder="Repite la contraseña">
-                        <button type="button" onclick="togglePass('password_confirmation', this)"
+                        <button type="button" onclick="togglePass('password_confirmation', this)" aria-label="Mostrar contraseña" title="Mostrar contraseña"
                                 class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
+                            <svg class="icono-ver h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <svg class="icono-ocultar h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
                         </button>
                     </div>
                 </div>
@@ -163,7 +156,12 @@
 <script>
 function togglePass(id, btn) {
     const input = document.getElementById(id);
-    input.type = input.type === 'password' ? 'text' : 'password';
+    const mostrar = input.type === 'password';
+    input.type = mostrar ? 'text' : 'password';
+    btn.querySelector('.icono-ver').classList.toggle('hidden', mostrar);
+    btn.querySelector('.icono-ocultar').classList.toggle('hidden', !mostrar);
+    btn.setAttribute('aria-label', mostrar ? 'Ocultar contraseña' : 'Mostrar contraseña');
+    btn.title = btn.getAttribute('aria-label');
 }
 
 function checkStrength(val) {
@@ -175,30 +173,21 @@ function checkStrength(val) {
         sym:   /[^A-Za-z0-9]/.test(val),
     };
 
-    const mark = (id, ok) => {
-        const el = document.getElementById('req-' + id);
+    Object.entries(checks).forEach(([k, ok]) => {
+        const el = document.getElementById('req-' + k);
         if (!el) return;
-        const txt = el.textContent.slice(1);
-        el.textContent = (ok ? '✅' : '⬜') + txt;
-        el.className = 'text-xs ' + (ok ? 'text-green-600' : 'text-gray-400');
-    };
-    Object.entries(checks).forEach(([k, v]) => mark(k, v));
+        el.querySelector('span').textContent = ok ? '✓' : '•';
+        el.classList.toggle('text-green-600', ok);
+        el.classList.toggle('text-gray-400', !ok);
+    });
 
-    const score = Object.values(checks).filter(Boolean).length;
-    const bar  = document.getElementById('strengthBar');
-    const text = document.getElementById('strengthText');
-    const cfgs = [
-        { w: '0%',   cls: '',               lbl: '' },
-        { w: '20%',  cls: 'bg-red-500',     lbl: 'Muy débil' },
-        { w: '40%',  cls: 'bg-orange-400',  lbl: 'Débil' },
-        { w: '60%',  cls: 'bg-yellow-400',  lbl: 'Moderada' },
-        { w: '80%',  cls: 'bg-blue-500',    lbl: 'Fuerte' },
-        { w: '100%', cls: 'bg-green-500',   lbl: 'Muy fuerte' },
-    ];
-    bar.style.width = cfgs[score].w;
-    bar.className = 'h-full rounded-full transition-all duration-300 ' + cfgs[score].cls;
-    text.textContent = cfgs[score].lbl;
-    text.className = 'text-xs mt-1 ' + (score < 3 ? 'text-red-500' : score < 5 ? 'text-yellow-600' : 'text-green-600');
+    // Cumplir los requisitos no garantiza que la contraseña sea segura,
+    // así que solo se informa que los cumple.
+    const cumple = Object.values(checks).every(Boolean);
+    const aviso = document.getElementById('reqAviso');
+    if (aviso) {
+        aviso.textContent = val === '' ? '' : (cumple ? 'Cumple los requisitos.' : '');
+    }
 }
 </script>
 @endsection

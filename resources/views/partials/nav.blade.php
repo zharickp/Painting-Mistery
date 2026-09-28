@@ -65,16 +65,40 @@
                 </button>
 
                 @auth
-                {{-- Usuario autenticado: avatar + nombre --}}
-                <a href="{{ route('dashboard') }}"
-                   class="hidden sm:flex items-center gap-2 px-2 py-1 rounded-full hover:bg-red-50 transition group" title="Ir a mi cuenta">
-                    <div class="h-8 w-8 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
-                        {{ strtoupper(substr(auth()->user()->primer_nombre, 0, 1)) }}{{ strtoupper(substr(auth()->user()->primer_apellido, 0, 1)) }}
+                @php
+                    $yo = auth()->user();
+                    $esClienteNav = $yo->tieneRol('Cliente') && ! $yo->tieneRol('Administrador', 'Asesor', 'Gerente');
+                @endphp
+                {{-- Usuario autenticado: menú con sus opciones y cerrar sesión --}}
+                <details class="relative hidden sm:block" id="menuUsuario">
+                    <summary class="list-none cursor-pointer flex items-center gap-2 px-2 py-1 rounded-full hover:bg-red-50 transition group">
+                        <div class="h-8 w-8 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                            {{ strtoupper(substr($yo->primer_nombre, 0, 1)) }}{{ strtoupper(substr($yo->primer_apellido, 0, 1)) }}
+                        </div>
+                        <span class="text-sm font-semibold text-gray-700 group-hover:text-red-600 max-w-[140px] truncate">
+                            Hola, {{ $yo->primer_nombre }}
+                        </span>
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </summary>
+                    <div class="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-50">
+                        <div class="px-4 py-3 border-b border-gray-100">
+                            <p class="text-sm font-semibold text-gray-800 truncate">{{ $yo->nombreCompleto() }}</p>
+                            <p class="text-xs text-gray-500 truncate">{{ $yo->correo }}</p>
+                        </div>
+                        @if ($esClienteNav)
+                            <a href="{{ route('mi-cuenta.inicio') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">Mi cuenta</a>
+                            <a href="{{ route('mi-cuenta.pedidos') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">Mis compras</a>
+                            <a href="{{ route('mi-cuenta.cursos') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">Mis cursos</a>
+                            <a href="{{ route('mi-cuenta.perfil') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">Mi perfil</a>
+                        @else
+                            <a href="{{ route('dashboard') }}" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">Ir al panel</a>
+                        @endif
+                        <form method="POST" action="{{ route('logout') }}" class="border-t border-gray-100">
+                            @csrf
+                            <button type="submit" class="w-full text-left px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50">Cerrar sesión</button>
+                        </form>
                     </div>
-                    <span class="text-sm font-semibold text-gray-700 group-hover:text-red-600 max-w-[140px] truncate">
-                        Hola, {{ auth()->user()->primer_nombre }}
-                    </span>
-                </a>
+                </details>
                 {{-- Icono compacto (móvil) --}}
                 <a href="{{ route('dashboard') }}"
                    class="sm:hidden p-2 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition" title="Mi cuenta">
@@ -122,11 +146,24 @@
             <a href="{{ route('login') }}" class="block px-2 py-2 hover:text-red-600">Iniciar sesión</a>
             <a href="{{ route('register') }}" class="block px-2 py-2 text-red-600 font-semibold">Registrarse</a>
             @endguest
+            @auth
+            <div class="border-t border-gray-100 pt-1 mt-1">
+                <a href="{{ route('dashboard') }}" class="block px-2 py-2 hover:text-red-600">Mi cuenta</a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="block w-full text-left px-2 py-2 text-red-600 font-semibold">Cerrar sesión</button>
+                </form>
+            </div>
+            @endauth
         </div>
     </div>
 </nav>
 
 <script>
+document.addEventListener('click', function (e) {
+    const menu = document.getElementById('menuUsuario');
+    if (menu && menu.open && !menu.contains(e.target)) menu.open = false;
+});
 function toggleSearch() {
     const input = document.getElementById('searchInput');
     const isOpen = input.style.width === '200px';

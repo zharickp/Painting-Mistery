@@ -13,25 +13,25 @@ class LandingController extends Controller
     public function index()
     {
         $productosDestacados = Producto::where('estado', true)
-            ->with(['categoria', 'imagenes', 'resenas.usuario', 'colores'])
+            ->with(['categoria', 'imagenes', 'inventario', 'resenas', 'colores'])
             ->orderBy('created_at', 'desc')
-            ->take(12)
+            ->take(6)
             ->get();
 
         $cursosDestacados = Curso::where('estado', true)
+            ->with('fechasDisponibles')
             ->orderBy('created_at', 'desc')
             ->take(3)
             ->get();
 
         $banners = Banner::activos()->get();
-        // Testimonios: las reseñas mejor calificadas que los clientes (con cuenta)
-        // dejaron en los productos.
+        // Reseñas del inicio: las más recientes de 4 o 5 estrellas ya aprobadas.
         $resenasClientes = Resena::with(['usuario', 'producto'])
             ->aprobadas()
             ->whereNotNull('usuario_id')
             ->where('calificacion', '>=', 4)
             ->latest()
-            ->take(12)
+            ->take(3)
             ->get();
 
         return view('landing', compact('productosDestacados', 'cursosDestacados', 'banners', 'resenasClientes'));
