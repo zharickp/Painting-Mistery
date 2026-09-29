@@ -17,24 +17,19 @@ class Curso extends Model
         'nombre',
         'descripcion',
         'costo',
-        'fecha_inicio',
-        'fecha_fin',
         'cupos',
         'estado',
         'ubicacion',
-        'duracion',
         'requisitos',
         'incluye_certificado',
-        'dias',
+        'duracion_dias',
     ];
 
     protected $casts = [
         'estado'       => 'boolean',
-        'fecha_inicio' => 'date',
-        'fecha_fin'    => 'date',
         'costo'        => 'decimal:2',
         'incluye_certificado' => 'boolean',
-        'dias'         => 'integer',
+        'duracion_dias' => 'integer',
     ];
 
     public function inscripciones()
@@ -60,12 +55,12 @@ class Curso extends Model
 
     public function dias(): int
     {
-        return max(1, (int) ($this->dias ?? 1));
+        return max(1, (int) ($this->duracion_dias ?? 1));
     }
 
     public function duracionTexto(): string
     {
-        return $this->duracion ?: ($this->dias() . ($this->dias() === 1 ? ' día' : ' días'));
+        return $this->dias() . ($this->dias() === 1 ? ' día' : ' días');
     }
 
     public function cuposDisponibles(): ?int

@@ -22,8 +22,8 @@ class CarritoController extends Controller
     public function index(): View
     {
         $carrito  = $this->carritoActivo();
-        $detalles = $carrito->detalles()->with('producto')->get();
-        $total    = $detalles->sum(fn($d) => $d->cantidad * $d->precio_unitario);
+        $detalles = $carrito->detalles()->with('producto.imagenes')->get();
+        $total    = $detalles->sum(fn($d) => $d->cantidad * ($d->producto?->precio ?? 0));
 
         return view('cliente.carrito', compact('carrito', 'detalles', 'total'));
     }
@@ -64,7 +64,6 @@ class CarritoController extends Controller
                 'carrito_id'      => $carrito->id,
                 'producto_id'     => $producto->id,
                 'cantidad'        => $request->cantidad,
-                'precio_unitario' => $producto->precio,
             ]);
         }
 
@@ -147,7 +146,7 @@ class CarritoController extends Controller
 
             CarritoDetalle::updateOrCreate(
                 ['carrito_id' => $carrito->id, 'producto_id' => $producto->id],
-                ['cantidad' => $cantidad, 'precio_unitario' => $producto->precio]
+                ['cantidad' => $cantidad]
             );
             $idsValidos[] = $producto->id;
         }

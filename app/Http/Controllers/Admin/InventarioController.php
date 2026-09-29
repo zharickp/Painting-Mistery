@@ -32,7 +32,6 @@ class InventarioController extends Controller
         $inventario->update([
             'stock_actual'         => $request->stock_actual,
             'stock_minimo'         => $request->stock_minimo,
-            'ultima_actualizacion' => now(),
         ]);
 
         return redirect()->route('admin.inventario')

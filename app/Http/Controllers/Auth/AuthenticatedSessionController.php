@@ -14,8 +14,10 @@ class AuthenticatedSessionController extends Controller
     /**
      * Muestra el formulario de login.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
+        $this->recordarDestino($request);
+
         return view('auth.login');
     }
 
@@ -47,11 +49,11 @@ class AuthenticatedSessionController extends Controller
 
         AuditoriaService::login(Auth::user());
 
-        if (auth()->user()->tieneRol('Cliente')) {
-            return redirect()->route('inicio')->with('success', '¡Bienvenido de nuevo!');
-            }
+        // Vuelve a la página donde estaba (curso, carrito, producto...) o, si no
+        // venía de ninguna, al inicio (clientes) o al panel (personal del taller).
+        $destino = auth()->user()->tieneRol('Cliente') ? route('inicio') : route('dashboard');
 
-        return redirect()->route('dashboard')->with('success', '¡Bienvenido de nuevo!');
+        return redirect()->intended($destino)->with('success', '¡Bienvenido de nuevo!');
     }
 
     /**

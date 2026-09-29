@@ -15,7 +15,11 @@
                 </svg>
             </div>
             <h1 class="text-2xl font-extrabold text-slate-800">¡Pago aprobado!</h1>
-            <p class="text-sm text-slate-500 mt-1">Tu compra quedó registrada. La encuentras en Mis compras.</p>
+            @if($venta->detalleCursos->isNotEmpty())
+                <p class="text-sm text-slate-500 mt-1">Tu inscripción quedó confirmada. Te escribiremos para coordinar la llegada y el hospedaje.</p>
+            @else
+                <p class="text-sm text-slate-500 mt-1">Tu compra quedó registrada. La encuentras en Mis compras.</p>
+            @endif
         @elseif($pending)
             <div class="mx-auto h-16 w-16 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mb-4">
                 <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
@@ -66,10 +70,17 @@
                class="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition">
                 Ver detalle de la compra
             </a>
+            @if($venta->detalleCursos->isNotEmpty())
+            <a href="{{ route('mi-cuenta.cursos') }}"
+               class="border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold px-6 py-2.5 rounded-xl text-sm transition">
+                Ver mis cursos
+            </a>
+            @else
             <a href="{{ route('tienda.index') }}"
                class="border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold px-6 py-2.5 rounded-xl text-sm transition">
                 Seguir comprando
             </a>
+            @endif
         </div>
     </div>
 </div>

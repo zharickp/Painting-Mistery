@@ -12,16 +12,13 @@ class Banner extends Model
 
     protected string $auditoriaTipo = 'Banner';
 
-    protected array $auditoriaCandidatos = ['titulo', 'subtitulo'];
+    protected array $auditoriaCandidatos = ['titulo'];
 
     protected $table = 'banners';
 
     protected $fillable = [
         'imagen',
         'titulo',
-        'subtitulo',
-        'boton_texto',
-        'boton_enlace',
         'orden',
         'activo',
         'publicar_en',

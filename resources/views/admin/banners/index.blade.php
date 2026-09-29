@@ -42,9 +42,6 @@
                     </td>
                     <td class="px-5 py-3">
                         <p class="font-medium text-gray-800">{{ $banner->titulo }}</p>
-                        @if ($banner->subtitulo)
-                            <p class="text-xs text-gray-400 truncate max-w-xs">{{ $banner->subtitulo }}</p>
-                        @endif
                     </td>
                     <td class="px-5 py-3 text-center">
                         <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full font-medium">{{ $banner->orden }}</span>

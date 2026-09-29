@@ -22,7 +22,7 @@ class ProductoController extends Controller
 {
     public function index(): View
     {
-        $productos = Producto::with('categoria', 'tipoIva')
+        $productos = Producto::with('categoria', 'tipoIva', 'imagenes')
             ->orderByDesc('created_at')
             ->paginate(12);
 
@@ -45,20 +45,13 @@ class ProductoController extends Controller
             'precio'                     => 'required|numeric|min:0',
             'precio_anterior'            => 'nullable|numeric|gt:precio',
             'categoria_producto_id'      => 'required|exists:categoria_producto,id',
-            'tipo_iva_id'                => ['required', Rule::exists('tipo_iva', 'id')->where('activo', true)],
+            'tipo_iva_id'                => ['required', Rule::exists('tipo_iva', 'id')->where('estado', true)],
             'imagen'                     => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
             'imagenes.*'                 => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
             'grupos_color.*.nombre'      => 'nullable|string|max:40',
             'grupos_color.*.hex'         => 'nullable|string|max:7',
             'grupos_color.*.archivos.*'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
         ]);
-
-        $rutaImagen = null;
-        if ($request->hasFile('imagen')) {
-            $nombreArchivo = time() . '_' . $request->file('imagen')->getClientOriginalName();
-            $request->file('imagen')->move(public_path('images/productos'), $nombreArchivo);
-            $rutaImagen = '/images/productos/' . $nombreArchivo;
-        }
 
         $producto = Producto::create([
             'nombre'                => $request->nombre,
@@ -67,10 +60,10 @@ class ProductoController extends Controller
             'precio_anterior'       => $request->precio_anterior,
             'categoria_producto_id' => $request->categoria_producto_id,
             'tipo_iva_id'           => $request->tipo_iva_id,
-            'imagen'                => $rutaImagen,
             'estado'                => true,
         ]);
 
+        $this->guardarFotoPortada($request, $producto);
         $this->guardarGaleriaSinColor($request, $producto);
         $this->guardarGaleriaPorColor($request, $producto);
 
@@ -78,11 +71,35 @@ class ProductoController extends Controller
             'producto_id'          => $producto->id,
             'stock_actual'         => 0,
             'stock_minimo'         => 5,
-            'ultima_actualizacion' => now(),
         ]);
 
         return redirect()->route('admin.productos.index')
             ->with('success', 'Producto creado correctamente.');
+    }
+
+    /**
+     * Foto subida en el campo "Foto de portada": se guarda como foto general
+     * del producto y queda marcada como portada.
+     */
+    private function guardarFotoPortada(Request $request, Producto $producto): void
+    {
+        if (! $request->hasFile('imagen')) {
+            return;
+        }
+
+        $archivo       = $request->file('imagen');
+        $nombreArchivo = time() . '_portada_' . $archivo->getClientOriginalName();
+        $archivo->move(public_path('images/productos'), $nombreArchivo);
+
+        $orden = (int) $producto->imagenes()->min('orden');
+
+        $producto->imagenes()->update(['es_portada' => false]);
+        ProductoImagen::create([
+            'producto_id' => $producto->id,
+            'ruta'        => '/images/productos/' . $nombreArchivo,
+            'orden'       => $orden - 1,
+            'es_portada'  => true,
+        ]);
     }
 
     private function guardarGaleriaSinColor(Request $request, Producto $producto): void
@@ -223,7 +240,10 @@ class ProductoController extends Controller
             ->first();
 
         if ($imagen) {
-            $producto->update(['imagen' => $imagen->ruta]);
+            DB::transaction(function () use ($producto, $imagen) {
+                $producto->imagenes()->update(['es_portada' => false]);
+                $imagen->update(['es_portada' => true]);
+            });
         }
     }
 
@@ -244,7 +264,7 @@ class ProductoController extends Controller
             'precio'                     => 'required|numeric|min:0',
             'precio_anterior'            => 'nullable|numeric|gt:precio',
             'categoria_producto_id'      => 'required|exists:categoria_producto,id',
-            'tipo_iva_id'                => ['required', Rule::exists('tipo_iva', 'id')->where(fn ($q) => $q->where('activo', true)->orWhere('id', $producto->tipo_iva_id))],
+            'tipo_iva_id'                => ['required', Rule::exists('tipo_iva', 'id')->where(fn ($q) => $q->where('estado', true)->orWhere('id', $producto->tipo_iva_id))],
             'imagen'                     => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
             'imagenes.*'                 => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
             'grupos_color.*.nombre'      => 'nullable|string|max:40',
@@ -257,15 +277,6 @@ class ProductoController extends Controller
             'imagen_portada'             => 'nullable|exists:producto_imagen,id',
         ]);
 
-        if ($request->hasFile('imagen')) {
-            if ($producto->imagen && file_exists(public_path($producto->imagen))) {
-                unlink(public_path($producto->imagen));
-            }
-            $nombreArchivo = time() . '_' . $request->file('imagen')->getClientOriginalName();
-            $request->file('imagen')->move(public_path('images/productos'), $nombreArchivo);
-            $producto->imagen = '/images/productos/' . $nombreArchivo;
-        }
-
         $producto->update([
             'nombre'                => $request->nombre,
             'descripcion'           => $request->descripcion,
@@ -273,7 +284,6 @@ class ProductoController extends Controller
             'precio_anterior'       => $request->precio_anterior,
             'categoria_producto_id' => $request->categoria_producto_id,
             'tipo_iva_id'           => $request->tipo_iva_id,
-            'imagen'                => $producto->imagen,
         ]);
 
         $this->actualizarColoresExistentes($request, $producto);
@@ -282,6 +292,8 @@ class ProductoController extends Controller
         $this->guardarGaleriaPorColor($request, $producto);
         $this->guardarOrden($request, $producto);
         $this->guardarPortada($request, $producto);
+        // Una foto nueva subida como portada tiene prioridad sobre la elegida en la lista.
+        $this->guardarFotoPortada($request, $producto);
 
         return redirect()->route('admin.productos.index')
             ->with('success', 'Producto actualizado correctamente.');
@@ -387,15 +399,11 @@ class ProductoController extends Controller
     }
 
     /**
-     * Borra el archivo físico de una foto, salvo que sea la portada del producto
-     * (la portada usa la misma ruta y se quedaría sin imagen).
+     * Borra el archivo físico de una foto. Si era la portada, el producto pasa
+     * a usar como portada su primera foto general.
      */
     private function borrarArchivoImagen(Producto $producto, ProductoImagen $imagen): void
     {
-        if ($producto->imagen === $imagen->ruta) {
-            return;
-        }
-
         $ruta = public_path($imagen->ruta);
         if (is_file($ruta)) {
             @unlink($ruta);

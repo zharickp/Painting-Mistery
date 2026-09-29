@@ -47,10 +47,12 @@ class LandingController extends Controller
         $cursos = Curso::where('estado', true)->with(['fechas' => fn ($q) => $q->whereDate('fecha', '>=', today())])->orderBy('id')->get();
 
         $misInscripciones = auth()->check()
-            ? Inscripcion::where('usuario_id', auth()->id())->get()->keyBy('curso_id')
+            ? Inscripcion::with('venta')->where('usuario_id', auth()->id())->get()->keyBy('curso_id')
             : collect();
 
-        return view('academia', compact('cursos', 'misInscripciones'));
+        $metodosPago = \App\Models\MetodoPago::paraCheckout()->get();
+
+        return view('academia', compact('cursos', 'misInscripciones', 'metodosPago'));
     }
 
     public function contacto()

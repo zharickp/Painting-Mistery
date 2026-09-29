@@ -129,10 +129,10 @@
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <p class="font-semibold text-slate-800 truncate">{{ $d->producto->nombre ?? '—' }}</p>
-                                    <p class="text-xs text-slate-500">{{ $d->cantidad }} × ${{ number_format($d->precio_unitario, 0, ',', '.') }}</p>
+                                    <p class="text-xs text-slate-500">{{ $d->cantidad }} × ${{ number_format($d->producto->precio, 0, ',', '.') }}</p>
                                 </div>
                                 <p class="text-sm font-bold text-slate-800 shrink-0">
-                                    ${{ number_format($d->cantidad * $d->precio_unitario, 0, ',', '.') }}
+                                    ${{ number_format($d->cantidad * $d->producto->precio, 0, ',', '.') }}
                                 </p>
                             </div>
                         @endforeach

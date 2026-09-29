@@ -33,13 +33,21 @@
                     <div class="rounded-xl bg-blue-50 border border-blue-100 p-3 text-xs text-slate-700 space-y-1">
                         @if($ins->fechaTexto())<p><strong>Fecha:</strong> {{ $ins->fechaTexto() }}</p>@endif
                         <p><strong>Lugar:</strong> {{ $ins->curso->ubicacion ?: 'Taller Painting Mistery, Melgar – Tolima' }}</p>
-                        @if($ins->curso->duracion)<p><strong>Duración:</strong> {{ $ins->curso->duracion }}</p>@endif
+                        <p><strong>Duración:</strong> {{ $ins->curso->duracionTexto() }}</p>
                         @if($ins->curso->requisitos)<p><strong>Debes traer:</strong> {{ $ins->curso->requisitos }}</p>@endif
                         @if($ins->notas)<p><strong>Indicaciones:</strong> {{ $ins->notas }}</p>@endif
                         @if($ins->curso->incluye_certificado ?? true)<p class="text-green-700">Recibirás certificado al finalizar.</p>@endif
                     </div>
-                @elseif($ins->estado === 'pendiente')
-                    <p class="text-xs text-amber-700 bg-amber-50 rounded-xl p-3">Reservaste{{ $ins->fechaTexto() ? ': ' . $ins->fechaTexto() : '' }}. Pronto nos comunicamos contigo para el abono, la confirmación y el hospedaje.</p>
+                @elseif($ins->estado === 'pendiente' && $ins->venta?->estado === 'pendiente')
+                    <div class="text-xs text-amber-800 bg-amber-50 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2">
+                        <p>Pendiente de pago{{ $ins->fechaTexto() ? ' · ' . $ins->fechaTexto() : '' }}. Tu cupo está apartado 24 horas.</p>
+                        <a href="{{ route('checkout.pago', $ins->venta->numero_orden) }}" class="font-bold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg">Pagar ahora</a>
+                    </div>
+                @elseif($ins->esReservaAntigua())
+                    <div class="text-xs text-amber-800 bg-amber-50 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2">
+                        <p>Esta reserva aún no tiene pago. Elige la fecha y paga para quedar inscrito.</p>
+                        <a href="{{ route('academia') }}#curso-{{ $ins->curso_id }}" class="font-bold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg">Elegir fecha y pagar</a>
+                    </div>
                 @else
                     <p class="text-xs text-slate-400">Esta inscripción fue cancelada.</p>
                 @endif
@@ -65,7 +73,7 @@
                 </div>
                 <p class="text-sm text-slate-500 mb-3 line-clamp-3">{{ $c->descripcion }}</p>
                 <div class="flex flex-wrap gap-2 text-[11px] text-slate-500 mb-4">
-                    @if($c->duracion)<span class="bg-slate-100 rounded-full px-2.5 py-1">{{ $c->duracion }}</span>@endif
+                    <span class="bg-slate-100 rounded-full px-2.5 py-1">{{ $c->duracionTexto() }}</span>
                     <span class="bg-slate-100 rounded-full px-2.5 py-1">{{ $libres === null ? 'Cupos disponibles' : $libres . ' cupos libres' }}</span>
                     @if($c->incluye_certificado ?? true)<span class="bg-green-50 text-green-700 rounded-full px-2.5 py-1">Con certificado</span>@endif
                 </div>

@@ -44,8 +44,6 @@ class CursoController extends Controller
                     new OA\Property(property: "nombre", type: "string"),
                     new OA\Property(property: "descripcion", type: "string"),
                     new OA\Property(property: "costo", type: "number"),
-                    new OA\Property(property: "fecha_inicio", type: "string", format: "date"),
-                    new OA\Property(property: "fecha_fin", type: "string", format: "date"),
                     new OA\Property(property: "cupos", type: "integer"),
                     new OA\Property(property: "estado", type: "boolean")
                 ]
@@ -63,8 +61,6 @@ class CursoController extends Controller
                 'nombre' => 'required|string|max:100',
                 'descripcion' => 'nullable|string',
                 'costo' => 'required|numeric|min:0',
-                'fecha_inicio' => 'nullable|date',
-                'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
                 'cupos' => 'nullable|integer|min:0',
                 'estado' => 'nullable|boolean'
             ]);
@@ -131,8 +127,6 @@ class CursoController extends Controller
                     new OA\Property(property: "nombre", type: "string"),
                     new OA\Property(property: "descripcion", type: "string"),
                     new OA\Property(property: "costo", type: "number"),
-                    new OA\Property(property: "fecha_inicio", type: "string", format: "date"),
-                    new OA\Property(property: "fecha_fin", type: "string", format: "date"),
                     new OA\Property(property: "cupos", type: "integer"),
                     new OA\Property(property: "estado", type: "boolean")
                 ]
@@ -153,8 +147,6 @@ class CursoController extends Controller
                 'nombre',
                 'descripcion',
                 'costo',
-                'fecha_inicio',
-                'fecha_fin',
                 'cupos',
                 'estado'
             ]);
@@ -169,8 +161,6 @@ class CursoController extends Controller
                 'nombre' => 'sometimes|string|max:100',
                 'descripcion' => 'nullable|string',
                 'costo' => 'sometimes|numeric|min:0',
-                'fecha_inicio' => 'nullable|date',
-                'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
                 'cupos' => 'nullable|integer|min:0',
                 'estado' => 'nullable|boolean'
             ]);

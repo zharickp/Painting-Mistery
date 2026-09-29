@@ -64,7 +64,6 @@ class InventarioController extends Controller
                 'stock_minimo' => 'nullable|integer|min:0'
             ]);
 
-            $data['ultima_actualizacion'] = now();
 
             $inventario = Inventario::create($data);
 
@@ -160,7 +159,6 @@ class InventarioController extends Controller
                 'stock_minimo' => 'nullable|integer|min:0'
             ]);
 
-            $validated['ultima_actualizacion'] = now();
 
             $inventario->update($validated);
 

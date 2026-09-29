@@ -48,7 +48,8 @@ class EmailVerificationController extends Controller
             'code_expires_at'      => null,
         ]);
 
-        return redirect()->route('dashboard')->with('success', '¡Correo verificado! Bienvenido a Painting Mistery.');
+        // Si se registró desde un curso o el carrito, vuelve allá.
+        return redirect()->intended(route('dashboard'))->with('success', '¡Correo verificado! Bienvenido a Painting Mistery.');
     }
 
     public function resend(Request $request): RedirectResponse

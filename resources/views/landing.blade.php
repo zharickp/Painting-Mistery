@@ -43,7 +43,7 @@
         <div id="heroSlider" class="relative overflow-hidden rounded-3xl bg-gray-900 h-[360px] sm:h-[480px] md:h-[560px] lg:h-[clamp(580px,35vw,700px)]">
             @foreach ($banners as $i => $banner)
                 <div class="hero-slide absolute inset-0 transition-opacity duration-1000 ease-in-out {{ $i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}">
-                    <img src="{{ $banner->imagen }}" alt="Painting Mistery"
+                    <img src="{{ $banner->imagen }}" alt="{{ $banner->titulo }}"
                          class="w-full h-full object-cover object-center">
                     {{-- Vignette sutil solo alrededor para dar profundidad, sin oscurecer el centro --}}
                     <div class="absolute inset-0 pointer-events-none"
@@ -75,7 +75,7 @@
 
     @php
         $fotoTienda = optional($productosDestacados->first(fn ($p) => $p->imagen))->imagen ?? asset('images/hero.jpeg');
-        $fotoCursos = asset('images/hero.jpeg');
+        $fotoCursos = asset('images/cursos.jpeg');
         $fotoTaller = optional($banners->first())->imagen ?? asset('images/hero.jpeg');
     @endphp
 
@@ -129,49 +129,39 @@
         </div>
     </section>
 
-    {{-- CURSOS --}}
-    <section class="relative py-16 bg-gray-950 overflow-hidden">
-        <img src="{{ $fotoCursos }}" alt="" class="absolute inset-0 w-full h-full object-cover opacity-15">
-        <div class="absolute inset-0 bg-gradient-to-b from-gray-950/70 to-gray-950"></div>
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-end justify-between gap-4 mb-8">
-                <div>
-                    <h2 class="font-display uppercase text-3xl sm:text-4xl font-bold text-white tracking-tight">Cursos</h2>
-                    <p class="text-gray-400 text-sm mt-1">Clases prácticas, con cupos limitados.</p>
-                </div>
-                <a href="{{ route('academia') }}" class="shrink-0 text-sm font-semibold text-red-500 hover:text-red-400">Ver cursos y fechas →</a>
+    {{-- CURSOS: foto del curso a un lado y la lista de cursos al otro --}}
+    <section class="py-16 bg-gray-950">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+            <div class="rounded-3xl overflow-hidden h-72 lg:h-full lg:min-h-[420px]">
+                <img src="{{ $fotoCursos }}" alt="Estudiantes con su certificado en el taller" class="w-full h-full object-cover">
             </div>
 
-            @if ($cursosDestacados->isEmpty())
-                <p class="text-gray-400 text-sm">Por ahora no hay cursos abiertos.</p>
-            @else
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    @foreach ($cursosDestacados as $curso)
-                        @php $proxima = $curso->fechasDisponibles->first(); @endphp
-                        <a href="{{ route('academia') }}#curso-{{ $curso->id }}"
-                           class="group flex flex-col rounded-2xl bg-white/5 border border-white/10 hover:border-red-600/60 transition p-6">
-                            <h3 class="text-lg font-bold text-white">{{ $curso->nombre }}</h3>
-                            @if ($curso->descripcion)
-                                <p class="text-gray-400 text-sm mt-2 line-clamp-2">{{ $curso->descripcion }}</p>
-                            @endif
-                            <dl class="mt-4 space-y-1.5 text-sm">
-                                <div class="flex justify-between gap-3">
-                                    <dt class="text-gray-500">Duración</dt>
-                                    <dd class="text-gray-200">{{ $curso->duracionTexto() }}</dd>
+            <div>
+                <h2 class="font-display uppercase text-3xl sm:text-4xl font-bold text-white tracking-tight">Cursos</h2>
+                <p class="text-gray-400 mt-2">Clases prácticas en el taller, con cupos limitados.</p>
+
+                @if ($cursosDestacados->isEmpty())
+                    <p class="text-gray-400 text-sm mt-8">Por ahora no hay cursos abiertos.</p>
+                @else
+                    <div class="mt-8 divide-y divide-white/10 border-y border-white/10">
+                        @foreach ($cursosDestacados as $curso)
+                            @php $proxima = $curso->fechasDisponibles->first(); @endphp
+                            <a href="{{ route('academia') }}#curso-{{ $curso->id }}" class="group flex items-center justify-between gap-6 py-5">
+                                <div class="min-w-0">
+                                    <h3 class="text-lg font-bold text-white group-hover:text-red-500 transition">{{ $curso->nombre }}</h3>
+                                    <p class="text-sm text-gray-400 mt-1">
+                                        {{ $curso->duracionTexto() }}
+                                        · {{ $proxima ? 'Próxima fecha: ' . \App\Models\CursoFecha::etiquetaDe($proxima->fecha) : 'Fecha por definir' }}
+                                    </p>
                                 </div>
-                                <div class="flex justify-between gap-3">
-                                    <dt class="text-gray-500">Próxima fecha</dt>
-                                    <dd class="text-gray-200 text-right">{{ $proxima ? \App\Models\CursoFecha::etiquetaDe($proxima->fecha) : 'Por definir' }}</dd>
-                                </div>
-                            </dl>
-                            <div class="mt-auto pt-5 flex items-center justify-between">
-                                <span class="text-xl font-bold text-white">${{ number_format($curso->costo, 0, ',', '.') }}</span>
-                                <span class="text-sm font-semibold text-red-500 group-hover:text-red-400">Ver detalles →</span>
-                            </div>
-                        </a>
-                    @endforeach
-                </div>
-            @endif
+                                <span class="shrink-0 text-lg font-bold text-white">${{ number_format($curso->costo, 0, ',', '.') }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
+
+                <a href="{{ route('academia') }}" class="inline-block mt-8 bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-xl text-sm transition">Ver cursos y fechas</a>
+            </div>
         </div>
     </section>
 
@@ -213,7 +203,6 @@
                 <p class="text-gray-500 text-sm">Todavía no hay reseñas publicadas.</p>
             @endif
 
-            <p class="text-gray-500 text-sm mt-8">¿Compraste algo con nosotros? Deja tu reseña en la página del producto.</p>
         </div>
     </section>
 

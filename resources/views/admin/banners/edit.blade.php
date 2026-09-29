@@ -38,35 +38,12 @@
         </div>
 
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Título</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del banner <span class="text-gray-400">(no se muestra; describe la imagen)</span></label>
             <input type="text" name="titulo" value="{{ old('titulo', $banner->titulo) }}" required maxlength="150"
                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
         </div>
 
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-                Subtítulo <span class="text-gray-400">(opcional)</span>
-            </label>
-            <textarea name="subtitulo" rows="2" maxlength="255"
-                      class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">{{ old('subtitulo', $banner->subtitulo) }}</textarea>
-        </div>
 
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Texto del botón <span class="text-gray-400">(opcional)</span>
-                </label>
-                <input type="text" name="boton_texto" value="{{ old('boton_texto', $banner->boton_texto) }}" maxlength="50"
-                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Enlace del botón <span class="text-gray-400">(opcional)</span>
-                </label>
-                <input type="text" name="boton_enlace" value="{{ old('boton_enlace', $banner->boton_enlace) }}" placeholder="/tienda" maxlength="255"
-                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
-            </div>
-        </div>
 
         <div class="grid grid-cols-2 gap-4">
             <div>

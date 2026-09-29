@@ -13,6 +13,11 @@ class ProductoImagen extends Model
         'ruta',
         'orden',
         'producto_color_id',
+        'es_portada',
+    ];
+
+    protected $casts = [
+        'es_portada' => 'boolean',
     ];
 
     public function producto()

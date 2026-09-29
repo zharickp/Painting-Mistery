@@ -11,8 +11,7 @@ class CarritoDetalle extends Model
     protected $fillable = [
         'carrito_id',
         'producto_id',
-        'cantidad',
-        'precio_unitario'
+        'cantidad'
     ];
 
     // 🔗 Relación con carrito

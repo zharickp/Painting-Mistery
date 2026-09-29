@@ -18,12 +18,12 @@ class TipoIva extends Model
     protected $fillable = [
         'descripcion',
         'porcentaje',
-        'activo',
+        'estado',
     ];
 
     protected $casts = [
         'porcentaje' => 'decimal:2',
-        'activo'     => 'boolean',
+        'estado'     => 'boolean',
     ];
 
     public function productos()
@@ -44,6 +44,6 @@ class TipoIva extends Model
 
     public function scopeActivos($query)
     {
-        return $query->where('activo', true);
+        return $query->where('estado', true);
     }
 }

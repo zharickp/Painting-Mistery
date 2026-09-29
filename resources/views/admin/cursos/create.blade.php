@@ -51,16 +51,6 @@
                        min="1" placeholder="Sin límite"
                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Fecha inicio</label>
-                <input type="date" name="fecha_inicio" value="{{ old('fecha_inicio') }}"
-                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Fecha fin</label>
-                <input type="date" name="fecha_fin" value="{{ old('fecha_fin') }}"
-                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
-            </div>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
@@ -73,14 +63,7 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Días de duración *</label>
-                <input type="number" name="dias" min="1" max="30" required value="{{ old('dias', 1) }}"
-                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Texto de duración <span class="text-gray-400">(opcional)</span>
-                </label>
-                <input type="text" name="duracion" value="{{ old('duracion') }}" placeholder="4 sesiones · 1 mes"
+                <input type="number" name="duracion_dias" min="1" max="30" required value="{{ old('duracion_dias', 1) }}"
                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
             </div>
         </div>

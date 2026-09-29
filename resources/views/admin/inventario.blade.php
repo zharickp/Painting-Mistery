@@ -76,7 +76,7 @@
                         @endif
                     </td>
                     <td class="px-5 py-3 text-center text-gray-400 text-xs">
-                        {{ \Carbon\Carbon::parse($inv->ultima_actualizacion)->format('d/m/Y H:i') }}
+                        {{ $inv->updated_at?->format('d/m/Y H:i') }}
                     </td>
                     @if(auth()->user()->tieneRol('Administrador', 'Asesor'))
                     <td class="px-5 py-3 text-center">

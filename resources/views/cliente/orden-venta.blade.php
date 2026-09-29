@@ -76,7 +76,7 @@
         <table class="w-full text-sm mb-6">
             <thead>
                 <tr class="text-[10px] uppercase tracking-widest text-slate-400 border-b border-slate-200">
-                    <th class="py-2 text-left font-bold">Producto</th>
+                    <th class="py-2 text-left font-bold">Descripción</th>
                     <th class="py-2 text-center font-bold">Cant.</th>
                     <th class="py-2 text-right font-bold">Precio unit.</th>
                     <th class="py-2 text-right font-bold">Subtotal</th>
@@ -89,6 +89,14 @@
                         <td class="py-3 text-center text-slate-600">{{ $d->cantidad }}</td>
                         <td class="py-3 text-right text-slate-600">${{ number_format($d->precio_unitario, 0, ',', '.') }}</td>
                         <td class="py-3 text-right font-semibold text-slate-800">${{ number_format($d->subtotal, 0, ',', '.') }}</td>
+                    </tr>
+                @endforeach
+                @foreach($venta->detalleCursos as $c)
+                    <tr>
+                        <td class="py-3 text-slate-800 font-medium">Curso: {{ $c->curso?->nombre ?? 'Curso' }}</td>
+                        <td class="py-3 text-center text-slate-600">1</td>
+                        <td class="py-3 text-right text-slate-600">${{ number_format($c->precio_unitario, 0, ',', '.') }}</td>
+                        <td class="py-3 text-right font-semibold text-slate-800">${{ number_format($c->subtotal, 0, ',', '.') }}</td>
                     </tr>
                 @endforeach
             </tbody>

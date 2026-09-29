@@ -68,10 +68,12 @@ class TiendaController extends Controller
             ->orderBy('nombre')
             ->get()
             ->map(function (CategoriaProducto $cat) {
-                $cat->imagenRepresentativa = $cat->productos()
-                    ->where('estado', true)
-                    ->whereNotNull('imagen')
-                    ->value('imagen');
+                $cat->imagenRepresentativa = \App\Models\ProductoImagen::whereHas('producto', fn ($q) => $q
+                        ->where('categoria_producto_id', $cat->id)
+                        ->where('estado', true))
+                    ->orderByDesc('es_portada')
+                    ->orderBy('orden')
+                    ->value('ruta');
 
                 return $cat;
             });

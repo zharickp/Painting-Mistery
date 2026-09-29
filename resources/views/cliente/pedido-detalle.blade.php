@@ -70,7 +70,7 @@
         <div class="lg:col-span-2 space-y-6">
             <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-100">
-                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Productos</h2>
+                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Detalle</h2>
                 </div>
                 <div class="divide-y divide-slate-100">
                     @foreach($venta->detalleProductos as $d)
@@ -91,6 +91,16 @@
                             <p class="font-bold text-slate-800 shrink-0">
                                 ${{ number_format($d->subtotal, 0, ',', '.') }}
                             </p>
+                        </div>
+                    @endforeach
+                    @foreach($venta->detalleCursos as $c)
+                        <div class="px-6 py-4 flex items-center gap-4">
+                            <div class="h-14 w-14 rounded-lg bg-gray-900 text-white flex items-center justify-center shrink-0 text-[10px] font-bold uppercase">Curso</div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-slate-800 truncate">{{ $c->curso?->nombre ?? 'Curso' }}</p>
+                                <p class="text-xs text-slate-500">Inscripción al curso</p>
+                            </div>
+                            <p class="font-bold text-slate-800 shrink-0">${{ number_format($c->subtotal, 0, ',', '.') }}</p>
                         </div>
                     @endforeach
                 </div>

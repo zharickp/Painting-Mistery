@@ -98,7 +98,7 @@
                 <div class="mb-3">
                     <img src="{{ $producto->imagen }}" alt="{{ $producto->nombre }}"
                          class="h-32 w-32 object-cover rounded-lg border border-gray-200">
-                    <p class="text-xs text-gray-400 mt-1">Imagen actual. Sube una nueva para reemplazarla, o marca "Portada" en una de las fotos generales.</p>
+                    <p class="text-xs text-gray-400 mt-1">Portada actual. Puedes subir una foto nueva como portada o marcar "Portada" en una de las fotos generales.</p>
                 </div>
             @endif
             <input type="file" name="imagen" accept="image/jpg,image/jpeg,image/png,image/webp" data-preview="previewImagenPrincipal"

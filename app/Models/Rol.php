@@ -22,14 +22,4 @@ class Rol extends Model
             'usuario_id'
         );
     }
-
-    public function permisos()
-    {
-        return $this->belongsToMany(
-            Permiso::class,
-            'roles_permisos',
-            'rol_id',
-            'permiso_id'
-        );
-    }
 }

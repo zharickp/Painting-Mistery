@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\TipoDocumentoController;
 use App\Http\Controllers\Api\UsuarioController;
 use App\Http\Controllers\Api\RolController;
-use App\Http\Controllers\Api\PermisoController;
 use App\Http\Controllers\Api\TipoIvaController;
 use App\Http\Controllers\Api\CategoriaProductoController;
 use App\Http\Controllers\Api\ProductoController;
@@ -19,7 +18,6 @@ use App\Http\Controllers\Api\DetalleVentaCursoController;
 use App\Http\Controllers\Api\MetodoPagoController;
 use App\Http\Controllers\Api\PagoController;
 use App\Http\Controllers\Api\UsuariosRolesController;
-use App\Http\Controllers\Api\RolesPermisosController;
 
 
 // Toda la API administrativa exige sesión iniciada y rol Administrador.
@@ -27,7 +25,6 @@ Route::middleware(['web', 'auth', 'role:Administrador'])->group(function () {
     Route::apiResource('tipo-documento', TipoDocumentoController::class);
     Route::apiResource('usuarios', UsuarioController::class);
     Route::apiResource('roles', RolController::class);
-    Route::apiResource('permisos', PermisoController::class);
     Route::apiResource('tipo-iva', TipoIvaController::class);
     Route::apiResource('categorias', CategoriaProductoController::class);
     Route::apiResource('productos', ProductoController::class);
@@ -43,8 +40,5 @@ Route::middleware(['web', 'auth', 'role:Administrador'])->group(function () {
     Route::apiResource('pagos', PagoController::class);
 
     Route::apiResource('usuarios-roles', UsuariosRolesController::class)
-        ->only(['index', 'store', 'destroy']);
-
-    Route::apiResource('roles-permisos', RolesPermisosController::class)
         ->only(['index', 'store', 'destroy']);
 });

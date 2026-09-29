@@ -47,7 +47,7 @@ class VentaController extends Controller
 
     public function show(int $ventaId): View
     {
-        $venta = Venta::with(['canceladaPor', 'pagoConfirmadoPor', 'usuario', 'detalleProductos.producto', 'pago.metodoPago'])->findOrFail($ventaId);
+        $venta = Venta::with(['canceladaPor', 'pagoConfirmadoPor', 'usuario', 'detalleProductos.producto', 'detalleCursos.curso', 'pago.metodoPago'])->findOrFail($ventaId);
 
         return view('admin.venta-detalle', compact('venta'));
     }
@@ -87,7 +87,7 @@ class VentaController extends Controller
 
     public function orden(int $ventaId): View
     {
-        $venta = Venta::with(['usuario', 'detalleProductos.producto', 'pago.metodoPago'])->findOrFail($ventaId);
+        $venta = Venta::with(['usuario', 'detalleProductos.producto', 'detalleCursos.curso', 'pago.metodoPago'])->findOrFail($ventaId);
 
         abort_unless($venta->numero_orden, 404);
 

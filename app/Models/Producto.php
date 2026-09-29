@@ -20,7 +20,6 @@ class Producto extends Model
         'descripcion',
         'precio',
         'precio_anterior',
-        'imagen',
         'estado'
     ];
 
@@ -65,15 +64,25 @@ class Producto extends Model
         return $this->hasMany(ProductoColor::class)->orderBy('orden');
     }
 
+    /**
+     * Portada del producto ($producto->imagen). No es una columna: es la foto
+     * de producto_imagen marcada como portada; si ninguna lo está, la primera
+     * foto general (sin color) y, si no hay, la primera de todas.
+     */
+    public function getImagenAttribute(): ?string
+    {
+        $fotos = $this->imagenes;
+
+        $portada = $fotos->firstWhere('es_portada', true)
+            ?? $fotos->whereNull('producto_color_id')->first()
+            ?? $fotos->first();
+
+        return $portada?->ruta;
+    }
+
     public function galeria(): array
     {
-        $rutas = $this->imagenes->pluck('ruta')->all();
-
-        if (empty($rutas) && $this->imagen) {
-            $rutas = [$this->imagen];
-        }
-
-        return $rutas;
+        return $this->imagenes->pluck('ruta')->all();
     }
 
     /**

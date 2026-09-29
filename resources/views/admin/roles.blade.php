@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@section('title', 'Roles y permisos')
+@section('title', 'Roles')
 @section('content')
 
 {{-- Header --}}
 <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
-        <h1 class="text-xl font-bold text-gray-800">Roles y permisos</h1>
+        <h1 class="text-xl font-bold text-gray-800">Roles de usuario</h1>
         <p class="text-sm text-gray-400 mt-1">Rol asignado a cada usuario.</p>
     </div>
     {{-- Resumen por rol --}}

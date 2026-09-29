@@ -67,7 +67,6 @@ class CarritoDetalleController extends Controller
 
             $producto = Producto::findOrFail($data['producto_id']);
 
-            $data['precio_unitario'] = $producto->precio;
 
             // 🔥 evitar duplicados
             $detalle = CarritoDetalle::where('carrito_id', $data['carrito_id'])

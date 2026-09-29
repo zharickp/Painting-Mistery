@@ -34,7 +34,6 @@ class Venta extends Model
         'correo_cliente',
         'tipo_documento',
         'numero_documento',
-        'acepto_terminos',
         // Trazabilidad
         'cancelada_at',
         'cancelada_por',
@@ -46,7 +45,6 @@ class Venta extends Model
         'total'           => 'decimal:2',
         'fecha'           => 'datetime',
         'cancelada_at'    => 'datetime',
-        'acepto_terminos' => 'boolean',
     ];
 
     // ─── Relaciones ────────────────────────────────────────────

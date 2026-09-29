@@ -53,7 +53,12 @@
                     Finalizar compra
                 </button>
             @else
-                <a href="{{ route('login') }}"
+                @php
+                    // Después de iniciar sesión vuelve a esta misma página con el carrito abierto.
+                    $paginaActual = request()->getRequestUri();
+                    $volverCarrito = $paginaActual . (str_contains($paginaActual, '?') ? '&' : '?') . 'carrito=1';
+                @endphp
+                <a href="{{ route('login', ['volver' => $volverCarrito]) }}"
                    class="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl text-sm transition w-full shadow-md shadow-red-900/20">
                     Iniciar sesión para pagar
                 </a>

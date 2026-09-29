@@ -27,9 +27,6 @@ class BannerController extends Controller
         $request->validate([
             'imagen'        => 'required|image|mimes:jpg,jpeg,png,webp|max:8192',
             'titulo'        => 'required|string|max:150',
-            'subtitulo'     => 'nullable|string|max:255',
-            'boton_texto'   => 'nullable|string|max:50',
-            'boton_enlace'  => 'nullable|string|max:255',
             'orden'         => 'nullable|integer|min:0',
             'activo'        => 'nullable|boolean',
             'publicar_en'   => 'nullable|date',
@@ -41,9 +38,6 @@ class BannerController extends Controller
         Banner::create([
             'imagen'       => '/images/banners/' . $nombreArchivo,
             'titulo'       => $request->titulo,
-            'subtitulo'    => $request->subtitulo,
-            'boton_texto'  => $request->boton_texto,
-            'boton_enlace' => $request->boton_enlace,
             'orden'        => (int) ($request->orden ?? 0),
             'activo'       => $request->boolean('activo', true),
             'publicar_en'  => $request->publicar_en,
@@ -63,9 +57,6 @@ class BannerController extends Controller
         $request->validate([
             'imagen'        => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
             'titulo'        => 'required|string|max:150',
-            'subtitulo'     => 'nullable|string|max:255',
-            'boton_texto'   => 'nullable|string|max:50',
-            'boton_enlace'  => 'nullable|string|max:255',
             'orden'         => 'nullable|integer|min:0',
             'activo'        => 'nullable|boolean',
             'publicar_en'   => 'nullable|date',
@@ -84,9 +75,6 @@ class BannerController extends Controller
         $banner->update([
             'imagen'       => $rutaImagen,
             'titulo'       => $request->titulo,
-            'subtitulo'    => $request->subtitulo,
-            'boton_texto'  => $request->boton_texto,
-            'boton_enlace' => $request->boton_enlace,
             'orden'        => (int) ($request->orden ?? 0),
             'activo'       => $request->boolean('activo', true),
             'publicar_en'  => $request->publicar_en,

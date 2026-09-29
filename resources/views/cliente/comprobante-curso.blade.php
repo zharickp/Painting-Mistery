@@ -18,8 +18,9 @@
     $curso = $ins->curso;
     $usuario = $ins->usuario;
     $fechaTxt = $ins->fechaTexto() ?? 'Por confirmar';
-    $mensajeWa = "Hola Painting Mistery! Reservé el {$curso->nombre} ({$fechaTxt}). Mi comprobante es {$ins->codigoReserva()} a nombre de " . trim($usuario->primer_nombre . ' ' . $usuario->primer_apellido) . ". Quiero coordinar el abono y los detalles.";
+    $mensajeWa = "Hola Painting Mistery! Reservé el {$curso->nombre} ({$fechaTxt}). Mi comprobante es {$ins->codigoReserva()} a nombre de " . trim($usuario->primer_nombre . ' ' . $usuario->primer_apellido) . ". Quiero coordinar mi llegada y los detalles.";
     $confirmada = in_array($ins->estado, ['confirmada', 'completada'], true);
+    $pago       = $ins->venta?->pago;
 @endphp
 
 <div class="max-w-3xl mx-auto px-4">
@@ -54,7 +55,7 @@
                 <p class="font-mono font-black text-slate-800 text-lg">{{ $ins->codigoReserva() }}</p>
                 <p class="text-xs text-slate-500 mt-0.5">{{ $ins->created_at->format('d/m/Y h:i A') }}</p>
                 <p class="mt-1.5 inline-block px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wide border {{ $confirmada ? 'bg-blue-100 text-blue-800 border-blue-300' : 'bg-amber-100 text-amber-800 border-amber-300' }}">
-                    {{ $confirmada ? 'Reserva confirmada' : 'Pendiente de abono' }}
+                    {{ $confirmada ? 'Inscripción confirmada' : ($ins->estado === 'cancelada' ? 'Cancelada' : 'Pendiente de pago') }}
                 </p>
             </div>
         </div>
@@ -76,8 +77,8 @@
 
         <div class="rounded-xl border border-slate-100 divide-y divide-slate-100 text-sm mb-8">
             <div class="flex justify-between px-4 py-3"><span class="text-slate-500">Valor del curso</span><span class="font-bold text-slate-800">${{ number_format($curso->costo, 0, ',', '.') }}</span></div>
-            <div class="flex justify-between px-4 py-3"><span class="text-slate-500">Abono para asegurar el cupo</span><span class="font-semibold text-slate-700">Te lo confirmamos por WhatsApp</span></div>
-            <div class="flex justify-between px-4 py-3"><span class="text-slate-500">Saldo</span><span class="font-semibold text-slate-700">Se cancela después del abono, según lo acordado</span></div>
+            <div class="flex justify-between px-4 py-3"><span class="text-slate-500">Pago</span><span class="font-semibold text-slate-700">{{ $pago ? ($pago->metodoPago?->nombre ?? 'Pago') . ' · ' . $pago->estadoEtiqueta() : 'Por registrar' }}</span></div>
+            @if($ins->venta?->numero_orden)<div class="flex justify-between px-4 py-3"><span class="text-slate-500">N.º de orden</span><span class="font-mono text-slate-700">{{ $ins->venta->numero_orden }}</span></div>@endif
             @if($curso->incluye_certificado ?? true)<div class="flex justify-between px-4 py-3"><span class="text-slate-500">Certificado</span><span class="font-semibold text-emerald-600">Incluido al finalizar</span></div>@endif
             @if($curso->requisitos)<div class="flex justify-between gap-6 px-4 py-3"><span class="text-slate-500 shrink-0">Debes traer</span><span class="text-slate-700 text-right">{{ $curso->requisitos }}</span></div>@endif
             @if($ins->notas)<div class="flex justify-between gap-6 px-4 py-3"><span class="text-slate-500 shrink-0">Indicaciones</span><span class="text-slate-700 text-right">{{ $ins->notas }}</span></div>@endif
@@ -86,9 +87,9 @@
         <div class="mb-8">
             <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Qué sigue</p>
             <ol class="space-y-2.5 text-sm text-slate-700">
-                <li class="flex gap-3"><span class="h-6 w-6 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center shrink-0">1</span>Envíanos este comprobante por WhatsApp al <strong>+57 314 455 7602</strong>.</li>
-                <li class="flex gap-3"><span class="h-6 w-6 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center shrink-0">2</span>Por ahí te damos toda la información: valor del abono, medios de pago y, si vienes de otra ciudad, el hospedaje.</li>
-                <li class="flex gap-3"><span class="h-6 w-6 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center shrink-0">3</span>Con el abono realizado confirmamos tu cupo. El resto se paga después, como acordemos.</li>
+                <li class="flex gap-3"><span class="h-6 w-6 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center shrink-0">1</span>Si aún no has pagado, paga tu inscripción desde "Mis cursos". El cupo se aparta 24 horas.</li>
+                <li class="flex gap-3"><span class="h-6 w-6 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center shrink-0">2</span>Con el pago aprobado, tu inscripción queda confirmada.</li>
+                <li class="flex gap-3"><span class="h-6 w-6 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center shrink-0">3</span>Te escribimos al <strong>+57 314 455 7602</strong> para cuadrar la llegada y, si vienes de otra ciudad, el hospedaje.</li>
             </ol>
         </div>
 
@@ -101,8 +102,8 @@
         </div>
 
         <div class="rounded-xl bg-slate-50 border border-slate-100 px-4 py-3 text-[11px] text-slate-400 leading-relaxed">
-            Documento informativo generado por el sistema de Painting Mistery. No constituye factura ni recibo de pago:
-            el cupo queda asegurado cuando se confirme el abono.
+            Documento informativo generado por el sistema de Painting Mistery. No constituye factura:
+            el cupo queda asegurado cuando el pago de la inscripción está aprobado.
         </div>
     </div>
 </div>

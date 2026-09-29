@@ -8,7 +8,7 @@ class Auditoria extends Model
 {
     protected $table = 'auditoria';
 
-    public $timestamps = true;
+    public $timestamps = false; // la fecha del movimiento está en `fecha`
 
     protected $fillable = [
         'usuario_id',
@@ -30,8 +30,6 @@ class Auditoria extends Model
         'valores_anteriores' => 'array',
         'valores_nuevos'     => 'array',
         'fecha'              => 'datetime',
-        'created_at'         => 'datetime',
-        'updated_at'         => 'datetime',
     ];
 
     public const ACCIONES = [
@@ -91,6 +89,6 @@ class Auditoria extends Model
 
     public function fechaMostrada()
     {
-        return $this->fecha ?? $this->created_at;
+        return $this->fecha;
     }
 }

@@ -53,11 +53,14 @@
                         <p class="text-xs text-gray-400 line-clamp-1 mt-0.5">{{ $c->descripcion }}</p>
                     </td>
                     <td class="px-5 py-4 hidden sm:table-cell text-gray-500 text-xs">
-                        @if($c->fecha_inicio)
-                            <p>{{ \Carbon\Carbon::parse($c->fecha_inicio)->format('d/m/Y') }}</p>
-                            <p class="text-gray-400">→ {{ $c->fecha_fin ? \Carbon\Carbon::parse($c->fecha_fin)->format('d/m/Y') : '—' }}</p>
+                        @php $proxima = $c->fechasDisponibles->first(); @endphp
+                        @if($proxima)
+                            <p>Próxima: {{ $proxima->fecha->format('d/m/Y') }}</p>
+                            @if($c->fechasDisponibles->count() > 1)
+                                <p class="text-gray-400">{{ $c->fechasDisponibles->count() }} fechas programadas</p>
+                            @endif
                         @else
-                            <span class="text-gray-300">Sin fecha</span>
+                            <span class="text-gray-300">Sin fechas programadas</span>
                         @endif
                     </td>
                     <td class="px-5 py-4 text-center">

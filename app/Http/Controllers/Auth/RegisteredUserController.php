@@ -16,8 +16,10 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    public function create(): View
+    public function create(Request $request): View
     {
+        $this->recordarDestino($request);
+
         return view('auth.register', [
             'tiposDocumento' => TipoDocumento::orderBy('nombre')->get(),
         ]);

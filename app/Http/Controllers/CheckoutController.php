@@ -40,7 +40,7 @@ class CheckoutController extends Controller
 
         return view('checkout.index', [
             'detalles'       => $detalles,
-            'total'          => $detalles->sum(fn ($d) => $d->cantidad * $d->precio_unitario),
+            'total'          => $detalles->sum(fn ($d) => $d->cantidad * $d->producto->precio),
             'usuario'        => auth()->user(),
             'tiposDocumento' => TipoDocumento::orderBy('nombre')->get(),
             'metodosPago'    => MetodoPago::paraCheckout()->get(),
@@ -102,7 +102,6 @@ class CheckoutController extends Controller
                     'correo_cliente'   => $data['correo_cliente'],
                     'tipo_documento'   => $data['tipo_documento'],
                     'numero_documento' => $data['numero_documento'],
-                    'acepto_terminos'  => true,
                 ]);
 
                 // El número de orden depende del id, que solo existe después de insertar.
@@ -185,7 +184,7 @@ class CheckoutController extends Controller
     public function resultado(string $numeroOrden)
     {
         $venta = $this->ventaDelUsuario($numeroOrden);
-        $venta->load(['detalleProductos.producto', 'pago.metodoPago']);
+        $venta->load(['detalleProductos.producto', 'detalleCursos.curso', 'pago.metodoPago']);
 
         return view('checkout.resultado', compact('venta'));
     }

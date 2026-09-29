@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Inscripcion;
 use App\Models\MetodoPago;
 use App\Models\Pago;
 use App\Models\Usuario;
@@ -18,6 +19,8 @@ use Illuminate\Support\Facades\DB;
  * Cada intento de pago queda en la tabla `pago`.
  * Inventario: solo se descuenta al pasar a pagada y solo se devuelve si la
  * venta estaba pagada.
+ * Cursos: al pagar, la inscripción de la venta queda confirmada; al cancelar,
+ * queda cancelada y el cupo se libera.
  */
 class OrdenEstadoService
 {
@@ -64,6 +67,14 @@ class OrdenEstadoService
             foreach ($venta->detalleProductos as $d) {
                 $d->producto?->inventario?->decrement('stock_actual', $d->cantidad);
             }
+
+            // La fecha confirmada es la que el cliente eligió al inscribirse.
+            foreach (Inscripcion::where('venta_id', $venta->id)->where('estado', 'pendiente')->get() as $inscripcion) {
+                $inscripcion->update([
+                    'estado'           => 'confirmada',
+                    'fecha_confirmada' => $inscripcion->fecha_preferida,
+                ]);
+            }
         });
 
         $this->auditar($venta, 'pendiente', 'pagada', $origen, $actor, null);
@@ -101,6 +112,10 @@ class OrdenEstadoService
                     $d->producto?->inventario?->increment('stock_actual', $d->cantidad);
                 }
             }
+
+            Inscripcion::where('venta_id', $venta->id)
+                ->whereIn('estado', ['pendiente', 'confirmada'])
+                ->update(['estado' => 'cancelada', 'updated_at' => now()]);
         });
 
         $this->auditar($venta, $anterior, 'cancelada', $origen, $actor, $motivo);

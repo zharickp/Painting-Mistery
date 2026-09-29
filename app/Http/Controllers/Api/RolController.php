@@ -96,7 +96,7 @@ class RolController extends Controller
     public function show($id)
     {
         try {
-            $rol = Rol::with('permisos')->findOrFail($id);
+            $rol = Rol::findOrFail($id);
 
             return response()->json($rol, 200);
 

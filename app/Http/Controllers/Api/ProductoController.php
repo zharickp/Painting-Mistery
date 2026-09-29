@@ -49,7 +49,6 @@ class ProductoController extends Controller
                     new OA\Property(property: "nombre", type: "string"),
                     new OA\Property(property: "descripcion", type: "string"),
                     new OA\Property(property: "precio", type: "number"),
-                    new OA\Property(property: "imagen", type: "string"),
                     new OA\Property(property: "estado", type: "boolean")
                 ]
             )
@@ -68,7 +67,6 @@ class ProductoController extends Controller
                 'nombre' => 'required|string|max:100',
                 'descripcion' => 'nullable|string',
                 'precio' => 'required|numeric|min:0',
-                'imagen' => 'nullable|string',
                 'estado' => 'nullable|boolean'
             ]);
 

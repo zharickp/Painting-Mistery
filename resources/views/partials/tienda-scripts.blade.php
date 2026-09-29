@@ -291,4 +291,14 @@ function showToast(msg) {
 }
 
 document.addEventListener('DOMContentLoaded', syncUI);
+
+// Al volver de iniciar sesión desde el carrito (?carrito=1) se abre el carrito
+// para que el cliente siga con su compra, y se limpia la dirección.
+document.addEventListener('DOMContentLoaded', () => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get('carrito') !== '1') return;
+    url.searchParams.delete('carrito');
+    history.replaceState(null, '', url.pathname + url.search + url.hash);
+    abrirCarrito();
+});
 </script>

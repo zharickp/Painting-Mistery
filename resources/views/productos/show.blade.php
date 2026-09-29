@@ -273,7 +273,7 @@
             </div>
 
             {{-- Reseñas --}}
-            <div class="px-6 pb-6 border-t pt-5">
+            <div id="resenas" class="scroll-mt-24 px-6 pb-6 border-t pt-5">
                 <h4 class="font-bold text-gray-800 mb-4">Reseñas de clientes</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div class="flex gap-5">
@@ -306,7 +306,7 @@
                         @guest
                             <p class="text-xs text-gray-500 mb-2">
                                 Para publicar una reseña debes
-                                <a href="{{ route('login') }}" class="text-red-600 font-semibold hover:underline">iniciar sesión</a>.
+                                <a href="{{ route('login', ['volver' => request()->getPathInfo() . '#resenas']) }}" class="text-red-600 font-semibold hover:underline">iniciar sesión</a>.
                             </p>
                         @endguest
                         @if ($miResena?->estado === 'pendiente')
@@ -800,7 +800,7 @@
 
         // Las reseñas siempre quedan ligadas a un usuario.
         if (!window.usuarioActualId) {
-            window.location.href = @json(route('login'));
+            window.location.href = @json(route('login', ['volver' => request()->getPathInfo() . '#resenas']));
             return;
         }
 

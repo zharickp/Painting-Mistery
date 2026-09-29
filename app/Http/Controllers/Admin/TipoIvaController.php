@@ -90,9 +90,9 @@ class TipoIvaController extends Controller
 
     public function toggleEstado(TipoIva $tipoIva): RedirectResponse
     {
-        $anterior = $tipoIva->activo;
+        $anterior = $tipoIva->estado;
         // saveQuietly: la auditoría de este cambio se registra abajo con más detalle.
-        $tipoIva->forceFill(['activo' => ! $anterior])->saveQuietly();
+        $tipoIva->forceFill(['estado' => ! $anterior])->saveQuietly();
 
         AuditoriaService::registrar([
             'accion'             => $anterior ? 'desactivado' : 'activado',

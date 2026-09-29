@@ -52,8 +52,8 @@
                 <div class="hidden md:block absolute top-7 left-[12%] right-[12%] h-px bg-gradient-to-r from-red-200 via-red-500 to-red-200"></div>
                 @foreach([
                     ['Elige tu curso',   'Polichado, o el programa completo con pintura y latonería.', 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'],
-                    ['Escoge una fecha', 'Salen dos cursos al mes. Reservas en una de las fechas abiertas.', 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
-                    ['Hablamos contigo', 'Te escribimos para cuadrar hospedaje, llegada y lo que haga falta.', 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z'],
+                    ['Escoge una fecha', 'Salen dos cursos al mes. Eliges una de las fechas abiertas.', 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
+                    ['Paga tu inscripción', 'Pagas el curso completo y tu cupo queda confirmado. Luego te escribimos para cuadrar la llegada.', 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z'],
                     ['Manos a la obra',  'Llegas al taller, aprendes haciendo y sales con tu certificado.', 'M5 13l4 4L19 7'],
                 ] as $i => $paso)
                 <div class="relative text-center">
@@ -79,7 +79,7 @@
                 @foreach($cursos as $curso)
                 @php
                     $ins = $misInscripciones->get($curso->id);
-                    $activa = $ins && in_array($ins->estado, ['pendiente','confirmada','completada'], true);
+                    $activa = $ins && in_array($ins->estado, ['pendiente','confirmada','completada'], true) && ! $ins->esReservaAntigua();
                     $libres = $curso->cuposDisponibles();
                     $destacado = $cursos->count() > 1 && (float) $curso->costo === (float) $maxCosto;
                     $lineas = array_values(array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', (string) $curso->descripcion))));
@@ -121,7 +121,7 @@
                                 <p class="text-3xl font-black {{ $destacado ? 'text-white' : 'text-gray-900' }}">${{ number_format($curso->costo, 0, ',', '.') }}</p>
                             </div>
                             <div class="flex flex-wrap gap-2 text-[11px] font-semibold">
-                                @if($curso->duracion)<span class="px-2.5 py-1 rounded-full {{ $destacado ? 'bg-white/10 text-gray-200' : 'bg-gray-100 text-gray-600' }}">{{ $curso->duracion }}</span>@endif
+                                <span class="px-2.5 py-1 rounded-full {{ $destacado ? 'bg-white/10 text-gray-200' : 'bg-gray-100 text-gray-600' }}">{{ $curso->duracionTexto() }}</span>
                                 <span class="px-2.5 py-1 rounded-full {{ $destacado ? 'bg-white/10 text-gray-200' : 'bg-gray-100 text-gray-600' }}">{{ $libres === null ? 'Cupos limitados' : $libres . ' cupos libres' }}</span>
                                 @if($curso->incluye_certificado ?? true)<span class="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-500">Con certificado</span>@endif
                             </div>
@@ -136,9 +136,13 @@
                         @if($activa)
                             <div class="rounded-xl px-4 py-3 flex items-center justify-between {{ $destacado ? 'bg-white/5' : 'bg-gray-50 border border-gray-100' }}">
                                 <span class="px-2.5 py-1 text-xs rounded-full font-semibold {{ $ins->estadoColor() }}">{{ $ins->estadoEtiqueta() }}</span>
-                                @auth @if(auth()->user()->tieneRol('Cliente'))<a href="{{ route('mi-cuenta.cursos') }}" class="text-sm font-semibold {{ $destacado ? 'text-red-400' : 'text-red-600' }}">Ver mi inscripción →</a>@endif @endauth
+                                @if($ins->estado === 'pendiente' && $ins->venta?->estado === 'pendiente')
+                                    <a href="{{ route('checkout.pago', $ins->venta->numero_orden) }}" class="text-sm font-bold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg transition">Pagar ahora</a>
+                                @else
+                                    <a href="{{ route('mi-cuenta.cursos') }}" class="text-sm font-semibold {{ $destacado ? 'text-red-400' : 'text-red-600' }}">Ver mi inscripción →</a>
+                                @endif
                             </div>
-                        @elseif($libres !== null && $libres <= 0)
+                        @elseif($libres !== null && $libres <= 0 && ! $ins?->esReservaAntigua())
                             <div class="rounded-xl text-sm text-center py-3 font-medium {{ $destacado ? 'bg-white/5 text-gray-400' : 'bg-gray-100 text-gray-500' }}">Cupos agotados por ahora</div>
                         @elseif($curso->fechas->isEmpty())
                             <p class="text-sm mb-3 {{ $suave }}">Estamos definiendo las próximas fechas. Escríbenos y te avisamos primero.</p>
@@ -161,8 +165,16 @@
                                         </label>
                                         @endforeach
                                     </div>
-                                    <button class="w-full bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl py-3 text-sm transition shadow-lg shadow-red-600/20">Reservar y ver mi comprobante</button>
-                                    <p class="text-[11px] text-gray-400">Recibirás un comprobante para coordinar el abono por WhatsApp.</p>
+                                    <p class="text-xs font-semibold {{ $suave }} pt-1">¿Cómo vas a pagar?</p>
+                                    <select name="metodo_pago_id" required
+                                            class="w-full rounded-xl border px-3 py-2.5 text-sm {{ $destacado ? 'bg-white/5 border-white/15 text-gray-100' : 'bg-white border-gray-200 text-gray-700' }}">
+                                        <option value="" class="text-gray-700">Elige un método de pago</option>
+                                        @foreach($metodosPago as $m)
+                                            <option value="{{ $m->id }}" class="text-gray-700" @selected((int) old('metodo_pago_id') === $m->id)>{{ $m->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                    <button class="w-full bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl py-3 text-sm transition shadow-lg shadow-red-600/20">Inscribirme y pagar ${{ number_format($curso->costo, 0, ',', '.') }}</button>
+                                    <p class="text-[11px] text-gray-400">El curso se paga completo. Tu cupo queda apartado 24 horas mientras haces el pago.</p>
                                 </form>
                                 @else
                                 <p class="text-xs text-center text-gray-400">Las reservas se hacen desde una cuenta de cliente.</p>
@@ -170,8 +182,8 @@
                             @else
                                 <p class="text-sm mb-3 {{ $suave }}">Próximas fechas: {{ $curso->fechas->take(3)->map(fn ($f) => $f->etiqueta($curso->dias()))->implode(' · ') }}</p>
                                 <div class="grid grid-cols-2 gap-2">
-                                    <a href="{{ route('register') }}" class="text-center bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl py-3 text-sm transition">Crear cuenta</a>
-                                    <a href="{{ route('login') }}" class="text-center border font-bold rounded-xl py-3 text-sm transition {{ $destacado ? 'border-white/20 text-white hover:bg-white/10' : 'border-gray-300 text-gray-700 hover:bg-gray-50' }}">Ya tengo cuenta</a>
+                                    <a href="{{ route('register', ['volver' => '/cursos#curso-' . $curso->id]) }}" class="text-center bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl py-3 text-sm transition">Crear cuenta</a>
+                                    <a href="{{ route('login', ['volver' => '/cursos#curso-' . $curso->id]) }}" class="text-center border font-bold rounded-xl py-3 text-sm transition {{ $destacado ? 'border-white/20 text-white hover:bg-white/10' : 'border-gray-300 text-gray-700 hover:bg-gray-50' }}">Ya tengo cuenta</a>
                                 </div>
                             @endauth
                         @endif
@@ -193,7 +205,7 @@
                 <div class="max-w-xl">
                     <h3 class="text-xl font-extrabold">¿Vienes de otra ciudad?</h3>
                     <p class="text-gray-300 text-sm mt-2 leading-relaxed">
-                        Una vez reservas tu fecha, nos comunicamos contigo para cuadrar el hospedaje y todos los detalles del viaje.
+                        Cuando pagas tu inscripción, nos comunicamos contigo para cuadrar el hospedaje y todos los detalles del viaje.
                         Tú solo preocúpate de llegar con ganas de aprender.
                     </p>
                 </div>

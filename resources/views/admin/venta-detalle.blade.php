@@ -38,10 +38,10 @@
     <div class="lg:col-span-2 space-y-6">
 
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-            <div class="px-5 py-3 border-b border-gray-50 text-sm font-bold text-gray-800">Productos</div>
+            <div class="px-5 py-3 border-b border-gray-50 text-sm font-bold text-gray-800">Detalle</div>
             <table class="w-full text-sm">
                 <thead class="bg-gray-50"><tr class="text-xs text-gray-400 uppercase text-left">
-                    <th class="px-5 py-2.5">Producto</th><th class="px-3 py-2.5 text-center">Cant.</th><th class="px-3 py-2.5 text-right">Precio</th><th class="px-5 py-2.5 text-right">Subtotal</th>
+                    <th class="px-5 py-2.5">Descripción</th><th class="px-3 py-2.5 text-center">Cant.</th><th class="px-3 py-2.5 text-right">Precio</th><th class="px-5 py-2.5 text-right">Subtotal</th>
                 </tr></thead>
                 <tbody class="divide-y divide-gray-50">
                     @foreach($venta->detalleProductos as $d)
@@ -50,6 +50,14 @@
                         <td class="px-3 py-3 text-center text-gray-600">{{ $d->cantidad }}</td>
                         <td class="px-3 py-3 text-right text-gray-600">${{ number_format($d->precio_unitario, 0, ',', '.') }}</td>
                         <td class="px-5 py-3 text-right font-semibold">${{ number_format($d->subtotal, 0, ',', '.') }}</td>
+                    </tr>
+                    @endforeach
+                    @foreach($venta->detalleCursos as $c)
+                    <tr>
+                        <td class="px-5 py-3 text-gray-800">Curso: {{ $c->curso?->nombre ?? 'Curso' }}</td>
+                        <td class="px-3 py-3 text-center text-gray-600">1</td>
+                        <td class="px-3 py-3 text-right text-gray-600">${{ number_format($c->precio_unitario, 0, ',', '.') }}</td>
+                        <td class="px-5 py-3 text-right font-semibold">${{ number_format($c->subtotal, 0, ',', '.') }}</td>
                     </tr>
                     @endforeach
                 </tbody>

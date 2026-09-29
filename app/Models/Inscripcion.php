@@ -20,6 +20,7 @@ class Inscripcion extends Model
         'fecha_preferida',
         'fecha_confirmada',
         'notas',
+        'venta_id',
     ];
 
     protected $casts = [
@@ -65,8 +66,8 @@ class Inscripcion extends Model
     public function estadoEtiqueta(): string
     {
         return match ($this->estado) {
-            'pendiente'  => 'Solicitud enviada',
-            'confirmada' => 'Fecha confirmada',
+            'pendiente'  => 'Pendiente de pago',
+            'confirmada' => 'Inscrito',
             'completada' => 'Completado',
             'cancelada'  => 'Cancelada',
             default      => ucfirst((string) $this->estado),
@@ -82,5 +83,36 @@ class Inscripcion extends Model
             'cancelada'  => 'bg-gray-100 text-gray-500',
             default      => 'bg-gray-100 text-gray-600',
         };
+    }
+
+    /**
+     * Inscripción de antes de que los cursos se pagaran en línea: no tiene
+     * venta y quedó pendiente, así que el cliente puede volver a inscribirse y pagar.
+     */
+    public function esReservaAntigua(): bool
+    {
+        return $this->estado === 'pendiente' && $this->venta_id === null;
+    }
+
+    /**
+     * Estados a los que el taller puede pasar la inscripción desde el panel.
+     * No hay aprobación manual: queda "Inscrito" sola cuando se paga.
+     */
+    public function estadosPermitidos(): array
+    {
+        return match ($this->estado) {
+            'pendiente'  => $this->venta_id === null
+                ? ['pendiente', 'confirmada', 'cancelada']   // reserva antigua, sin venta
+                : ['pendiente', 'cancelada'],
+            'confirmada' => ['confirmada', 'completada', 'cancelada'],
+            'completada' => ['completada', 'confirmada'],     // por si se marcó por error
+            default      => [],
+        };
+    }
+
+    /** Venta con la que se paga la inscripción (null en inscripciones antiguas). */
+    public function venta()
+    {
+        return $this->belongsTo(Venta::class);
     }
 }

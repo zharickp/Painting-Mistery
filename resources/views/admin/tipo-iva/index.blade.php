@@ -55,8 +55,8 @@
                         </span>
                     </td>
                     <td class="px-5 py-3 text-center">
-                        <span class="px-2 py-0.5 text-xs rounded-full font-semibold {{ $tipo->activo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500' }}">
-                            {{ $tipo->activo ? 'Activo' : 'Inactivo' }}
+                        <span class="px-2 py-0.5 text-xs rounded-full font-semibold {{ $tipo->estado ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500' }}">
+                            {{ $tipo->estado ? 'Activo' : 'Inactivo' }}
                         </span>
                     </td>
                     @if ($puedeEditar)
@@ -67,10 +67,10 @@
                                 Editar
                             </a>
                             <form method="POST" action="{{ route('admin.tipo-iva.toggle', $tipo) }}"
-                                  onsubmit="return confirm('{{ $tipo->activo ? '¿Desactivar este tipo de IVA? No aparecerá para nuevos productos (los existentes lo conservan).' : '¿Activar este tipo de IVA?' }}')">
+                                  onsubmit="return confirm('{{ $tipo->estado ? '¿Desactivar este tipo de IVA? No aparecerá para nuevos productos (los existentes lo conservan).' : '¿Activar este tipo de IVA?' }}')">
                                 @csrf
-                                <button class="px-3 py-1 text-xs rounded-md font-medium transition {{ $tipo->activo ? 'bg-amber-50 hover:bg-amber-100 text-amber-700' : 'bg-green-50 hover:bg-green-100 text-green-700' }}">
-                                    {{ $tipo->activo ? 'Desactivar' : 'Activar' }}
+                                <button class="px-3 py-1 text-xs rounded-md font-medium transition {{ $tipo->estado ? 'bg-amber-50 hover:bg-amber-100 text-amber-700' : 'bg-green-50 hover:bg-green-100 text-green-700' }}">
+                                    {{ $tipo->estado ? 'Desactivar' : 'Activar' }}
                                 </button>
                             </form>
                         </div>

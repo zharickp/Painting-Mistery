@@ -13,7 +13,8 @@ class CursoController extends Controller
 {
     public function index(): View
     {
-        $cursos = Curso::withCount('inscripciones')
+        $cursos = Curso::with('fechasDisponibles')
+            ->withCount('inscripciones')
             ->withCount(['inscripciones as pendientes_count' => fn ($q) => $q->where('estado', 'pendiente')])
             ->orderByDesc('created_at')
             ->paginate(10);
@@ -33,11 +34,8 @@ class CursoController extends Controller
             'descripcion'          => ['nullable', 'string'],
             'costo'                => ['required', 'numeric', 'min:0'],
             'cupos'                => ['nullable', 'integer', 'min:1'],
-            'fecha_inicio'         => ['nullable', 'date'],
-            'fecha_fin'            => ['nullable', 'date', 'after_or_equal:fecha_inicio'],
             'ubicacion'            => ['nullable', 'string', 'max:150'],
-            'duracion'             => ['nullable', 'string', 'max:100'],
-            'dias'                 => ['required', 'integer', 'between:1,30'],
+            'duracion_dias'        => ['required', 'integer', 'between:1,30'],
             'requisitos'           => ['nullable', 'string'],
             'incluye_certificado'  => ['nullable', 'boolean'],
         ]);
@@ -47,18 +45,16 @@ class CursoController extends Controller
             'descripcion'  => $request->descripcion,
             'costo'        => $request->costo,
             'cupos'        => $request->cupos,
-            'fecha_inicio' => $request->fecha_inicio,
-            'fecha_fin'    => $request->fecha_fin,
             'estado'       => true,
             'ubicacion'           => $request->ubicacion,
-            'duracion'            => $request->duracion,
-            'dias'                => (int) $request->dias,
+            'duracion_dias'       => (int) $request->duracion_dias,
             'requisitos'          => $request->requisitos,
             'incluye_certificado' => $request->boolean('incluye_certificado'),
         ]);
 
-        return redirect()->route('admin.cursos.index')
-            ->with('success', 'Curso creado correctamente.');
+        // Las fechas se agregan en la edición del curso (tabla curso_fecha).
+        return redirect()->route('admin.cursos.edit', $curso)
+            ->with('success', 'Curso creado. Ahora agrega sus fechas.');
     }
 
     public function edit(Curso $curso): View
@@ -75,11 +71,8 @@ class CursoController extends Controller
             'descripcion'          => ['nullable', 'string'],
             'costo'                => ['required', 'numeric', 'min:0'],
             'cupos'                => ['nullable', 'integer', 'min:1'],
-            'fecha_inicio'         => ['nullable', 'date'],
-            'fecha_fin'            => ['nullable', 'date', 'after_or_equal:fecha_inicio'],
             'ubicacion'            => ['nullable', 'string', 'max:150'],
-            'duracion'             => ['nullable', 'string', 'max:100'],
-            'dias'                 => ['required', 'integer', 'between:1,30'],
+            'duracion_dias'        => ['required', 'integer', 'between:1,30'],
             'requisitos'           => ['nullable', 'string'],
             'incluye_certificado'  => ['nullable', 'boolean'],
         ]);
@@ -89,11 +82,8 @@ class CursoController extends Controller
             'descripcion'  => $request->descripcion,
             'costo'        => $request->costo,
             'cupos'        => $request->cupos,
-            'fecha_inicio' => $request->fecha_inicio,
-            'fecha_fin'    => $request->fecha_fin,
             'ubicacion'           => $request->ubicacion,
-            'duracion'            => $request->duracion,
-            'dias'                => (int) $request->dias,
+            'duracion_dias'       => (int) $request->duracion_dias,
             'requisitos'          => $request->requisitos,
             'incluye_certificado' => $request->boolean('incluye_certificado'),
         ]);
