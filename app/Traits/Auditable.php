@@ -48,7 +48,7 @@ trait Auditable
      */
     public function auditoriaOcultos(): array
     {
-        $base = ['password', 'password_confirmation', 'remember_token', 'verification_code', 'code_expires_at'];
+        $base = ['password', 'password_confirmation', 'remember_token', 'codigo_verificacion', 'vencimiento_codigo'];
 
         if (property_exists($this, 'auditoriaOcultos') && is_array($this->auditoriaOcultos)) {
             return array_values(array_unique(array_merge($base, $this->auditoriaOcultos)));

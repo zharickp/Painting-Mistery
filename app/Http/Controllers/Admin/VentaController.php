@@ -47,7 +47,7 @@ class VentaController extends Controller
 
     public function show(int $ventaId): View
     {
-        $venta = Venta::with(['canceladaPor', 'pagoConfirmadoPor', 'usuario', 'detalleProductos.producto', 'detalleCursos.curso', 'pago.metodoPago'])->findOrFail($ventaId);
+        $venta = Venta::with(['canceladoPor', 'confirmadoPor', 'usuario', 'detalleProductos.producto', 'detalleCursos.curso', 'pago.metodoPago'])->findOrFail($ventaId);
 
         return view('admin.venta-detalle', compact('venta'));
     }
@@ -60,7 +60,8 @@ class VentaController extends Controller
             return back()->with('error', 'Solo se puede confirmar el pago de una orden pendiente.');
         }
 
-        // Confirmación manual (p. ej. pago en efectivo en el taller): sin método indicado se registra como Efectivo.
+        // Confirmación manual desde el panel (por ejemplo, cuando el taller verifica el pago):
+        // queda registrado con el método que eligió el cliente.
         $svc->confirmarPago($venta, auth()->user(), 'panel administrativo');
 
         return back()->with('success', "Pago confirmado. La orden {$venta->numero_orden} quedó como Pagada.");

@@ -139,7 +139,7 @@ class ProductoController extends Controller
 
         return $producto->colores()->create([
             'nombre' => $nombre,
-            'hex'    => $hex,
+            'codigo_color' => $hex,
             'orden'  => $orden + 1,
         ]);
     }
@@ -208,7 +208,7 @@ class ProductoController extends Controller
                 ->where('producto_id', $producto->id)
                 ->update([
                     'nombre' => $nombre,
-                    'hex'    => $datos['hex'] ?? null,
+                    'codigo_color' => $datos['hex'] ?? null,
                 ]);
         }
     }
@@ -359,8 +359,8 @@ class ProductoController extends Controller
         AuditoriaService::registrar([
             'accion'            => 'eliminado',
             'modulo'            => 'Producto',
-            'registro_id'       => $producto->id,
-            'registro_etiqueta' => $producto->nombre,
+            'registro_afectado'       => $producto->id,
+            'nombre_registro' => $producto->nombre,
             'descripcion'       => "Eliminó una foto del producto \"{$producto->nombre}\""
                                    . ($colorEliminado ? " y el color \"{$colorEliminado}\", que quedó sin fotos" : ''),
         ]);
@@ -390,8 +390,8 @@ class ProductoController extends Controller
         AuditoriaService::registrar([
             'accion'            => 'eliminado',
             'modulo'            => 'Producto',
-            'registro_id'       => $producto->id,
-            'registro_etiqueta' => $producto->nombre,
+            'registro_afectado'       => $producto->id,
+            'nombre_registro' => $producto->nombre,
             'descripcion'       => "Eliminó el color \"{$nombre}\" ({$fotos->count()} foto(s)) del producto \"{$producto->nombre}\"",
         ]);
 

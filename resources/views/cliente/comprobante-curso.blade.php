@@ -76,12 +76,12 @@
         </div>
 
         <div class="rounded-xl border border-slate-100 divide-y divide-slate-100 text-sm mb-8">
-            <div class="flex justify-between px-4 py-3"><span class="text-slate-500">Valor del curso</span><span class="font-bold text-slate-800">${{ number_format($curso->costo, 0, ',', '.') }}</span></div>
+            <div class="flex justify-between px-4 py-3"><span class="text-slate-500">Valor del curso</span><span class="font-bold text-slate-800">${{ number_format($curso->precio, 0, ',', '.') }}</span></div>
             <div class="flex justify-between px-4 py-3"><span class="text-slate-500">Pago</span><span class="font-semibold text-slate-700">{{ $pago ? ($pago->metodoPago?->nombre ?? 'Pago') . ' · ' . $pago->estadoEtiqueta() : 'Por registrar' }}</span></div>
             @if($ins->venta?->numero_orden)<div class="flex justify-between px-4 py-3"><span class="text-slate-500">N.º de orden</span><span class="font-mono text-slate-700">{{ $ins->venta->numero_orden }}</span></div>@endif
             @if($curso->incluye_certificado ?? true)<div class="flex justify-between px-4 py-3"><span class="text-slate-500">Certificado</span><span class="font-semibold text-emerald-600">Incluido al finalizar</span></div>@endif
-            @if($curso->requisitos)<div class="flex justify-between gap-6 px-4 py-3"><span class="text-slate-500 shrink-0">Debes traer</span><span class="text-slate-700 text-right">{{ $curso->requisitos }}</span></div>@endif
-            @if($ins->notas)<div class="flex justify-between gap-6 px-4 py-3"><span class="text-slate-500 shrink-0">Indicaciones</span><span class="text-slate-700 text-right">{{ $ins->notas }}</span></div>@endif
+            @if($curso->materiales)<div class="flex justify-between gap-6 px-4 py-3"><span class="text-slate-500 shrink-0">Debes traer</span><span class="text-slate-700 text-right">{{ $curso->materiales }}</span></div>@endif
+            @if($ins->indicaciones)<div class="flex justify-between gap-6 px-4 py-3"><span class="text-slate-500 shrink-0">Indicaciones</span><span class="text-slate-700 text-right">{{ $ins->indicaciones }}</span></div>@endif
         </div>
 
         <div class="mb-8">

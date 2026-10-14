@@ -46,7 +46,7 @@ class AdministradorSeeder extends Seeder
                 'primer_apellido'      => 'Painting Mistery',
                 'password'             => $password, // el modelo la guarda cifrada
                 'estado'               => true,
-                'correo_verificado_at' => now(),
+                'fecha_verificacion_correo' => now(),
             ]
         );
 

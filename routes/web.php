@@ -43,9 +43,9 @@ Route::get('/cursos/{curso}/inscribirse', fn (int $curso) => redirect(route('aca
 Route::get('/tienda', [TiendaController::class, 'index'])->name('tienda.index');
 Route::get('/productos/{producto}', [PublicProductoController::class, 'show'])->name('producto.show');
 
-// ── Reseñas de productos (solo usuarios con sesión: quedan ligadas al usuario) ───
-Route::post('/productos/{producto}/resenas', [ResenaController::class, 'store'])
-    ->middleware(['auth', 'throttle:10,1'])
+// ── Reseña del taller (solo clientes con sesión: queda ligada al usuario) ───
+Route::post('/resenas', [ResenaController::class, 'store'])
+    ->middleware(['auth', 'role:Cliente', 'throttle:10,1'])
     ->name('resenas.store');
 
 // ─── Invitados ────────────────────────────────────────────────────────────────

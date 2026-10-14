@@ -34,8 +34,8 @@
                         @if($ins->fechaTexto())<p><strong>Fecha:</strong> {{ $ins->fechaTexto() }}</p>@endif
                         <p><strong>Lugar:</strong> {{ $ins->curso->ubicacion ?: 'Taller Painting Mistery, Melgar – Tolima' }}</p>
                         <p><strong>Duración:</strong> {{ $ins->curso->duracionTexto() }}</p>
-                        @if($ins->curso->requisitos)<p><strong>Debes traer:</strong> {{ $ins->curso->requisitos }}</p>@endif
-                        @if($ins->notas)<p><strong>Indicaciones:</strong> {{ $ins->notas }}</p>@endif
+                        @if($ins->curso->materiales)<p><strong>Debes traer:</strong> {{ $ins->curso->materiales }}</p>@endif
+                        @if($ins->indicaciones)<p><strong>Indicaciones:</strong> {{ $ins->indicaciones }}</p>@endif
                         @if($ins->curso->incluye_certificado ?? true)<p class="text-green-700">Recibirás certificado al finalizar.</p>@endif
                     </div>
                 @elseif($ins->estado === 'pendiente' && $ins->venta?->estado === 'pendiente')
@@ -69,7 +69,7 @@
             <div class="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col">
                 <div class="flex items-start justify-between gap-3 mb-2">
                     <h3 class="font-bold text-slate-800">{{ $c->nombre }}</h3>
-                    <span class="text-red-600 font-extrabold shrink-0">${{ number_format($c->costo, 0, ',', '.') }}</span>
+                    <span class="text-red-600 font-extrabold shrink-0">${{ number_format($c->precio, 0, ',', '.') }}</span>
                 </div>
                 <p class="text-sm text-slate-500 mb-3 line-clamp-3">{{ $c->descripcion }}</p>
                 <div class="flex flex-wrap gap-2 text-[11px] text-slate-500 mb-4">

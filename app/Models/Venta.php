@@ -35,16 +35,16 @@ class Venta extends Model
         'tipo_documento',
         'numero_documento',
         // Trazabilidad
-        'cancelada_at',
-        'cancelada_por',
+        'fecha_cancelacion',
+        'cancelado_por',
         'motivo_cancelacion',
-        'pago_confirmado_por',
+        'confirmado_por',
     ];
 
     protected $casts = [
         'total'           => 'decimal:2',
         'fecha'           => 'datetime',
-        'cancelada_at'    => 'datetime',
+        'fecha_cancelacion' => 'datetime',
     ];
 
     // ─── Relaciones ────────────────────────────────────────────
@@ -75,14 +75,14 @@ class Venta extends Model
         return $this->hasOne(Pago::class)->latestOfMany();
     }
 
-    public function canceladaPor()
+    public function canceladoPor()
     {
-        return $this->belongsTo(Usuario::class, 'cancelada_por');
+        return $this->belongsTo(Usuario::class, 'cancelado_por');
     }
 
-    public function pagoConfirmadoPor()
+    public function confirmadoPor()
     {
-        return $this->belongsTo(Usuario::class, 'pago_confirmado_por');
+        return $this->belongsTo(Usuario::class, 'confirmado_por');
     }
 
     // ─── Estado de la orden (fuente única: venta.estado) ───────

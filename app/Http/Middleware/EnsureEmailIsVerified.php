@@ -10,7 +10,7 @@ class EnsureEmailIsVerified
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()->check() && ! auth()->user()->correo_verificado_at) {
+        if (auth()->check() && ! auth()->user()->fecha_verificacion_correo) {
             return redirect()->route('verification.notice')
                 ->with('info', 'Debes verificar tu correo para continuar.');
         }

@@ -17,8 +17,8 @@ class AuditableObserver
         AuditoriaService::registrar([
             'accion'             => 'creado',
             'modulo'             => $model->auditoriaTipo(),
-            'registro_id'        => $model->getKey(),
-            'registro_etiqueta'  => method_exists($model, 'auditoriaEtiqueta') ? $model->auditoriaEtiqueta() : null,
+            'registro_afectado'        => $model->getKey(),
+            'nombre_registro'  => method_exists($model, 'auditoriaEtiqueta') ? $model->auditoriaEtiqueta() : null,
             'descripcion'        => 'Creó ' . $model->auditoriaTipo() . ($model->auditoriaEtiqueta() ? ' "' . $model->auditoriaEtiqueta() . '"' : ''),
             'valores_anteriores' => [],
             'valores_nuevos'     => $nuevos,
@@ -58,8 +58,8 @@ class AuditableObserver
         AuditoriaService::registrar([
             'accion'             => $accion,
             'modulo'             => $model->auditoriaTipo(),
-            'registro_id'        => $model->getKey(),
-            'registro_etiqueta'  => $etiqueta,
+            'registro_afectado'        => $model->getKey(),
+            'nombre_registro'  => $etiqueta,
             'descripcion'        => $verbo . ' ' . $model->auditoriaTipo() . ($etiqueta ? ' "' . $etiqueta . '"' : '') . $sufijo,
             'valores_anteriores' => $antes,
             'valores_nuevos'     => $desp,
@@ -77,8 +77,8 @@ class AuditableObserver
         AuditoriaService::registrar([
             'accion'             => 'eliminado',
             'modulo'             => $model->auditoriaTipo(),
-            'registro_id'        => $model->getKey(),
-            'registro_etiqueta'  => method_exists($model, 'auditoriaEtiqueta') ? $model->auditoriaEtiqueta() : null,
+            'registro_afectado'        => $model->getKey(),
+            'nombre_registro'  => method_exists($model, 'auditoriaEtiqueta') ? $model->auditoriaEtiqueta() : null,
             'descripcion'        => 'Eliminó ' . $model->auditoriaTipo() . ($model->auditoriaEtiqueta() ? ' "' . $model->auditoriaEtiqueta() . '"' : ''),
             'valores_anteriores' => $antes,
             'valores_nuevos'     => [],

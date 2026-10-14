@@ -13,7 +13,7 @@ class LandingController extends Controller
     public function index()
     {
         $productosDestacados = Producto::where('estado', true)
-            ->with(['categoria', 'imagenes', 'inventario', 'resenas', 'colores'])
+            ->with(['categoria', 'imagenes', 'inventario', 'colores'])
             ->orderBy('created_at', 'desc')
             ->take(6)
             ->get();
@@ -26,15 +26,17 @@ class LandingController extends Controller
 
         $banners = Banner::activos()->get();
         // Reseñas del inicio: las más recientes de 4 o 5 estrellas ya aprobadas.
-        $resenasClientes = Resena::with(['usuario', 'producto'])
+        $resenasClientes = Resena::with('usuario')
             ->aprobadas()
-            ->whereNotNull('usuario_id')
             ->where('calificacion', '>=', 4)
             ->latest()
             ->take(3)
             ->get();
 
-        return view('landing', compact('productosDestacados', 'cursosDestacados', 'banners', 'resenasClientes'));
+        // La reseña del cliente que está viendo la página (puede estar pendiente o rechazada).
+        $miResena = auth()->user()?->resena;
+
+        return view('landing', compact('productosDestacados', 'cursosDestacados', 'banners', 'resenasClientes', 'miResena'));
     }
 
     public function nosotros()
@@ -47,7 +49,7 @@ class LandingController extends Controller
         $cursos = Curso::where('estado', true)->with(['fechas' => fn ($q) => $q->whereDate('fecha', '>=', today())])->orderBy('id')->get();
 
         $misInscripciones = auth()->check()
-            ? Inscripcion::with('venta')->where('usuario_id', auth()->id())->get()->keyBy('curso_id')
+            ? Inscripcion::with('cursoFecha')->where('usuario_id', auth()->id())->get()->keyBy('curso_id')
             : collect();
 
         $metodosPago = \App\Models\MetodoPago::paraCheckout()->get();

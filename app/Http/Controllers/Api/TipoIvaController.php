@@ -39,9 +39,9 @@ class TipoIvaController extends Controller
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["descripcion","porcentaje"],
+                required: ["nombre","porcentaje"],
                 properties: [
-                    new OA\Property(property: "descripcion", type: "string"),
+                    new OA\Property(property: "nombre", type: "string"),
                     new OA\Property(property: "porcentaje", type: "number", example: 19)
                 ]
             )
@@ -55,7 +55,7 @@ class TipoIvaController extends Controller
     {
         try {
             $data = $request->validate([
-                'descripcion' => 'required|string|max:100',
+                'nombre' => 'required|string|max:40',
                 'porcentaje' => 'required|numeric|min:0'
             ]);
 
@@ -118,7 +118,7 @@ class TipoIvaController extends Controller
             required: true,
             content: new OA\JsonContent(
                 properties: [
-                    new OA\Property(property: "descripcion", type: "string"),
+                    new OA\Property(property: "nombre", type: "string"),
                     new OA\Property(property: "porcentaje", type: "number")
                 ]
             )
@@ -134,7 +134,7 @@ class TipoIvaController extends Controller
         try {
             $iva = TipoIva::findOrFail($id);
 
-            $data = $request->only(['descripcion', 'porcentaje']);
+            $data = $request->only(['nombre', 'porcentaje']);
 
             if (empty(array_filter($data))) {
                 return response()->json([
@@ -143,7 +143,7 @@ class TipoIvaController extends Controller
             }
 
             $validated = $request->validate([
-                'descripcion' => 'sometimes|string|max:100',
+                'nombre' => 'sometimes|string|max:40',
                 'porcentaje' => 'sometimes|numeric|min:0'
             ]);
 

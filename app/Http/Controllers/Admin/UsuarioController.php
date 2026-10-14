@@ -62,7 +62,7 @@ class UsuarioController extends Controller
             'telefono'             => $request->telefono,
             'password'             => $request->password,
             'estado'               => true,
-            'correo_verificado_at' => now(),
+            'fecha_verificacion_correo' => now(),
         ]);
 
         $usuario->roles()->attach($request->rol_id);

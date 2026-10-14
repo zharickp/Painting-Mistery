@@ -25,14 +25,14 @@
                     <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                     </svg>
-                    Especialistas en pintura automotriz
+                    Pintura y personalización de motos
                 </span>
                 <h1 class="text-4xl md:text-5xl font-extrabold leading-tight mb-3 text-white">
                     Tu moto, <span class="text-red-500">tu estilo.</span>
                 </h1>
                 <p class="text-gray-300 text-base md:text-lg max-w-xl">
                     Accesorios, repuestos y personalización para tu moto.
-                    Aprende a pintar y reparar con nuestros cursos especializados.
+                    También dictamos cursos de pintura en el taller.
                 </p>
             </div>
         </div>
@@ -154,7 +154,7 @@
                                         · {{ $proxima ? 'Próxima fecha: ' . \App\Models\CursoFecha::etiquetaDe($proxima->fecha) : 'Fecha por definir' }}
                                     </p>
                                 </div>
-                                <span class="shrink-0 text-lg font-bold text-white">${{ number_format($curso->costo, 0, ',', '.') }}</span>
+                                <span class="shrink-0 text-lg font-bold text-white">${{ number_format($curso->precio, 0, ',', '.') }}</span>
                             </a>
                         @endforeach
                     </div>
@@ -166,12 +166,12 @@
     </section>
 
     {{-- RESEÑAS --}}
-    <section class="py-16 bg-white">
+    <section id="resenas" class="scroll-mt-24 py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-end justify-between gap-4 mb-8">
                 <div>
                     <h2 class="font-display uppercase text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">Reseñas</h2>
-                    <p class="text-gray-500 text-sm mt-1">Opiniones de clientes sobre nuestros productos.</p>
+                    <p class="text-gray-500 text-sm mt-1">Lo que dicen los clientes del taller.</p>
                 </div>
                 <a href="https://search.google.com/local/writereview?placeid=ChIJv7Zab8DfPo4R1AyV2wRvzJM" target="_blank" rel="noopener"
                    class="shrink-0 text-sm font-semibold text-red-600 hover:text-red-700">Opinar en Google →</a>
@@ -191,9 +191,7 @@
                                 <div class="h-9 w-9 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-xs shrink-0">{{ mb_strtoupper(mb_substr($r->nombreMostrar(), 0, 1)) }}</div>
                                 <div class="min-w-0">
                                     <p class="font-semibold text-gray-900">{{ $r->nombreMostrar() }}</p>
-                                    @if ($r->producto)
-                                        <a href="{{ route('producto.show', $r->producto_id) }}" class="text-gray-500 hover:text-red-600 text-xs">{{ $r->producto->nombre }}</a>
-                                    @endif
+                                    <p class="text-gray-500 text-xs">{{ $r->created_at->locale('es')->isoFormat('MMMM [de] YYYY') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -201,6 +199,65 @@
                 </div>
             @else
                 <p class="text-gray-500 text-sm">Todavía no hay reseñas publicadas.</p>
+            @endif
+
+            {{-- Dejar o editar la reseña del cliente (el personal del taller no ve este cuadro) --}}
+            @if (! auth()->check() || auth()->user()->tieneRol('Cliente'))
+            <div class="mt-10 max-w-2xl rounded-2xl border border-gray-200 p-6">
+                @if (session('resena_ok'))
+                    <p class="mb-4 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">{{ session('resena_ok') }}</p>
+                @endif
+
+                @auth
+                        <p class="font-semibold text-gray-900 mb-1">{{ $miResena ? 'Tu reseña' : 'Cuéntanos cómo te fue' }}</p>
+                        @if ($miResena?->estado === 'pendiente')
+                            <p class="text-xs text-amber-700 mb-3">La estamos revisando; la verás publicada cuando la aprobemos.</p>
+                        @elseif ($miResena?->estado === 'rechazada')
+                            <p class="text-xs text-rose-700 mb-3">No la publicamos. Puedes editarla y enviarla de nuevo.</p>
+                        @elseif ($miResena?->estado === 'aprobada')
+                            <p class="text-xs text-gray-500 mb-3">Está publicada. Si la editas, vuelve a revisión.</p>
+                        @else
+                            <p class="text-xs text-gray-500 mb-3">Sobre un trabajo de pintura, un curso o una compra en la tienda.</p>
+                        @endif
+
+                        <form method="POST" action="{{ route('resenas.store') }}" class="space-y-3">
+                            @csrf
+                            <input type="hidden" name="calificacion" id="resCalificacion" value="{{ old('calificacion', $miResena?->calificacion) }}">
+                            <div class="flex items-center gap-1" id="resEstrellas">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <button type="button" data-valor="{{ $i }}" aria-label="{{ $i }} de 5 estrellas" class="res-estrella">
+                                        <svg class="h-7 w-7 text-gray-200" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                    </button>
+                                @endfor
+                            </div>
+                            @error('calificacion')<p class="text-xs text-rose-600">{{ $message }}</p>@enderror
+                            <textarea name="comentario" rows="3" maxlength="1000" placeholder="¿Qué tal te pareció?"
+                                      class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-red-400 transition resize-none bg-white">{{ old('comentario', $miResena?->comentario) }}</textarea>
+                            @error('comentario')<p class="text-xs text-rose-600">{{ $message }}</p>@enderror
+                            <button class="bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl py-3 px-5 text-sm transition">{{ $miResena ? 'Actualizar reseña' : 'Enviar reseña' }}</button>
+                        </form>
+                        <script>
+                            (function () {
+                                const campo = document.getElementById('resCalificacion');
+                                const botones = document.querySelectorAll('#resEstrellas .res-estrella');
+                                const pintar = () => botones.forEach(b => {
+                                    const svg = b.querySelector('svg');
+                                    const activa = Number(b.dataset.valor) <= Number(campo.value || 0);
+                                    svg.classList.toggle('text-yellow-400', activa);
+                                    svg.classList.toggle('text-gray-200', !activa);
+                                });
+                                botones.forEach(b => b.addEventListener('click', () => { campo.value = b.dataset.valor; pintar(); }));
+                                pintar();
+                            })();
+                        </script>
+                @else
+                    <p class="text-sm text-gray-600">
+                        ¿Ya nos conoces?
+                        <a href="{{ route('login', ['volver' => '/#resenas']) }}" class="text-red-600 font-semibold hover:underline">Inicia sesión</a>
+                        y deja tu reseña.
+                    </p>
+                @endauth
+            </div>
             @endif
 
         </div>
@@ -215,9 +272,9 @@
                 @php
                     $faqs = [
                         ['¿Cuánto tarda un trabajo de pintura?', 'Depende del diseño. El tiempo se acuerda contigo al momento de agendar.'],
-                        ['¿Aceptan diseños personalizados?', 'Claro. Puedes traernos tu idea o referencia y la adaptamos a tu moto — escríbenos por WhatsApp para cotizar tu diseño.'],
+                        ['¿Aceptan diseños personalizados?', 'Claro. Puedes traernos tu idea o referencia y la adaptamos a tu moto. Escríbenos por WhatsApp para cotizar tu diseño.'],
                         ['¿Qué medios de pago reciben?', 'En la tienda puedes elegir tarjeta, PSE, Nequi o Daviplata al finalizar la compra. Para trabajos de taller también recibimos transferencia o efectivo.'],
-                        ['¿Los productos tienen garantía?', 'Sí, todos nuestros productos y accesorios cuentan con garantía por defectos de fábrica. Los trabajos de pintura tienen garantía sobre el acabado — consulta condiciones con nosotros.'],
+                        ['¿Los productos tienen garantía?', 'Sí, todos nuestros productos y accesorios cuentan con garantía por defectos de fábrica. Los trabajos de pintura tienen garantía sobre el acabado; pregúntanos las condiciones.'],
                     ];
                 @endphp
                 @foreach($faqs as $i => $faq)
@@ -245,7 +302,7 @@
                 <div>
                     <span class="text-red-400 font-semibold text-xs uppercase tracking-widest">¿Hablamos?</span>
                     <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-2">Cotiza tu diseño o resuelve tus dudas</h2>
-                    <p class="text-gray-400 text-sm mt-2">Dirección, horario, mapa y formulario en un solo lugar.</p>
+                    <p class="text-gray-400 text-sm mt-2">En la página de contacto están la dirección, el horario y el mapa del taller.</p>
                 </div>
                 <div class="flex flex-wrap gap-3 shrink-0">
                     <a href="{{ route('contacto') }}" class="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition">Ir a contacto</a>

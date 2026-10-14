@@ -54,10 +54,7 @@ class Producto extends Model
     }
 
     /** Reseñas publicadas (aprobadas en el panel). */
-    public function resenas()
-    {
-        return $this->hasMany(Resena::class)->where('estado', 'aprobada')->orderByDesc('created_at');
-    }
+
 
     public function colores()
     {
@@ -94,7 +91,7 @@ class Producto extends Model
         return $this->colores->map(fn ($color) => [
             'id'     => $color->id,
             'nombre' => $color->nombre,
-            'hex'    => $color->hex ?: '#d1d5db',
+            'hex'    => $color->codigo_color ?: '#d1d5db',
         ])->all();
     }
 
@@ -121,29 +118,6 @@ class Producto extends Model
             ->whereNull('producto_color_id')
             ->pluck('ruta')
             ->all();
-    }
-
-    public function resumenResenas(): array
-    {
-        $resenas  = $this->resenas;
-        $total    = $resenas->count();
-        $promedio = $total ? round($resenas->avg('calificacion'), 1) : 0;
-
-        $distribucion = [];
-        for ($estrella = 5; $estrella >= 1; $estrella--) {
-            $cantidad = $resenas->where('calificacion', $estrella)->count();
-            $distribucion[] = [
-                'estrella'   => $estrella,
-                'cantidad'   => $cantidad,
-                'porcentaje' => $total ? round(($cantidad / $total) * 100) : 0,
-            ];
-        }
-
-        return [
-            'promedio'     => $promedio,
-            'total'        => $total,
-            'distribucion' => $distribucion,
-        ];
     }
 
     public function stockActual(): int

@@ -39,11 +39,11 @@ class CursoController extends Controller
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["nombre","costo"],
+                required: ["nombre","precio"],
                 properties: [
                     new OA\Property(property: "nombre", type: "string"),
                     new OA\Property(property: "descripcion", type: "string"),
-                    new OA\Property(property: "costo", type: "number"),
+                    new OA\Property(property: "precio", type: "number"),
                     new OA\Property(property: "cupos", type: "integer"),
                     new OA\Property(property: "estado", type: "boolean")
                 ]
@@ -60,7 +60,7 @@ class CursoController extends Controller
             $data = $request->validate([
                 'nombre' => 'required|string|max:100',
                 'descripcion' => 'nullable|string',
-                'costo' => 'required|numeric|min:0',
+                'precio' => 'required|numeric|min:0',
                 'cupos' => 'nullable|integer|min:0',
                 'estado' => 'nullable|boolean'
             ]);
@@ -126,7 +126,7 @@ class CursoController extends Controller
                 properties: [
                     new OA\Property(property: "nombre", type: "string"),
                     new OA\Property(property: "descripcion", type: "string"),
-                    new OA\Property(property: "costo", type: "number"),
+                    new OA\Property(property: "precio", type: "number"),
                     new OA\Property(property: "cupos", type: "integer"),
                     new OA\Property(property: "estado", type: "boolean")
                 ]
@@ -146,7 +146,7 @@ class CursoController extends Controller
             $data = $request->only([
                 'nombre',
                 'descripcion',
-                'costo',
+                'precio',
                 'cupos',
                 'estado'
             ]);
@@ -160,7 +160,7 @@ class CursoController extends Controller
             $validated = $request->validate([
                 'nombre' => 'sometimes|string|max:100',
                 'descripcion' => 'nullable|string',
-                'costo' => 'sometimes|numeric|min:0',
+                'precio' => 'sometimes|numeric|min:0',
                 'cupos' => 'nullable|integer|min:0',
                 'estado' => 'nullable|boolean'
             ]);

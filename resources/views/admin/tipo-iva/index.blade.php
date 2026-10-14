@@ -33,7 +33,7 @@
         <table class="w-full text-sm">
             <thead class="bg-gray-50">
                 <tr class="text-xs text-gray-400 uppercase tracking-wide text-left">
-                    <th class="px-5 py-3">Descripción</th>
+                    <th class="px-5 py-3">Nombre</th>
                     <th class="px-5 py-3 text-center">Porcentaje</th>
                     <th class="px-5 py-3 text-center">Productos</th>
                     <th class="px-5 py-3 text-center">Estado</th>
@@ -43,7 +43,7 @@
             <tbody class="divide-y divide-gray-50">
                 @forelse ($tiposIva as $tipo)
                 <tr class="hover:bg-gray-50 transition">
-                    <td class="px-5 py-3 font-medium text-gray-800">{{ $tipo->descripcion }}</td>
+                    <td class="px-5 py-3 font-medium text-gray-800">{{ $tipo->nombre }}</td>
                     <td class="px-5 py-3 text-center">
                         <span class="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs rounded-full font-medium">
                             {{ $tipo->porcentaje }}%

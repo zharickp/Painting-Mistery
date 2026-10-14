@@ -17,6 +17,12 @@ class CursoFecha extends Model
         return $this->belongsTo(Curso::class);
     }
 
+    /** Inscripciones de estudiantes para esta fecha. */
+    public function inscripciones()
+    {
+        return $this->hasMany(Inscripcion::class);
+    }
+
     public function fin(int $dias = 1)
     {
         return $this->fecha->copy()->addDays(max(1, $dias) - 1);

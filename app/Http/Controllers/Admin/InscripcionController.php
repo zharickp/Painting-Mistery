@@ -22,17 +22,18 @@ class InscripcionController extends Controller
     public function index(Curso $curso): View
     {
         $inscripciones = $curso->inscripciones()
-            ->with(['usuario', 'venta'])
-            ->orderByRaw("CASE estado WHEN 'pendiente' THEN 0 WHEN 'confirmada' THEN 1 WHEN 'completada' THEN 2 ELSE 3 END")
-            ->orderByDesc('created_at')
+            ->with(['usuario', 'cursoFecha'])
+            ->orderByRaw("CASE inscripcion.estado WHEN 'pendiente' THEN 0 WHEN 'confirmada' THEN 1 WHEN 'completada' THEN 2 ELSE 3 END")
+            ->orderByDesc('inscripcion.created_at')
             ->paginate(15);
+
+        $curso->load('fechas');
 
         return view('admin.cursos.inscripciones', compact('curso', 'inscripciones'));
     }
 
     public function update(Request $request, Inscripcion $inscripcion, OrdenEstadoService $estados): RedirectResponse
     {
-        $inscripcion->loadMissing('venta');
         $permitidos = $inscripcion->estadosPermitidos();
 
         if ($permitidos === []) {
@@ -40,11 +41,13 @@ class InscripcionController extends Controller
         }
 
         $request->validate([
-            'estado'           => ['required', Rule::in($permitidos)],
-            'fecha_confirmada' => ['nullable', 'date'],
-            'notas'            => ['nullable', 'string', 'max:1000'],
+            'estado'         => ['required', Rule::in($permitidos)],
+            // Solo una de las fechas publicadas de este mismo curso.
+            'curso_fecha_id' => ['required', Rule::exists('curso_fecha', 'id')->where('curso_id', $inscripcion->curso_id)],
+            'indicaciones'   => ['nullable', 'string', 'max:1000'],
         ], [
-            'estado.in' => 'Ese cambio de estado no está permitido. La inscripción se confirma sola cuando se paga.',
+            'estado.in'             => 'Ese cambio de estado no está permitido. La inscripción se confirma sola cuando se paga.',
+            'curso_fecha_id.exists' => 'Esa fecha no pertenece a este curso.',
         ]);
 
         // Cancelar la inscripción cancela también su venta (y libera el cupo).
@@ -54,9 +57,9 @@ class InscripcionController extends Controller
         }
 
         $inscripcion->update([
-            'estado'           => $request->estado,
-            'fecha_confirmada' => $request->fecha_confirmada,
-            'notas'            => $request->notas,
+            'estado'         => $request->estado,
+            'curso_fecha_id' => $request->curso_fecha_id,
+            'indicaciones'   => $request->indicaciones,
         ]);
 
         return back()->with('success', 'Inscripción actualizada.');

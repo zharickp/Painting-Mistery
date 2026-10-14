@@ -17,11 +17,11 @@
                 <span class="h-px w-8 bg-red-500"></span>Cursos en el taller<span class="h-px w-8 bg-red-500"></span>
             </span>
             <h1 class="text-4xl sm:text-6xl font-extrabold text-white mt-5 leading-[1.05]">
-                Aprende el <span class="text-red-500">arte</span> de<br class="hidden sm:block"> darle alma a una moto
+                Aprende a <span class="text-red-500">pintar</span><br class="hidden sm:block"> motos en el taller
             </h1>
             <p class="text-gray-300 max-w-2xl mx-auto mt-6 text-base sm:text-lg leading-relaxed">
                 Pintura, latonería y polichado en el mismo taller donde personalizamos motos y armamos accesorios.
-                Aquí la teoría dura poco: se pinta, se pule y te vas con el oficio en las manos.
+                Las clases son prácticas: pintas y pules piezas reales durante todo el curso.
             </p>
             <div class="flex flex-wrap justify-center gap-3 mt-8">
                 @foreach(['Dos cursos por mes', 'De lunes a viernes', 'Cupos limitados', 'Certificado al terminar'] as $chip)
@@ -46,13 +46,13 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
                 <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900">Así reservas tu lugar</h2>
-                <p class="text-gray-500 mt-2 text-sm">Cuatro pasos, sin vueltas.</p>
+                <p class="text-gray-500 mt-2 text-sm">Son cuatro pasos.</p>
             </div>
             <div class="relative grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-6">
                 <div class="hidden md:block absolute top-7 left-[12%] right-[12%] h-px bg-gradient-to-r from-red-200 via-red-500 to-red-200"></div>
                 @foreach([
                     ['Elige tu curso',   'Polichado, o el programa completo con pintura y latonería.', 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'],
-                    ['Escoge una fecha', 'Salen dos cursos al mes. Eliges una de las fechas abiertas.', 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
+                    ['Escoge una fecha', 'Hay dos cursos al mes. Eliges una de las fechas publicadas.', 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
                     ['Paga tu inscripción', 'Pagas el curso completo y tu cupo queda confirmado. Luego te escribimos para cuadrar la llegada.', 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z'],
                     ['Manos a la obra',  'Llegas al taller, aprendes haciendo y sales con tu certificado.', 'M5 13l4 4L19 7'],
                 ] as $i => $paso)
@@ -72,16 +72,16 @@
     <section class="pb-20 bg-white">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             @if($cursos->isEmpty())
-                <div class="text-center py-16 bg-gray-50 rounded-2xl border border-dashed border-gray-200 text-gray-500">Muy pronto abriremos nuevos cursos.</div>
+                <div class="text-center py-16 bg-gray-50 rounded-2xl border border-dashed border-gray-200 text-gray-500">Pronto publicaremos nuevos cursos.</div>
             @else
-            @php $maxCosto = $cursos->max('costo'); @endphp
+            @php $maxCosto = $cursos->max('precio'); @endphp
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 @foreach($cursos as $curso)
                 @php
                     $ins = $misInscripciones->get($curso->id);
                     $activa = $ins && in_array($ins->estado, ['pendiente','confirmada','completada'], true) && ! $ins->esReservaAntigua();
                     $libres = $curso->cuposDisponibles();
-                    $destacado = $cursos->count() > 1 && (float) $curso->costo === (float) $maxCosto;
+                    $destacado = $cursos->count() > 1 && (float) $curso->precio === (float) $maxCosto;
                     $lineas = array_values(array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', (string) $curso->descripcion))));
                     $intro = $lineas[0] ?? 'Curso práctico dictado en el taller.';
                     $puntos = array_slice($lineas, 1);
@@ -92,7 +92,7 @@
 
                     @if($destacado)
                         <div class="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-red-600/25 blur-3xl"></div>
-                        <span class="absolute top-5 right-5 text-[10px] font-black uppercase tracking-widest bg-red-600 text-white rounded-full px-3 py-1">El recorrido completo</span>
+                        <span class="absolute top-5 right-5 text-[10px] font-black uppercase tracking-widest bg-red-600 text-white rounded-full px-3 py-1">Curso completo</span>
                     @else
                         <div class="absolute left-0 top-0 h-full w-1.5 bg-red-600"></div>
                     @endif
@@ -118,7 +118,7 @@
                         <div class="mt-6 flex flex-wrap items-end justify-between gap-3">
                             <div>
                                 <p class="text-[11px] uppercase tracking-widest text-gray-400">Inversión</p>
-                                <p class="text-3xl font-black {{ $destacado ? 'text-white' : 'text-gray-900' }}">${{ number_format($curso->costo, 0, ',', '.') }}</p>
+                                <p class="text-3xl font-black {{ $destacado ? 'text-white' : 'text-gray-900' }}">${{ number_format($curso->precio, 0, ',', '.') }}</p>
                             </div>
                             <div class="flex flex-wrap gap-2 text-[11px] font-semibold">
                                 <span class="px-2.5 py-1 rounded-full {{ $destacado ? 'bg-white/10 text-gray-200' : 'bg-gray-100 text-gray-600' }}">{{ $curso->duracionTexto() }}</span>
@@ -127,8 +127,8 @@
                             </div>
                         </div>
 
-                        @if($curso->requisitos)
-                            <p class="mt-4 text-xs {{ $destacado ? 'text-gray-400' : 'text-gray-500' }}"><strong class="{{ $destacado ? 'text-gray-200' : 'text-gray-700' }}">Debes traer:</strong> {{ $curso->requisitos }}</p>
+                        @if($curso->materiales)
+                            <p class="mt-4 text-xs {{ $destacado ? 'text-gray-400' : 'text-gray-500' }}"><strong class="{{ $destacado ? 'text-gray-200' : 'text-gray-700' }}">Debes traer:</strong> {{ $curso->materiales }}</p>
                         @endif
 
                         {{-- Reserva --}}
@@ -145,7 +145,7 @@
                         @elseif($libres !== null && $libres <= 0 && ! $ins?->esReservaAntigua())
                             <div class="rounded-xl text-sm text-center py-3 font-medium {{ $destacado ? 'bg-white/5 text-gray-400' : 'bg-gray-100 text-gray-500' }}">Cupos agotados por ahora</div>
                         @elseif($curso->fechas->isEmpty())
-                            <p class="text-sm mb-3 {{ $suave }}">Estamos definiendo las próximas fechas. Escríbenos y te avisamos primero.</p>
+                            <p class="text-sm mb-3 {{ $suave }}">Todavía no hay fechas publicadas. Escríbenos y te avisamos cuando las haya.</p>
                             <a href="https://wa.me/573144557602?text={{ urlencode('Hola! Quiero información sobre las próximas fechas del ' . $curso->nombre) }}" target="_blank" rel="noopener"
                                class="block text-center bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl py-3 text-sm transition">Preguntar por WhatsApp</a>
                         @else
@@ -173,7 +173,7 @@
                                             <option value="{{ $m->id }}" class="text-gray-700" @selected((int) old('metodo_pago_id') === $m->id)>{{ $m->nombre }}</option>
                                         @endforeach
                                     </select>
-                                    <button class="w-full bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl py-3 text-sm transition shadow-lg shadow-red-600/20">Inscribirme y pagar ${{ number_format($curso->costo, 0, ',', '.') }}</button>
+                                    <button class="w-full bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl py-3 text-sm transition shadow-lg shadow-red-600/20">Inscribirme y pagar ${{ number_format($curso->precio, 0, ',', '.') }}</button>
                                     <p class="text-[11px] text-gray-400">El curso se paga completo. Tu cupo queda apartado 24 horas mientras haces el pago.</p>
                                 </form>
                                 @else
@@ -192,7 +192,7 @@
                         <a href="https://wa.me/573144557602?text={{ urlencode('Hola! Quisiera más información sobre el ' . $curso->nombre) }}" target="_blank" rel="noopener"
                            class="mt-4 flex items-center justify-center gap-2 rounded-xl border border-green-500/60 text-green-500 hover:bg-green-500 hover:text-white font-semibold py-2.5 text-sm transition">
                             <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                            Preguntar cualquier duda por WhatsApp
+                            Preguntar por WhatsApp
                         </a>
                     </div>
                 </article>
@@ -205,8 +205,7 @@
                 <div class="max-w-xl">
                     <h3 class="text-xl font-extrabold">¿Vienes de otra ciudad?</h3>
                     <p class="text-gray-300 text-sm mt-2 leading-relaxed">
-                        Cuando pagas tu inscripción, nos comunicamos contigo para cuadrar el hospedaje y todos los detalles del viaje.
-                        Tú solo preocúpate de llegar con ganas de aprender.
+                        Cuando pagas tu inscripción, te escribimos para ayudarte con el hospedaje y los detalles del viaje.
                     </p>
                 </div>
                 <a href="https://wa.me/573144557602" target="_blank" rel="noopener" class="shrink-0 bg-white text-gray-900 font-bold px-6 py-3 rounded-xl text-sm hover:bg-red-50 transition">Resolver una duda</a>

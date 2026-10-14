@@ -17,7 +17,7 @@ class EmailVerificationController extends Controller
             return redirect()->route('login');
         }
 
-        if (auth()->user()->correo_verificado_at) {
+        if (auth()->user()->fecha_verificacion_correo) {
             return redirect()->route('dashboard');
         }
 
@@ -30,22 +30,22 @@ class EmailVerificationController extends Controller
 
         $usuario = auth()->user();
 
-        if (! $usuario->verification_code) {
+        if (! $usuario->codigo_verificacion) {
             return back()->withErrors(['code' => 'No hay un código activo. Solicita uno nuevo.']);
         }
 
-        if (now()->isAfter($usuario->code_expires_at)) {
+        if (now()->isAfter($usuario->vencimiento_codigo)) {
             return back()->withErrors(['code' => 'El código ha expirado. Solicita uno nuevo.']);
         }
 
-        if ($request->code !== $usuario->verification_code) {
+        if ($request->code !== $usuario->codigo_verificacion) {
             return back()->withErrors(['code' => 'El código ingresado no es correcto.']);
         }
 
         $usuario->update([
-            'correo_verificado_at' => now(),
-            'verification_code'    => null,
-            'code_expires_at'      => null,
+            'fecha_verificacion_correo' => now(),
+            'codigo_verificacion'    => null,
+            'vencimiento_codigo'      => null,
         ]);
 
         // Si se registró desde un curso o el carrito, vuelve allá.
@@ -56,26 +56,26 @@ class EmailVerificationController extends Controller
     {
         $usuario = auth()->user();
 
-        if ($usuario->correo_verificado_at) {
+        if ($usuario->fecha_verificacion_correo) {
             return redirect()->route('dashboard');
         }
 
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         $usuario->update([
-            'verification_code' => $code,
-            'code_expires_at'   => now()->addMinutes(15),
+            'codigo_verificacion' => $code,
+            'vencimiento_codigo'   => now()->addMinutes(15),
         ]);
 
         try {
             Mail::to($usuario->correo)->send(
                 new VerificationCodeMail($code, $usuario->primer_nombre)
             );
-            return back()->with('success', '✅ Código enviado a ' . $usuario->correo . '. Revisa tu bandeja de entrada y la carpeta spam.');
+            return back()->with('success', 'Enviamos un código nuevo a ' . $usuario->correo . '. Revisa también la carpeta de spam.');
         } catch (\Exception $e) {
-            // Aunque falle el correo, guardamos el código para que aparezca en modo debug
+            // Si el correo falla, el código queda guardado y el usuario puede pedir que se reenvíe.
             \Illuminate\Support\Facades\Log::error('Error enviando correo de verificación: ' . $e->getMessage());
-            return back()->with('success', '⚠️ Código generado. Si no recibes el correo, el código aparece en pantalla (modo desarrollo).');
+            return back()->with('error', 'No pudimos enviar el correo en este momento. Intenta de nuevo en unos minutos.');
         }
     }
 }

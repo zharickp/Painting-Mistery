@@ -61,7 +61,7 @@
                 <option value="">Selecciona...</option>
                 @foreach ($tiposIva as $iva)
                     <option value="{{ $iva->id }}" {{ old('tipo_iva_id') == $iva->id ? 'selected' : '' }}>
-                        {{ $iva->descripcion }} ({{ $iva->porcentaje }}%)
+                        {{ $iva->nombre }} ({{ $iva->porcentaje }}%)
                     </option>
                 @endforeach
             </select>

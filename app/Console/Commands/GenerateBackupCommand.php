@@ -35,7 +35,7 @@ class GenerateBackupCommand extends Command
         AuditoriaService::registrar([
             'accion'            => 'creado',
             'modulo'            => 'Copia de seguridad',
-            'registro_etiqueta' => $nombre,
+            'nombre_registro' => $nombre,
             'usuario_nombre'    => 'Sistema',
             'descripcion'       => "Copia de seguridad automática {$nombre}",
         ]);

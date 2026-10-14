@@ -29,8 +29,8 @@ class ForgotPasswordController extends Controller
             $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
             $usuario->update([
-                'verification_code' => $code,
-                'code_expires_at'   => now()->addMinutes(15),
+                'codigo_verificacion' => $code,
+                'vencimiento_codigo'   => now()->addMinutes(15),
             ]);
 
             Mail::to($usuario->correo)->send(
@@ -65,22 +65,22 @@ class ForgotPasswordController extends Controller
         $correo  = $request->session()->get('reset_email');
         $usuario = Usuario::where('correo', $correo)->first();
 
-        if (! $usuario || ! $usuario->verification_code) {
+        if (! $usuario || ! $usuario->codigo_verificacion) {
             return back()->withErrors(['code' => 'Solicitud inválida. Vuelve a intentarlo.']);
         }
 
-        if (now()->isAfter($usuario->code_expires_at)) {
+        if (now()->isAfter($usuario->vencimiento_codigo)) {
             return back()->withErrors(['code' => 'El código ha expirado. Solicita uno nuevo.']);
         }
 
-        if ($request->code !== $usuario->verification_code) {
+        if ($request->code !== $usuario->codigo_verificacion) {
             return back()->withErrors(['code' => 'El código ingresado no es correcto.']);
         }
 
         $usuario->update([
             'password'          => $request->password,
-            'verification_code' => null,
-            'code_expires_at'   => null,
+            'codigo_verificacion' => null,
+            'vencimiento_codigo'   => null,
         ]);
 
         $request->session()->forget('reset_email');

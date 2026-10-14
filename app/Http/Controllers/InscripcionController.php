@@ -35,7 +35,7 @@ class InscripcionController extends Controller
 
         $request->validate([
             'curso_fecha_id' => ['required', 'integer', 'in:' . $fechasIds->implode(',')],
-            'metodo_pago_id' => ['required', Rule::exists('metodo_pago', 'id')->where('estado', true)->where('en_linea', true)],
+            'metodo_pago_id' => ['required', Rule::exists('metodo_pago', 'id')->where('estado', true)],
         ], [
             'curso_fecha_id.required' => 'Elige una de las fechas disponibles.',
             'curso_fecha_id.in'       => 'Esa fecha ya no está disponible. Elige otra.',
@@ -45,8 +45,9 @@ class InscripcionController extends Controller
         $fecha   = $curso->fechasDisponibles()->findOrFail($request->curso_fecha_id);
         $usuario = $request->user();
 
+        // Un cliente tiene una sola inscripción por curso (en cualquiera de sus fechas).
         $existente = Inscripcion::where('usuario_id', $usuario->id)
-            ->where('curso_id', $curso->id)
+            ->delCurso($curso->id)
             ->first();
 
         if ($existente && in_array($existente->estado, Inscripcion::ESTADOS_ACTIVOS, true) && ! $existente->esReservaAntigua()) {
@@ -63,10 +64,10 @@ class InscripcionController extends Controller
         }
 
         try {
-            $venta = DB::transaction(function () use ($curso, $fecha, $usuario, $request) {
+            $venta = DB::transaction(function () use ($curso, $fecha, $usuario, $request, $existente) {
                 $venta = Venta::create([
                     'usuario_id'       => $usuario->id,
-                    'total'            => $curso->costo,
+                    'total'            => $curso->precio,
                     'estado'           => 'pendiente',
                     'fecha'            => now(),
                     'nombre_cliente'   => $usuario->nombreCompleto(),
@@ -80,28 +81,23 @@ class InscripcionController extends Controller
                 DetalleVentaCurso::create([
                     'venta_id'        => $venta->id,
                     'curso_id'        => $curso->id,
-                    'precio_unitario' => $curso->costo,
-                    'subtotal'        => $curso->costo,
+                    'precio_unitario' => $curso->precio,
+                    'subtotal'        => $curso->precio,
                 ]);
 
                 Pago::create([
                     'venta_id'           => $venta->id,
                     'metodo_pago_id'     => $request->metodo_pago_id,
                     'numero_comprobante' => $this->estados->nuevoComprobante($venta),
-                    'valor'              => $curso->costo,
+                    'valor'              => $curso->precio,
                     'estado'             => 'pendiente',
                 ]);
 
-                Inscripcion::updateOrCreate(
-                    ['usuario_id' => $usuario->id, 'curso_id' => $curso->id],
-                    [
-                        'estado'           => 'pendiente',
-                        'fecha_preferida'  => $fecha->fecha,
-                        'fecha_confirmada' => null,
-                        'notas'            => null,
-                        'venta_id'         => $venta->id,
-                    ]
-                );
+                // Si ya tenía una inscripción a este curso (cancelada o de antes), se reutiliza.
+                $datos = ['estado' => 'pendiente', 'curso_fecha_id' => $fecha->id, 'indicaciones' => null];
+                $existente
+                    ? $existente->update($datos)
+                    : Inscripcion::create($datos + ['usuario_id' => $usuario->id]);
 
                 return $venta;
             });
@@ -113,10 +109,10 @@ class InscripcionController extends Controller
         AuditoriaService::registrar([
             'accion'            => 'creado',
             'modulo'            => 'Venta',
-            'registro_id'       => $venta->id,
-            'registro_etiqueta' => $venta->numero_orden,
+            'registro_afectado' => $venta->id,
+            'nombre_registro'   => $venta->numero_orden,
             'descripcion'       => "Inscripción al curso \"{$curso->nombre}\" ({$venta->numero_orden}), pendiente de pago",
-            'valores_nuevos'    => ['total' => $curso->costo, 'fecha' => $fecha->fecha->format('Y-m-d')],
+            'valores_nuevos'    => ['total' => $curso->precio, 'fecha' => $fecha->fecha->format('Y-m-d')],
         ]);
 
         return redirect()->route('checkout.pago', $venta->numero_orden);

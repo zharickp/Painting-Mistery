@@ -11,13 +11,13 @@ class ProductoController extends Controller
     {
         abort_if(! $producto->estado, 404);
 
-        $producto->load(['categoria', 'imagenes', 'resenas.usuario', 'inventario', 'colores']);
+        $producto->load(['categoria', 'imagenes', 'inventario', 'colores']);
 
         // Recomendados automáticos: primero los de la misma categoría y, si no
         // alcanzan, se completa con los más recientes de otras categorías.
         $recomendados = Producto::where('estado', true)
             ->where('id', '!=', $producto->id)
-            ->with(['categoria', 'imagenes', 'inventario', 'resenas', 'colores'])
+            ->with(['categoria', 'imagenes', 'inventario', 'colores'])
             ->orderByRaw('CASE WHEN categoria_producto_id = ? THEN 0 ELSE 1 END', [$producto->categoria_producto_id])
             ->orderByDesc('created_at')
             ->take(8)

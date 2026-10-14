@@ -95,7 +95,7 @@ function toggleWishItem(id, nombre, precio, imagen) {
         showToast('Eliminado de lista de deseos');
     } else {
         wish.push({ id, nombre, precio, imagen });
-        showToast('Añadido a lista de deseos ❤️');
+        showToast('Agregado a tu lista de deseos');
     }
     saveWish(wish);
 }
@@ -146,7 +146,7 @@ function wishToCart(id) {
     const item = wish.find(w => w.id == id);
     if (!item) return;
     addToCart({ id: item.id, nombre: item.nombre, precio: item.precio, imagen: item.imagen }, 1);
-    showToast('Añadido al carrito 🛒');
+    showToast('Agregado al carrito');
 }
 
 function quitarDeWish(id) {
@@ -166,7 +166,7 @@ function addToCart(prod, qty) {
 
 function addToCartDesdeCard(card, btn) {
     addToCart({ id: card.dataset.id, nombre: card.dataset.nombre, precio: parseFloat(card.dataset.precio), imagen: card.dataset.imagen }, 1);
-    showToast('Añadido al carrito 🛒');
+    showToast('Agregado al carrito');
     pulso(btn);
 }
 

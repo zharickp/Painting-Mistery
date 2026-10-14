@@ -32,27 +32,27 @@ class Usuario extends Authenticatable
         'password',
         'telefono',
         'estado',
-        'verification_code',
-        'code_expires_at',
-        'correo_verificado_at',
+        'codigo_verificacion',
+        'vencimiento_codigo',
+        'fecha_verificacion_correo',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
-        'verification_code',
+        'codigo_verificacion',
     ];
 
     protected $casts = [
         'estado'               => 'boolean',
         'password'             => 'hashed',
-        'code_expires_at'      => 'datetime',
-        'correo_verificado_at' => 'datetime',
+        'vencimiento_codigo'      => 'datetime',
+        'fecha_verificacion_correo' => 'datetime',
     ];
 
     public function correoVerificado(): bool
     {
-        return $this->correo_verificado_at !== null;
+        return $this->fecha_verificacion_correo !== null;
     }
 
     //  Relaciones
@@ -87,9 +87,9 @@ class Usuario extends Authenticatable
         return $this->hasMany(Venta::class);
     }
 
-    public function resenas()
+    public function resena()
     {
-        return $this->hasMany(Resena::class);
+        return $this->hasOne(Resena::class);
     }
 
     public function nombreCompleto(): string

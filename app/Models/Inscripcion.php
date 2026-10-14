@@ -15,18 +15,14 @@ class Inscripcion extends Model
 
     protected $fillable = [
         'usuario_id',
-        'curso_id',
+        'curso_fecha_id',
         'estado',
-        'fecha_preferida',
-        'fecha_confirmada',
-        'notas',
-        'venta_id',
+        'indicaciones',
     ];
 
-    protected $casts = [
-        'fecha_preferida'  => 'date',
-        'fecha_confirmada' => 'date',
-    ];
+    /** Venta encontrada por ventaActual() (se busca una sola vez por objeto). */
+    private ?Venta $ventaEncontrada = null;
+    private bool $ventaBuscada = false;
 
     // 🔗 Relación con usuario
     public function usuario()
@@ -34,10 +30,53 @@ class Inscripcion extends Model
         return $this->belongsTo(Usuario::class);
     }
 
-    // 🔗 Relación con curso
+    /** Fecha del curso en la que se inscribió el cliente. */
+    public function cursoFecha()
+    {
+        return $this->belongsTo(CursoFecha::class);
+    }
+
+    /** El curso se conoce por la fecha: inscripcion → curso_fecha → curso. */
     public function curso()
     {
-        return $this->belongsTo(Curso::class);
+        return $this->hasOneThrough(Curso::class, CursoFecha::class, 'id', 'id', 'curso_fecha_id', 'curso_id');
+    }
+
+    /** Id del curso (a través de la fecha), para usar $inscripcion->curso_id como antes. */
+    public function getCursoIdAttribute(): ?int
+    {
+        return $this->cursoFecha?->curso_id;
+    }
+
+    /** Inscripciones a un curso (en cualquiera de sus fechas). */
+    public function scopeDelCurso($query, int $cursoId)
+    {
+        return $query->whereHas('cursoFecha', fn ($q) => $q->where('curso_id', $cursoId));
+    }
+
+    /**
+     * Venta con la que se paga la inscripción. No se guarda en la inscripción:
+     * es la venta más reciente del mismo cliente que incluye este curso en
+     * detalle_venta_curso (igual que un producto se relaciona con su venta).
+     * Un cliente tiene una sola inscripción por curso, así que no hay ambigüedad.
+     */
+    public function ventaActual(): ?Venta
+    {
+        if (! $this->ventaBuscada) {
+            $this->ventaEncontrada = Venta::where('usuario_id', $this->usuario_id)
+                ->whereHas('detalleCursos', fn ($q) => $q->where('curso_id', $this->curso_id))
+                ->latest('id')
+                ->first();
+            $this->ventaBuscada = true;
+        }
+
+        return $this->ventaEncontrada;
+    }
+
+    /** Permite usar $inscripcion->venta en las vistas. */
+    public function getVentaAttribute(): ?Venta
+    {
+        return $this->ventaActual();
     }
 
     public function codigoReserva(): string
@@ -45,10 +84,16 @@ class Inscripcion extends Model
         return 'RES-' . str_pad((string) $this->id, 5, '0', STR_PAD_LEFT);
     }
 
-    /** Fecha (o rango de días) vigente de la reserva: la confirmada por el taller o, si no, la elegida por el cliente. */
+    /** Día de inicio del curso para este estudiante (null si no eligió fecha). */
+    public function fechaInicio(): ?\Carbon\CarbonInterface
+    {
+        return $this->cursoFecha?->fecha;
+    }
+
+    /** Fecha (o rango de días) del curso para este estudiante. */
     public function fechaTexto(): ?string
     {
-        $fecha = $this->fecha_confirmada ?? $this->fecha_preferida;
+        $fecha = $this->fechaInicio();
 
         return $fecha ? CursoFecha::etiquetaDe($fecha, $this->curso?->dias() ?? 1) : null;
     }
@@ -91,7 +136,7 @@ class Inscripcion extends Model
      */
     public function esReservaAntigua(): bool
     {
-        return $this->estado === 'pendiente' && $this->venta_id === null;
+        return $this->estado === 'pendiente' && $this->ventaActual() === null;
     }
 
     /**
@@ -101,18 +146,12 @@ class Inscripcion extends Model
     public function estadosPermitidos(): array
     {
         return match ($this->estado) {
-            'pendiente'  => $this->venta_id === null
+            'pendiente'  => $this->ventaActual() === null
                 ? ['pendiente', 'confirmada', 'cancelada']   // reserva antigua, sin venta
                 : ['pendiente', 'cancelada'],
             'confirmada' => ['confirmada', 'completada', 'cancelada'],
             'completada' => ['completada', 'confirmada'],     // por si se marcó por error
             default      => [],
         };
-    }
-
-    /** Venta con la que se paga la inscripción (null en inscripciones antiguas). */
-    public function venta()
-    {
-        return $this->belongsTo(Venta::class);
     }
 }

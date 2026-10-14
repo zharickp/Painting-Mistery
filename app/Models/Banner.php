@@ -14,25 +14,25 @@ class Banner extends Model
 
     protected array $auditoriaCandidatos = ['titulo'];
 
-    protected $table = 'banners';
+    protected $table = 'banner';
 
     protected $fillable = [
         'imagen',
         'titulo',
         'orden',
-        'activo',
-        'publicar_en',
+        'estado',
+        'fecha_publicacion',
     ];
 
     protected $casts = [
-        'activo'      => 'boolean',
-        'publicar_en' => 'datetime',
+        'estado'      => 'boolean',
+        'fecha_publicacion' => 'datetime',
     ];
 
     public function scopeActivos(Builder $query): Builder
     {
-        return $query->where('activo', true)
-            ->where(fn ($q) => $q->whereNull('publicar_en')->orWhere('publicar_en', '<=', now()))
+        return $query->where('estado', true)
+            ->where(fn ($q) => $q->whereNull('fecha_publicacion')->orWhere('fecha_publicacion', '<=', now()))
             ->orderBy('orden');
     }
 }

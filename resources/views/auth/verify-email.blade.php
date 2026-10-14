@@ -21,17 +21,17 @@
             {{-- Alertas de éxito --}}
             @if (session('success'))
                 <div class="mb-4 bg-green-50 text-green-700 p-3 rounded-md border-l-4 border-green-500 text-sm flex items-start gap-2">
-                    <span class="mt-0.5">✅</span> {{ session('success') }}
+                    {{ session('success') }}
                 </div>
             @endif
             @if (session('error'))
                 <div class="mb-4 bg-red-50 text-red-700 p-3 rounded-md border-l-4 border-red-500 text-sm">
-                    ❌ {{ session('error') }}
+                    {{ session('error') }}
                 </div>
             @endif
 
             {{-- Mensaje principal --}}
-            @if(auth()->user()->verification_code)
+            @if(auth()->user()->codigo_verificacion)
                 <p class="text-gray-600 text-sm mb-4 text-center">
                     Enviamos un código de 6 dígitos a<br>
                     <strong class="text-gray-800">{{ auth()->user()->correo }}</strong>.<br>
@@ -53,7 +53,7 @@
             @endif
 
             {{-- Formulario de verificación --}}
-            @if(auth()->user()->verification_code)
+            @if(auth()->user()->codigo_verificacion)
             <form method="POST" action="{{ route('verification.verify') }}" class="space-y-5">
                 @csrf
                 <div>
@@ -74,7 +74,7 @@
             {{-- Botón de reenvío --}}
             <div class="mt-5 text-center border-t border-gray-100 pt-5">
                 <p class="text-xs text-gray-400 mb-3">
-                    {{ auth()->user()->verification_code ? '¿No recibiste el código o se venció?' : 'Solicita tu código de verificación:' }}
+                    {{ auth()->user()->codigo_verificacion ? '¿No recibiste el código o se venció?' : 'Solicita tu código de verificación:' }}
                 </p>
                 <form method="POST" action="{{ route('verification.resend') }}" id="resendForm">
                     @csrf
@@ -85,7 +85,7 @@
                                   d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                         </svg>
                         <span id="resendText">
-                            {{ auth()->user()->verification_code ? 'Reenviar código' : 'Enviar código' }}
+                            {{ auth()->user()->codigo_verificacion ? 'Reenviar código' : 'Enviar código' }}
                         </span>
                     </button>
                 </form>

@@ -11,12 +11,12 @@ class TipoIva extends Model
 
     protected string $auditoriaTipo = 'Tipo de IVA';
 
-    protected array $auditoriaCandidatos = ['descripcion'];
+    protected array $auditoriaCandidatos = ['nombre'];
 
     protected $table = 'tipo_iva';
 
     protected $fillable = [
-        'descripcion',
+        'nombre',
         'porcentaje',
         'estado',
     ];

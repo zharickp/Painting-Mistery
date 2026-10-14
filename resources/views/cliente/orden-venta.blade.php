@@ -125,7 +125,7 @@
             <p>Método de pago: <span class="font-semibold text-slate-700">{{ $pago?->metodoPago?->nombre ?? '—' }}</span></p>
             <p>Estado del pago: <span class="font-semibold text-slate-700">{{ $pago?->estadoEtiqueta() ?? 'Sin registro' }}</span>@if($pago?->estado === 'aprobado' && $pago->fecha_pago) · {{ $pago->fecha_pago->format('d/m/Y h:i A') }}@endif</p>
             @if($venta->estado === 'cancelada')
-                <p class="text-rose-700">Cancelada el {{ $compra->cancelada_at?->format('d/m/Y h:i A') ?? '—' }}@if($compra->motivo_cancelacion) · Motivo: {{ $compra->motivo_cancelacion }}@endif</p>
+                <p class="text-rose-700">Cancelada el {{ $compra->fecha_cancelacion?->format('d/m/Y h:i A') ?? '—' }}@if($compra->motivo_cancelacion) · Motivo: {{ $compra->motivo_cancelacion }}@endif</p>
             @elseif($venta->estado === 'pendiente')
                 <p class="text-amber-700">Pago pendiente. Este documento no acredita el pago.</p>
             @endif

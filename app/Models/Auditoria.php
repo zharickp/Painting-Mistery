@@ -16,13 +16,13 @@ class Auditoria extends Model
         'usuario_correo',
         'accion',
         'modulo',
-        'registro_id',
-        'registro_etiqueta',
+        'registro_afectado',
+        'nombre_registro',
         'descripcion',
         'valores_anteriores',
         'valores_nuevos',
-        'ip_address',
-        'user_agent',
+        'direccion_ip',
+        'navegador',
         'fecha',
     ];
 

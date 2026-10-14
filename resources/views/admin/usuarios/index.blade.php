@@ -74,8 +74,8 @@
                         </span>
                     </td>
                     <td class="px-5 py-3 text-center">
-                        <span class="text-xs {{ $u->correo_verificado_at ? 'text-green-600' : 'text-yellow-600' }}">
-                            {{ $u->correo_verificado_at ? 'Sí' : 'No' }}
+                        <span class="text-xs {{ $u->fecha_verificacion_correo ? 'text-green-600' : 'text-yellow-600' }}">
+                            {{ $u->fecha_verificacion_correo ? 'Sí' : 'No' }}
                         </span>
                     </td>
                     <td class="px-5 py-3 text-center">

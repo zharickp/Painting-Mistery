@@ -22,7 +22,7 @@
             <a href="{{ route('admin.ventas.orden', $venta->id) }}" target="_blank" class="px-4 py-2 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 hover:border-gray-400 transition">Orden de venta</a>
         @endif
         @if($puedeGestionar && $venta->estado === 'pendiente')
-            <form method="POST" action="{{ route('admin.ventas.confirmar-pago', $venta->id) }}" onsubmit="return confirm('¿Confirmar el pago de esta venta? Se registra como pago en efectivo y se descuenta el inventario.')">
+            <form method="POST" action="{{ route('admin.ventas.confirmar-pago', $venta->id) }}" onsubmit="return confirm('¿Confirmar el pago de esta venta? Queda con el método de pago que eligió el cliente y se descuenta el inventario.')">
                 @csrf
                 <button class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold transition">Confirmar pago</button>
             </form>
@@ -94,13 +94,13 @@
             <p><span class="text-gray-400">Última actualización:</span> {{ $venta->updated_at?->format('d/m/Y H:i') }}</p>
             @if($pago?->estado === 'aprobado' && $pago->fecha_pago)
                 <p><span class="text-gray-400">Pagada:</span> {{ $pago->fecha_pago->format('d/m/Y H:i') }}
-                    @if($venta->pagoConfirmadoPor) <span class="text-gray-400">(confirmó</span> {{ $venta->pagoConfirmadoPor->primer_nombre }} {{ $venta->pagoConfirmadoPor->primer_apellido }}<span class="text-gray-400">)</span>@endif</p>
+                    @if($venta->confirmadoPor) <span class="text-gray-400">(confirmó</span> {{ $venta->confirmadoPor->primer_nombre }} {{ $venta->confirmadoPor->primer_apellido }}<span class="text-gray-400">)</span>@endif</p>
             @endif
             @if($venta->estado === 'cancelada')
                 <div class="rounded-lg bg-rose-50 border border-rose-100 p-3 text-xs text-rose-800 space-y-1">
                     <p class="font-bold">Venta cancelada</p>
-                    <p>Fecha: {{ $e?->cancelada_at?->format('d/m/Y H:i') ?? '—' }}</p>
-                    <p>Responsable: {{ $e?->canceladaPor ? $e->canceladaPor->primer_nombre . ' ' . $e->canceladaPor->primer_apellido : 'Sistema / cliente' }}</p>
+                    <p>Fecha: {{ $e?->fecha_cancelacion?->format('d/m/Y H:i') ?? '—' }}</p>
+                    <p>Responsable: {{ $e?->canceladoPor ? $e->canceladoPor->primer_nombre . ' ' . $e->canceladoPor->primer_apellido : 'Sistema / cliente' }}</p>
                     <p>Motivo: {{ $e?->motivo_cancelacion ?: '—' }}</p>
                 </div>
             @endif

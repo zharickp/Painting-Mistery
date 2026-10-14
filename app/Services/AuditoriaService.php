@@ -18,8 +18,8 @@ class AuditoriaService
                 'usuario_id'     => $usuario?->id,
                 'usuario_nombre' => $usuario ? trim(($usuario->primer_nombre ?? '') . ' ' . ($usuario->primer_apellido ?? '')) : null,
                 'usuario_correo' => $usuario->correo ?? null,
-                'ip_address'     => Request::ip(),
-                'user_agent'     => substr((string) Request::userAgent(), 0, 255),
+                'direccion_ip'     => Request::ip(),
+                'navegador'     => substr((string) Request::userAgent(), 0, 255),
                 'fecha'          => now(),
             ], $datos));
         } catch (Throwable $e) {
@@ -36,7 +36,7 @@ class AuditoriaService
             'usuario_correo' => $usuario->correo,
             'accion'         => 'login',
             'modulo'         => 'Usuario',
-            'registro_id'    => $usuario->id,
+            'registro_afectado'    => $usuario->id,
             'descripcion'    => 'Inició sesión.',
         ]);
     }
@@ -51,7 +51,7 @@ class AuditoriaService
             'usuario_correo' => $usuario->correo,
             'accion'         => 'logout',
             'modulo'         => 'Usuario',
-            'registro_id'    => $usuario->id,
+            'registro_afectado'    => $usuario->id,
             'descripcion'    => 'Cerró sesión.',
         ]);
     }

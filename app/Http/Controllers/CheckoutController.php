@@ -55,7 +55,7 @@ class CheckoutController extends Controller
             'correo_cliente'   => 'required|email|max:120',
             'tipo_documento'   => 'required|string|max:10',
             'numero_documento' => 'required|string|max:20',
-            'metodo_pago_id'   => ['required', Rule::exists('metodo_pago', 'id')->where('estado', true)->where('en_linea', true)],
+            'metodo_pago_id'   => ['required', Rule::exists('metodo_pago', 'id')->where('estado', true)],
             'acepto_terminos'  => 'accepted',
         ], [
             'metodo_pago_id.required'  => 'Elige un método de pago.',
@@ -143,8 +143,8 @@ class CheckoutController extends Controller
         AuditoriaService::registrar([
             'accion'            => 'creado',
             'modulo'            => 'Venta',
-            'registro_id'       => $venta->id,
-            'registro_etiqueta' => $venta->numero_orden,
+            'registro_afectado'       => $venta->id,
+            'nombre_registro' => $venta->numero_orden,
             'descripcion'       => "Venta {$venta->numero_orden} creada, pendiente de pago",
             'valores_nuevos'    => ['total' => $total],
         ]);

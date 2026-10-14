@@ -34,7 +34,7 @@ class AuditoriaController extends Controller
                 $q->where('usuario_nombre', 'ilike', "%{$texto}%")
                   ->orWhere('usuario_correo', 'ilike', "%{$texto}%")
                   ->orWhere('descripcion', 'ilike', "%{$texto}%")
-                  ->orWhere('registro_etiqueta', 'ilike', "%{$texto}%");
+                  ->orWhere('nombre_registro', 'ilike', "%{$texto}%");
             });
         }
 

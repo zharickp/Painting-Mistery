@@ -32,23 +32,23 @@ class CursoController extends Controller
         $request->validate([
             'nombre'               => ['required', 'string', 'max:150'],
             'descripcion'          => ['nullable', 'string'],
-            'costo'                => ['required', 'numeric', 'min:0'],
+            'precio'                => ['required', 'numeric', 'min:0'],
             'cupos'                => ['nullable', 'integer', 'min:1'],
             'ubicacion'            => ['nullable', 'string', 'max:150'],
             'duracion_dias'        => ['required', 'integer', 'between:1,30'],
-            'requisitos'           => ['nullable', 'string'],
+            'materiales'           => ['nullable', 'string'],
             'incluye_certificado'  => ['nullable', 'boolean'],
         ]);
 
         $curso = Curso::create([
             'nombre'       => $request->nombre,
             'descripcion'  => $request->descripcion,
-            'costo'        => $request->costo,
+            'precio'        => $request->precio,
             'cupos'        => $request->cupos,
             'estado'       => true,
             'ubicacion'           => $request->ubicacion,
             'duracion_dias'       => (int) $request->duracion_dias,
-            'requisitos'          => $request->requisitos,
+            'materiales'          => $request->materiales,
             'incluye_certificado' => $request->boolean('incluye_certificado'),
         ]);
 
@@ -69,22 +69,22 @@ class CursoController extends Controller
         $request->validate([
             'nombre'               => ['required', 'string', 'max:150'],
             'descripcion'          => ['nullable', 'string'],
-            'costo'                => ['required', 'numeric', 'min:0'],
+            'precio'                => ['required', 'numeric', 'min:0'],
             'cupos'                => ['nullable', 'integer', 'min:1'],
             'ubicacion'            => ['nullable', 'string', 'max:150'],
             'duracion_dias'        => ['required', 'integer', 'between:1,30'],
-            'requisitos'           => ['nullable', 'string'],
+            'materiales'           => ['nullable', 'string'],
             'incluye_certificado'  => ['nullable', 'boolean'],
         ]);
 
         $curso->update([
             'nombre'       => $request->nombre,
             'descripcion'  => $request->descripcion,
-            'costo'        => $request->costo,
+            'precio'        => $request->precio,
             'cupos'        => $request->cupos,
             'ubicacion'           => $request->ubicacion,
             'duracion_dias'       => (int) $request->duracion_dias,
-            'requisitos'          => $request->requisitos,
+            'materiales'          => $request->materiales,
             'incluye_certificado' => $request->boolean('incluye_certificado'),
         ]);
 
@@ -119,6 +119,13 @@ class CursoController extends Controller
 
     public function quitarFecha(CursoFecha $fecha): RedirectResponse
     {
+        // Una fecha con inscripciones no se retira, para no perder el historial
+        // (las fechas pasadas igual dejan de mostrarse en la página).
+        $total = $fecha->inscripciones()->count();
+        if ($total > 0) {
+            return back()->withErrors(['fecha' => "No se puede retirar esta fecha: tiene {$total} inscripción(es). Si hay estudiantes activos, cámbialos de fecha desde Inscripciones."]);
+        }
+
         $fecha->delete();
 
         return back()->with('success', 'Fecha retirada.');

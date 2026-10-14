@@ -16,25 +16,26 @@ class Curso extends Model
     protected $fillable = [
         'nombre',
         'descripcion',
-        'costo',
+        'precio',
         'cupos',
         'estado',
         'ubicacion',
-        'requisitos',
+        'materiales',
         'incluye_certificado',
         'duracion_dias',
     ];
 
     protected $casts = [
         'estado'       => 'boolean',
-        'costo'        => 'decimal:2',
+        'precio'        => 'decimal:2',
         'incluye_certificado' => 'boolean',
         'duracion_dias' => 'integer',
     ];
 
+    /** Inscripciones del curso, a través de sus fechas (curso → curso_fecha → inscripcion). */
     public function inscripciones()
     {
-        return $this->hasMany(Inscripcion::class);
+        return $this->hasManyThrough(Inscripcion::class, CursoFecha::class);
     }
 
     public function detalleVentaCursos()

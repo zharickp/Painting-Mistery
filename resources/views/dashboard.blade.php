@@ -202,7 +202,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
                 <div>
                     <h2 class="text-base font-bold text-slate-800 dark:text-slate-100">Ventas en el tiempo</h2>
-                    <p class="text-xs text-slate-400 mt-0.5">Comportamiento mensual de ingresos en el año {{ now()->year }}</p>
+                    <p class="text-xs text-slate-400 mt-0.5">Ingresos por mes en {{ now()->year }}</p>
                 </div>
                 <div class="flex items-center gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400">
                     <span class="flex items-center gap-1.5">

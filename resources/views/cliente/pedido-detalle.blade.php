@@ -44,7 +44,7 @@
         <div class="mb-6 bg-rose-50 border border-rose-200 rounded-2xl p-5 text-sm text-rose-900">
             <p class="font-bold">Esta compra fue cancelada</p>
             <p class="text-rose-800/80 mt-1">
-                {{ $compra?->cancelada_at ? 'El ' . $compra->cancelada_at->format('d/m/Y H:i') . '. ' : '' }}{{ $compra?->motivo_cancelacion }}
+                {{ $compra?->fecha_cancelacion ? 'El ' . $compra->fecha_cancelacion->format('d/m/Y H:i') . '. ' : '' }}{{ $compra?->motivo_cancelacion }}
                 Se conserva en tu historial como referencia.
             </p>
         </div>

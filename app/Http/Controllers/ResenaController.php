@@ -2,44 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Producto;
 use App\Models\Resena;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
+/** Reseña del cliente sobre el taller. Cada cliente tiene una sola y puede editarla. */
 class ResenaController extends Controller
 {
-    public function store(Request $request, Producto $producto): JsonResponse
+    public function store(Request $request): RedirectResponse
     {
-        // La ruta exige sesión (middleware auth): toda reseña queda ligada a un usuario.
-        $usuario = $request->user();
-
         $request->validate([
             'calificacion' => 'required|integer|min:1|max:5',
             'comentario'   => 'required|string|min:5|max:1000',
+        ], [
+            'calificacion.required' => 'Elige de 1 a 5 estrellas.',
+            'comentario.required'   => 'Escribe tu opinión.',
+            'comentario.min'        => 'Escribe un poco más en tu opinión.',
         ]);
 
         // Nueva o editada, la reseña vuelve a revisión antes de publicarse.
-        $resena = Resena::updateOrCreate(
-            ['producto_id' => $producto->id, 'usuario_id' => $usuario->id],
+        Resena::updateOrCreate(
+            ['usuario_id' => $request->user()->id],
             ['calificacion' => $request->calificacion, 'comentario' => $request->comentario, 'estado' => 'pendiente']
         );
 
-        $resena->load('usuario');
-        $producto->load('resenas');
-
-        return response()->json([
-            'resena' => [
-                'id'           => $resena->id,
-                'usuario_id'   => $resena->usuario_id,
-                'nombre'       => $resena->nombreMostrar(),
-                'calificacion' => $resena->calificacion,
-                'comentario'   => $resena->comentario,
-                'fecha'        => $resena->created_at->diffForHumans(),
-                'propia'       => true,
-                'estado'       => $resena->estado,
-            ],
-            'resumen' => $producto->resumenResenas(),
-        ]);
+        return redirect()->to(route('inicio') . '#resenas')
+            ->with('resena_ok', 'Gracias por tu reseña. La publicaremos cuando la revisemos.');
     }
 }

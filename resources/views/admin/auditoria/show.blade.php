@@ -23,6 +23,12 @@
         'correo'                    => 'Correo',
         'telefono'                  => 'Teléfono',
         'imagen'                    => 'Imagen',
+        'materiales'                => 'Materiales que debe llevar',
+        'duracion_dias'             => 'Duración (días)',
+        'codigo_color'              => 'Código de color',
+        'fecha_publicacion'         => 'Fecha de publicación',
+        'curso_fecha_id'            => 'Fecha del curso',
+        'indicaciones'              => 'Indicaciones',
     ];
     $etiqueta = fn ($campo) => $etiquetas[$campo] ?? ucfirst(str_replace('_', ' ', $campo));
     $formato  = function ($valor) {
@@ -32,7 +38,7 @@
         return (string) $valor;
     };
     $cambios = $registro->cambiosNormalizados();
-    $ua = $registro->user_agent ?? '';
+    $ua = $registro->navegador ?? '';
     $navegador = str_contains($ua, 'Firefox') ? 'Firefox'
         : (str_contains($ua, 'Edg/') ? 'Edge'
         : (str_contains($ua, 'Chrome') ? 'Chrome'
@@ -68,9 +74,9 @@
                     {{ $registro->accionEtiqueta() }}
                 </span>
                 <span>{{ $registro->modulo }}</span>
-                @if($registro->registro_etiqueta)
+                @if($registro->nombre_registro)
                     <span class="text-slate-400">·</span>
-                    <span class="italic">"{{ $registro->registro_etiqueta }}"</span>
+                    <span class="italic">"{{ $registro->nombre_registro }}"</span>
                 @endif
             </p>
         </div>
@@ -127,8 +133,8 @@
                     <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Módulo</p>
                     <p class="text-slate-800 dark:text-slate-100 font-semibold mt-0.5">
                         {{ $registro->modulo }}
-                        @if($registro->registro_id)
-                            <span class="text-slate-400 dark:text-slate-500 font-normal">· ID {{ $registro->registro_id }}</span>
+                        @if($registro->registro_afectado)
+                            <span class="text-slate-400 dark:text-slate-500 font-normal">· ID {{ $registro->registro_afectado }}</span>
                         @endif
                     </p>
                 </div>
@@ -176,7 +182,7 @@
                 </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Origen</p>
-                    <p class="text-slate-800 dark:text-slate-100 font-mono text-xs mt-0.5">{{ $registro->ip_address ?: '—' }}</p>
+                    <p class="text-slate-800 dark:text-slate-100 font-mono text-xs mt-0.5">{{ $registro->direccion_ip ?: '—' }}</p>
                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ $navegador }} · {{ $so }}</p>
                 </div>
             </div>

@@ -70,7 +70,7 @@
                 @foreach ($tiposIva as $iva)
                     <option value="{{ $iva->id }}"
                         {{ old('tipo_iva_id', $producto->tipo_iva_id) == $iva->id ? 'selected' : '' }}>
-                        {{ $iva->descripcion }} ({{ $iva->porcentaje }}%)
+                        {{ $iva->nombre }} ({{ $iva->porcentaje }}%)
                     </option>
                 @endforeach
             </select>
@@ -148,7 +148,7 @@
                 @foreach ($producto->colores as $color)
                     <div class="grupo-fotos tarjeta-color border border-gray-200 rounded-xl p-4" data-color-id="{{ $color->id }}">
                         <div class="flex flex-wrap items-center gap-2 mb-3">
-                            <input type="color" name="colores_existentes[{{ $color->id }}][hex]" value="{{ $color->hex ?: '#dc2626' }}"
+                            <input type="color" name="colores_existentes[{{ $color->id }}][hex]" value="{{ $color->codigo_color ?: '#dc2626' }}"
                                    class="h-8 w-8 rounded border border-gray-200 cursor-pointer flex-shrink-0" title="Tono del círculo en la tienda">
                             <input type="text" name="colores_existentes[{{ $color->id }}][nombre]" value="{{ $color->nombre }}" maxlength="40"
                                    class="flex-1 min-w-[8rem] rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-semibold text-gray-700 focus:outline-none focus:border-red-400">

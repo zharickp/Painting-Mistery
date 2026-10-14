@@ -36,13 +36,13 @@ class ClienteDashboardController extends Controller
             'total_pendiente' => (float) Venta::where('usuario_id', $userId)->where('estado', 'pendiente')->sum('total'),
         ];
 
-        $inscripciones = Inscripcion::with('curso')
+        $inscripciones = Inscripcion::with(['curso', 'cursoFecha'])
             ->where('usuario_id', $userId)->activas()->latest()->get();
         $proximoCurso = $inscripciones->where('estado', 'confirmada')
-            ->filter(fn ($i) => $i->fecha_confirmada && $i->fecha_confirmada->gte(today()))
-            ->sortBy(fn ($i) => $i->fecha_confirmada)->first();
+            ->filter(fn ($i) => $i->fechaInicio()?->gte(today()))
+            ->sortBy(fn ($i) => $i->fechaInicio())->first();
         $inscritosIds = $inscripciones->pluck('curso_id');
-        $cursosDisponibles = Curso::where('estado', true)->whereNotIn('id', $inscritosIds)->orderBy('costo')->limit(3)->get();
+        $cursosDisponibles = Curso::where('estado', true)->whereNotIn('id', $inscritosIds)->orderBy('precio')->limit(3)->get();
         $ultimaOrden = $ventas->first(fn ($v) => $v->estado === 'pagada');
         $recomendados = Producto::where('estado', true)->with(['categoria', 'imagenes'])->latest()->limit(4)->get();
 
@@ -92,11 +92,11 @@ class ClienteDashboardController extends Controller
     {
         $userId = auth()->id();
 
-        $inscripciones = Inscripcion::with(['curso', 'venta'])
+        $inscripciones = Inscripcion::with(['curso', 'cursoFecha'])
             ->where('usuario_id', $userId)->latest()->get();
 
         $inscritosActivos = $inscripciones->whereIn('estado', ['pendiente', 'confirmada', 'completada'])->pluck('curso_id');
-        $disponibles = Curso::where('estado', true)->whereNotIn('id', $inscritosActivos)->orderBy('costo')->get();
+        $disponibles = Curso::where('estado', true)->whereNotIn('id', $inscritosActivos)->orderBy('precio')->get();
 
         return view('cliente.cursos', compact('inscripciones', 'disponibles'));
     }
@@ -138,7 +138,7 @@ class ClienteDashboardController extends Controller
 
     public function comprobanteCurso(int $inscripcionId): View
     {
-        $inscripcion = Inscripcion::with(['curso', 'usuario', 'venta.pago.metodoPago'])
+        $inscripcion = Inscripcion::with(['curso', 'usuario', 'cursoFecha'])
             ->where('id', $inscripcionId)
             ->where('usuario_id', auth()->id())
             ->firstOrFail();

@@ -61,7 +61,7 @@
         </div>
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100">Reportes de ventas</h1>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Ingresos, órdenes y desempeño de {{ now()->year }}</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Ingresos y órdenes de {{ now()->year }}</p>
         </div>
     </div>
     <div class="flex items-center gap-2 bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300">
@@ -102,7 +102,7 @@
         <div class="flex items-center justify-between mb-5">
             <div>
                 <h2 class="text-base font-bold text-slate-800 dark:text-slate-100">Ingresos mensuales</h2>
-                <p class="text-xs text-slate-400 mt-0.5">Comportamiento del año {{ now()->year }}</p>
+                <p class="text-xs text-slate-400 mt-0.5">Año {{ now()->year }}</p>
             </div>
             <div class="flex items-center gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400">
                 <span class="flex items-center gap-1.5">
@@ -158,7 +158,7 @@
     {{-- Top productos --}}
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
         <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
-            <h2 class="text-base font-bold text-slate-800 dark:text-slate-100">Top productos vendidos</h2>
+            <h2 class="text-base font-bold text-slate-800 dark:text-slate-100">Productos más vendidos</h2>
             <p class="text-xs text-slate-400 mt-0.5">Los 5 con más unidades vendidas</p>
         </div>
         @if($topProductos->isEmpty())

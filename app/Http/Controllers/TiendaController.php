@@ -30,7 +30,7 @@ class TiendaController extends Controller
         $terminos    = $normalizado === '' ? [] : array_values(array_filter(explode(' ', $normalizado)));
 
         $productos = Producto::where('producto.estado', true)
-            ->with(['categoria', 'imagenes', 'inventario', 'resenas', 'colores'])
+            ->with(['categoria', 'imagenes', 'inventario', 'colores'])
             ->when($terminos !== [], function ($query) use ($terminos) {
                 foreach ($terminos as $t) {
                     $like = '%' . addcslashes($t, '\\%_') . '%';

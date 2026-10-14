@@ -84,7 +84,7 @@
                         </a>
                     </td>
                     <td class="px-5 py-4 text-right font-bold text-red-600">
-                        ${{ number_format($c->costo, 0, ',', '.') }}
+                        ${{ number_format($c->precio, 0, ',', '.') }}
                     </td>
                     <td class="px-5 py-4 text-center">
                         <span class="px-2.5 py-1 text-xs rounded-full font-semibold

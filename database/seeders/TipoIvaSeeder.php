@@ -11,15 +11,15 @@ class TipoIvaSeeder extends Seeder
     public function run(): void
     {
         $tarifas = [
-            ['porcentaje' => 0,  'descripcion' => 'Exento'],
-            ['porcentaje' => 5,  'descripcion' => 'Tarifa reducida'],
-            ['porcentaje' => 19, 'descripcion' => 'Tarifa general'],
+            ['porcentaje' => 0,  'nombre' => 'Exento'],
+            ['porcentaje' => 5,  'nombre' => 'Tarifa reducida'],
+            ['porcentaje' => 19, 'nombre' => 'Tarifa general'],
         ];
 
         foreach ($tarifas as $t) {
             TipoIva::firstOrCreate(
                 ['porcentaje' => $t['porcentaje']],
-                ['descripcion' => $t['descripcion'], 'estado' => true]
+                ['nombre' => $t['nombre'], 'estado' => true]
             );
         }
     }

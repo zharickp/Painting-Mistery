@@ -59,8 +59,8 @@ class DetalleVentaCursoController extends Controller
 
             $curso = Curso::findOrFail($data['curso_id']);
 
-            $data['precio_unitario'] = $curso->costo;
-            $data['subtotal'] = $curso->costo;
+            $data['precio_unitario'] = $curso->precio;
+            $data['subtotal'] = $curso->precio;
 
             $detalle = DetalleVentaCurso::create($data);
 
@@ -151,8 +151,8 @@ class DetalleVentaCursoController extends Controller
             if (isset($data['curso_id'])) {
                 $curso = Curso::findOrFail($data['curso_id']);
 
-                $data['precio_unitario'] = $curso->costo;
-                $data['subtotal'] = $curso->costo;
+                $data['precio_unitario'] = $curso->precio;
+                $data['subtotal'] = $curso->precio;
             }
 
             $detalle->update($data);

@@ -25,9 +25,9 @@ use Illuminate\Support\Facades\DB;
 class OrdenEstadoService
 {
     /**
-     * @param int|null $metodoPagoId Método con el que se pagó. Si es null se usa el del
-     *                               pago pendiente de la venta o, si no hay, "Efectivo"
-     *                               (confirmación manual desde el panel).
+     * @param int|null $metodoPagoId Método con el que se pagó. Si es null se usa el que
+     *                               el cliente eligió en su pago pendiente (confirmación
+     *                               manual desde el panel).
      */
     public function confirmarPago(Venta $venta, ?Usuario $actor = null, string $origen = 'sistema', ?int $metodoPagoId = null): bool
     {
@@ -50,31 +50,27 @@ class OrdenEstadoService
 
             $pago->metodo_pago_id = $metodoPagoId
                 ?? $pago->metodo_pago_id
-                ?? MetodoPago::where('nombre', 'Efectivo')->value('id');
+                ?? MetodoPago::where('estado', true)->orderBy('id')->value('id');
             $pago->estado     = 'aprobado';
             $pago->fecha_pago = now();
             $pago->save();
 
             // Sin eventos: la auditoría de este cambio se registra abajo con más detalle.
             Venta::withoutEvents(fn () => $venta->update([
-                'estado'              => 'pagada',
-                'pago_confirmado_por' => $actor?->id,
-                'cancelada_at'        => null,
-                'cancelada_por'       => null,
-                'motivo_cancelacion'  => null,
+                'estado'             => 'pagada',
+                'confirmado_por'     => $actor?->id,
+                'fecha_cancelacion'  => null,
+                'cancelado_por'      => null,
+                'motivo_cancelacion' => null,
             ]));
 
             foreach ($venta->detalleProductos as $d) {
                 $d->producto?->inventario?->decrement('stock_actual', $d->cantidad);
             }
 
-            // La fecha confirmada es la que el cliente eligió al inscribirse.
-            foreach (Inscripcion::where('venta_id', $venta->id)->where('estado', 'pendiente')->get() as $inscripcion) {
-                $inscripcion->update([
-                    'estado'           => 'confirmada',
-                    'fecha_confirmada' => $inscripcion->fecha_preferida,
-                ]);
-            }
+            // Las inscripciones a los cursos de esta venta quedan confirmadas.
+            $this->inscripcionesDe($venta)->where('estado', 'pendiente')
+                ->update(['estado' => 'confirmada', 'updated_at' => now()]);
         });
 
         $this->auditar($venta, 'pendiente', 'pagada', $origen, $actor, null);
@@ -102,8 +98,8 @@ class OrdenEstadoService
 
             Venta::withoutEvents(fn () => $venta->update([
                 'estado'             => 'cancelada',
-                'cancelada_at'       => now(),
-                'cancelada_por'      => $actor?->id,
+                'fecha_cancelacion'  => now(),
+                'cancelado_por'      => $actor?->id,
                 'motivo_cancelacion' => $motivo ? mb_substr($motivo, 0, 255) : null,
             ]));
 
@@ -113,7 +109,7 @@ class OrdenEstadoService
                 }
             }
 
-            Inscripcion::where('venta_id', $venta->id)
+            $this->inscripcionesDe($venta)
                 ->whereIn('estado', ['pendiente', 'confirmada'])
                 ->update(['estado' => 'cancelada', 'updated_at' => now()]);
         });
@@ -121,6 +117,18 @@ class OrdenEstadoService
         $this->auditar($venta, $anterior, 'cancelada', $origen, $actor, $motivo);
 
         return true;
+    }
+
+    /**
+     * Inscripciones que se pagan con esta venta: las del mismo cliente para los
+     * cursos que están en su detalle_venta_curso.
+     */
+    private function inscripcionesDe(Venta $venta)
+    {
+        $cursos = $venta->detalleCursos()->select('curso_id');
+
+        return Inscripcion::where('usuario_id', $venta->usuario_id)
+            ->whereHas('cursoFecha', fn ($q) => $q->whereIn('curso_id', $cursos));
     }
 
     public function nuevoComprobante(Venta $venta): string
@@ -140,8 +148,8 @@ class OrdenEstadoService
         $datos = [
             'accion'             => 'actualizado',
             'modulo'             => 'Venta',
-            'registro_id'        => $venta->id,
-            'registro_etiqueta'  => $venta->numero_orden,
+            'registro_afectado'        => $venta->id,
+            'nombre_registro'  => $venta->numero_orden,
             'descripcion'        => $texto . " (origen: {$origen})",
             'valores_anteriores' => ['estado' => $anterior],
             'valores_nuevos'     => array_filter(['estado' => $nuevo, 'motivo' => $motivo], fn ($v) => $v !== null),

@@ -202,7 +202,7 @@
             <p class="text-[11px] uppercase tracking-wider font-bold text-slate-400">Próximo curso</p>
             @if($proximoCurso)
                 <p class="font-bold text-slate-800 mt-1 leading-snug">{{ $proximoCurso->curso->nombre }}</p>
-                <p class="text-xs text-slate-500">{{ $proximoCurso->fecha_confirmada->format('d/m/Y') }} · {{ $proximoCurso->curso->ubicacion ?: 'Taller Painting Mistery' }}</p>
+                <p class="text-xs text-slate-500">{{ $proximoCurso->fechaInicio()->format('d/m/Y') }} · {{ $proximoCurso->curso->ubicacion ?: 'Taller Painting Mistery' }}</p>
             @else
                 <p class="text-sm text-slate-500 mt-1">Sin fecha confirmada por ahora.</p>
             @endif
@@ -220,7 +220,7 @@
             @foreach($cursosDisponibles as $c)
             <a href="{{ route('academia') }}#curso-{{ $c->id }}" class="bg-white border border-slate-200 hover:border-red-300 hover:shadow-md rounded-2xl p-5 transition block">
                 <p class="font-bold text-slate-800 leading-snug">{{ $c->nombre }}</p>
-                <p class="text-red-600 font-extrabold mt-2">${{ number_format($c->costo, 0, ',', '.') }}</p>
+                <p class="text-red-600 font-extrabold mt-2">${{ number_format($c->precio, 0, ',', '.') }}</p>
                 <p class="text-xs font-semibold text-slate-500 mt-3">Ver detalles →</p>
             </a>
             @endforeach

@@ -19,8 +19,8 @@
 
 <div class="mb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
     <div>
-        <h1 class="text-xl font-bold text-gray-800 dark:text-slate-100">Reseñas de productos</h1>
-        <p class="text-sm text-gray-400 mt-1">Una reseña se muestra en la tienda cuando se aprueba. Si el cliente la edita, vuelve a quedar pendiente.</p>
+        <h1 class="text-xl font-bold text-gray-800 dark:text-slate-100">Reseñas del taller</h1>
+        <p class="text-sm text-gray-400 mt-1">Las reseñas aprobadas de 4 o 5 estrellas se muestran en el inicio. Si el cliente edita la suya, vuelve a quedar pendiente.</p>
     </div>
     <div class="text-right text-sm">
         <p class="text-xs text-gray-400">Promedio publicado</p>
@@ -41,7 +41,7 @@
     </div>
     <form method="GET" class="flex flex-wrap items-center gap-2">
         <input type="hidden" name="estado" value="{{ $estado }}">
-        <input type="text" name="buscar" value="{{ $buscar }}" placeholder="Producto, cliente o comentario"
+        <input type="text" name="buscar" value="{{ $buscar }}" placeholder="Cliente o comentario"
                class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-red-400 w-60">
         <select name="calificacion" class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-red-400">
             <option value="">Todas las estrellas</option>
@@ -66,14 +66,7 @@
                 <span class="px-2 py-0.5 text-[11px] rounded-full font-semibold {{ $colorEstado[$r->estado] ?? 'bg-gray-100 text-gray-500' }}">{{ $r->estadoEtiqueta() }}</span>
                 <span class="text-xs text-gray-400">{{ $r->updated_at?->format('d/m/Y H:i') }}</span>
             </div>
-            <p class="text-xs text-gray-500 dark:text-slate-400 mb-2">
-                Producto:
-                @if($r->producto)
-                    <a href="{{ route('producto.show', $r->producto_id) }}" target="_blank" class="font-medium text-gray-700 dark:text-slate-300 hover:text-red-600">{{ $r->producto->nombre }}</a>
-                @else
-                    <span class="italic">producto eliminado</span>
-                @endif
-            </p>
+            <p class="text-xs text-gray-500 dark:text-slate-400 mb-2">{{ $r->usuario?->correo }}</p>
             <p class="text-sm text-gray-600 dark:text-slate-300 whitespace-pre-line break-words">{{ $r->comentario }}</p>
         </div>
         @if($puedeEditar)

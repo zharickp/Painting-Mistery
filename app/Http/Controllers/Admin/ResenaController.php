@@ -10,9 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Reseñas que los clientes dejan en los productos. Llegan pendientes y solo se
- * publican en la tienda (y, si tienen 4 o 5 estrellas, en el inicio) cuando
- * se aprueban aquí.
+ * Reseñas que los clientes dejan sobre el taller. Llegan pendientes y solo se
+ * publican en el inicio (las de 4 o 5 estrellas) cuando se aprueban aquí.
  */
 class ResenaController extends Controller
 {
@@ -23,14 +22,13 @@ class ResenaController extends Controller
         $calificacion = $request->integer('calificacion') ?: null;
         $buscar       = trim((string) $request->input('buscar'));
 
-        $resenas = Resena::with(['producto:id,nombre', 'usuario:id,primer_nombre,primer_apellido,correo'])
+        $resenas = Resena::with('usuario:id,primer_nombre,primer_apellido,correo')
             ->when($estado !== 'todas', fn ($q) => $q->where('estado', $estado))
             ->when($calificacion, fn ($q) => $q->where('calificacion', $calificacion))
             ->when($buscar !== '', function ($q) use ($buscar) {
                 $texto = '%' . $buscar . '%';
                 $q->where(function ($q) use ($texto) {
                     $q->where('comentario', 'ilike', $texto)
-                      ->orWhereHas('producto', fn ($p) => $p->where('nombre', 'ilike', $texto))
                       ->orWhereHas('usuario', fn ($u) => $u->where('primer_nombre', 'ilike', $texto)
                           ->orWhere('primer_apellido', 'ilike', $texto)
                           ->orWhere('correo', 'ilike', $texto));
@@ -56,12 +54,12 @@ class ResenaController extends Controller
 
     public function aprobar(Resena $resena): RedirectResponse
     {
-        return $this->cambiarEstado($resena, 'aprobada', 'Reseña aprobada. Ya se ve en la tienda.');
+        return $this->cambiarEstado($resena, 'aprobada', 'Reseña aprobada.');
     }
 
     public function rechazar(Resena $resena): RedirectResponse
     {
-        return $this->cambiarEstado($resena, 'rechazada', 'Reseña rechazada. No se mostrará en la tienda.');
+        return $this->cambiarEstado($resena, 'rechazada', 'Reseña rechazada. No se mostrará en la página.');
     }
 
     private function cambiarEstado(Resena $resena, string $nuevo, string $mensaje): RedirectResponse
@@ -71,19 +69,18 @@ class ResenaController extends Controller
             return back();
         }
 
-        $resena->load(['producto:id,nombre', 'usuario:id,primer_nombre,primer_apellido']);
+        $resena->load('usuario:id,primer_nombre,primer_apellido');
         $resena->update(['estado' => $nuevo]);
 
-        $producto = $resena->producto?->nombre ?? 'producto eliminado';
         $cliente  = $resena->nombreMostrar();
         $verbo    = $nuevo === 'aprobada' ? 'Aprobó' : 'Rechazó';
 
         AuditoriaService::registrar([
             'accion'             => 'actualizado',
             'modulo'             => 'Reseña',
-            'registro_id'        => $resena->id,
-            'registro_etiqueta'  => "{$cliente} · {$producto}",
-            'descripcion'        => "{$verbo} la reseña de {$cliente} sobre {$producto}",
+            'registro_afectado'  => $resena->id,
+            'nombre_registro'    => "Reseña de {$cliente}",
+            'descripcion'        => "{$verbo} la reseña de {$cliente}",
             'valores_anteriores' => ['estado' => $anterior],
             'valores_nuevos'     => ['estado' => $nuevo],
         ]);
@@ -93,19 +90,17 @@ class ResenaController extends Controller
 
     public function destroy(Resena $resena): RedirectResponse
     {
-        $resena->load(['producto:id,nombre', 'usuario:id,primer_nombre,primer_apellido']);
+        $resena->load('usuario:id,primer_nombre,primer_apellido');
 
-        $producto = $resena->producto?->nombre ?? 'producto eliminado';
         $cliente  = $resena->nombreMostrar();
 
         AuditoriaService::registrar([
             'accion'             => 'eliminado',
             'modulo'             => 'Reseña',
-            'registro_id'        => $resena->id,
-            'registro_etiqueta'  => "{$cliente} · {$producto}",
-            'descripcion'        => "Eliminó la reseña de {$cliente} sobre {$producto}",
+            'registro_afectado'  => $resena->id,
+            'nombre_registro'    => "Reseña de {$cliente}",
+            'descripcion'        => "Eliminó la reseña de {$cliente}",
             'valores_anteriores' => [
-                'producto'     => $producto,
                 'cliente'      => $cliente,
                 'calificacion' => $resena->calificacion,
                 'comentario'   => $resena->comentario,

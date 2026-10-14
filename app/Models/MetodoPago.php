@@ -12,18 +12,16 @@ class MetodoPago extends Model
         'nombre',
         'descripcion',
         'estado',
-        'en_linea',
     ];
 
     protected $casts = [
-        'estado'   => 'boolean',
-        'en_linea' => 'boolean',
+        'estado' => 'boolean',
     ];
 
     /** Métodos que el cliente puede elegir en el checkout. */
     public function scopeParaCheckout($query)
     {
-        return $query->where('estado', true)->where('en_linea', true)->orderBy('id');
+        return $query->where('estado', true)->orderBy('id');
     }
 
     // 🔗 Relación con pagos

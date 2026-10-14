@@ -23,11 +23,6 @@
     }
     $galeriaTotalCount = count($galeria);
 
-    $resumen = $producto->resumenResenas();
-    // La propia se busca aparte: puede estar pendiente o rechazada y no salir en la lista.
-    $miResena = auth()->check()
-        ? \App\Models\Resena::where('producto_id', $producto->id)->where('usuario_id', auth()->id())->first()
-        : null;
     $waTexto = "Hola! Me interesa el producto: *{$producto->nombre}* (\${$producto->precio}). ¿Está disponible? 🏍️";
 @endphp
 <div class="bg-gray-50 min-h-screen">
@@ -131,17 +126,6 @@
                             <span class="text-xs font-semibold text-red-600 uppercase tracking-widest">{{ $producto->categoria->nombre }}</span>
                         @endif
                         <h1 class="text-2xl font-extrabold text-gray-900 leading-tight mt-1 mb-2">{{ $producto->nombre }}</h1>
-                        <div class="flex items-center gap-1.5 mb-3">
-                            <div class="flex">
-                                @for ($i = 1; $i <= 5; $i++)
-                                    <svg class="h-4 w-4 {{ $i <= round($resumen['promedio']) ? 'text-yellow-400' : 'text-gray-200' }}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                @endfor
-                            </div>
-                            <span class="text-sm font-bold text-gray-700">{{ $resumen['total'] ? number_format($resumen['promedio'], 1) : 'Nuevo' }}</span>
-                            @if ($resumen['total'])
-                                <span class="text-xs text-gray-400">({{ $resumen['total'] }} reseña{{ $resumen['total'] === 1 ? '' : 's' }})</span>
-                            @endif
-                        </div>
                         @if ($producto->tieneDescuento())
                             <p class="text-gray-400 text-sm line-through">${{ number_format($producto->precio_anterior, 0, ',', '.') }}</p>
                         @endif
@@ -214,7 +198,7 @@
                                 </div>
                                 <div class="min-w-0 flex-1">
                                     <p class="text-sm font-semibold text-gray-800">Garantía y devoluciones</p>
-                                    <p class="text-xs text-gray-400 mt-0.5">Conoce nuestras políticas de garantía, cambios y devoluciones.</p>
+                                    <p class="text-xs text-gray-400 mt-0.5">Qué hacer si el producto llega con un problema.</p>
                                 </div>
                                 <svg id="garantiaPanelIcon" class="h-4 w-4 text-gray-400 transition-transform duration-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
@@ -226,7 +210,7 @@
                                         </div>
                                         <div class="min-w-0">
                                             <p class="text-sm font-semibold text-gray-800 mb-0.5">Garantía</p>
-                                            <p class="text-xs text-gray-400 leading-relaxed">Todos nuestros productos cuentan con garantía por defectos de fabricación. Si el producto presenta alguna novedad, podrás comunicarte con nuestro equipo de soporte para iniciar el proceso de revisión.</p>
+                                            <p class="text-xs text-gray-400 leading-relaxed">Todos los productos tienen garantía por defectos de fabricación. Si el tuyo presenta un problema, escríbenos y lo revisamos.</p>
                                         </div>
                                     </div>
                                     <div class="flex gap-3">
@@ -235,7 +219,7 @@
                                         </div>
                                         <div class="min-w-0">
                                             <p class="text-sm font-semibold text-gray-800 mb-0.5">Cambios y devoluciones</p>
-                                            <p class="text-xs text-gray-400 leading-relaxed">Si el producto presenta un defecto de fabricación o hubo un error en la compra, podrás comunicarte con nosotros para revisar el caso y ofrecer una solución de acuerdo con nuestras políticas.</p>
+                                            <p class="text-xs text-gray-400 leading-relaxed">Si el producto tiene un defecto de fabricación o hubo un error en la compra, escríbenos y buscamos una solución.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -269,88 +253,6 @@
                 </button>
                 <div id="descPanel" class="overflow-hidden transition-all duration-300">
                     <p class="text-gray-500 text-sm leading-relaxed pb-5">{{ $producto->descripcion ?: 'Sin descripción disponible.' }}</p>
-                </div>
-            </div>
-
-            {{-- Reseñas --}}
-            <div id="resenas" class="scroll-mt-24 px-6 pb-6 border-t pt-5">
-                <h4 class="font-bold text-gray-800 mb-4">Reseñas de clientes</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div class="flex gap-5">
-                        <div class="text-center flex-shrink-0">
-                            <p class="text-4xl font-extrabold text-gray-900">{{ $resumen['total'] ? number_format($resumen['promedio'], 1) : '—' }}</p>
-                            <div class="flex justify-center gap-0.5 my-1.5">
-                                @for ($i = 1; $i <= 5; $i++)
-                                    <svg class="h-4 w-4 {{ $i <= round($resumen['promedio']) ? 'text-yellow-400' : 'text-gray-200' }}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                @endfor
-                            </div>
-                            <p class="text-xs text-gray-400 whitespace-nowrap">{{ $resumen['total'] ? "{$resumen['total']} reseña" . ($resumen['total'] === 1 ? '' : 's') : 'Sé el primero en opinar' }}</p>
-                        </div>
-                        <div class="flex-1 space-y-1.5 self-center">
-                            @foreach ($resumen['distribucion'] as $d)
-                                <div class="flex items-center gap-2 text-xs">
-                                    <span class="text-gray-500 w-3">{{ $d['estrella'] }}</span>
-                                    <svg class="h-3 w-3 text-yellow-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                    <div class="flex-1 bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                                        <div class="bg-yellow-400 h-1.5 rounded-full" style="width:{{ $d['porcentaje'] }}%"></div>
-                                    </div>
-                                    <span class="text-gray-400 w-4 text-right">{{ $d['cantidad'] }}</span>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    {{-- Formulario --}}
-                    <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-                        <p class="text-sm font-semibold text-gray-700 mb-2" id="resFormTitulo">Danos tu opinión</p>
-                        @guest
-                            <p class="text-xs text-gray-500 mb-2">
-                                Para publicar una reseña debes
-                                <a href="{{ route('login', ['volver' => request()->getPathInfo() . '#resenas']) }}" class="text-red-600 font-semibold hover:underline">iniciar sesión</a>.
-                            </p>
-                        @endguest
-                        @if ($miResena?->estado === 'pendiente')
-                            <p class="text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 mb-3">Tu reseña está en revisión. La verás publicada cuando la aprobemos.</p>
-                        @elseif ($miResena?->estado === 'rechazada')
-                            <p class="text-xs text-rose-700 bg-rose-50 border border-rose-100 rounded-lg px-3 py-2 mb-3">Tu reseña no fue publicada. Puedes editarla y enviarla de nuevo.</p>
-                        @endif
-                        <div class="flex items-center gap-1 mb-3" id="resRatingInput"></div>
-                        <textarea id="resComentarioInput" rows="3" maxlength="1000" placeholder="¿Qué te pareció el producto?"
-                                  class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-red-400 transition resize-none mb-2 bg-white"></textarea>
-                        <button onclick="enviarResena()" id="resEnviarBtn"
-                                class="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition w-full sm:w-auto">
-                            Enviar reseña
-                        </button>
-                    </div>
-                </div>
-
-                <div id="resLista" class="space-y-4">
-                    @forelse ($producto->resenas as $r)
-                        <div class="flex gap-3">
-                            <div class="h-9 w-9 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
-                                {{ strtoupper(substr($r->nombreMostrar(), 0, 1)) }}
-                            </div>
-                            <div class="min-w-0">
-                                <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 mb-0.5">
-                                    <span class="font-semibold text-gray-800 text-xs">{{ $r->nombreMostrar() }}</span>
-                                    @auth
-                                        @if ($r->usuario_id === auth()->id())
-                                            <span class="text-[10px] bg-red-50 text-red-600 font-semibold px-1.5 py-0.5 rounded-full">Tu reseña</span>
-                                        @endif
-                                    @endauth
-                                    <div class="flex">
-                                        @for ($i = 1; $i <= 5; $i++)
-                                            <svg class="h-3 w-3 {{ $i <= $r->calificacion ? 'text-yellow-400' : 'text-gray-200' }}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                        @endfor
-                                    </div>
-                                    <span class="text-[11px] text-gray-400">{{ $r->created_at->diffForHumans() }}</span>
-                                </div>
-                                <p class="text-gray-500 text-xs leading-relaxed">{{ $r->comentario }}</p>
-                            </div>
-                        </div>
-                    @empty
-                        <p class="text-sm text-gray-400 text-center py-6" id="resVacio">Todavía no hay reseñas para este producto. ¡Sé el primero en opinar!</p>
-                    @endforelse
                 </div>
             </div>
 
@@ -433,8 +335,6 @@
     window.galeriaSinColorRutas = @json($producto->galeriaSinColor());
     window.productoPortada = @json($producto->imagen);
     window.stockGeneral = @json($producto->stockActual()); // el stock es del producto (Inventario), no del color
-    window.rutaResenaStore = @json(route('resenas.store', $producto));
-    window.usuarioActualId = @json(auth()->id());
     let colorActivoId = null;
 
     // ── Cantidad y agregar al carrito ──
@@ -446,7 +346,7 @@
     function agregarAlCarritoDesdePagina(btn) {
         const qty = parseInt(document.getElementById('prodCantidad').value) || 1;
         addToCart({ id: window.productoId, nombre: window.productoNombre, precio: window.productoPrecio, imagen: window.productoImagen }, qty);
-        showToast(`${window.productoNombre} añadido al carrito 🛒`);
+        showToast(`${window.productoNombre} agregado al carrito`);
         pulso(btn);
     }
 
@@ -763,74 +663,6 @@
 
     // ── Acordeón: abrir descripción por defecto ──
     document.addEventListener('DOMContentLoaded', () => abrirAcordeon('descPanel'));
-
-    // ── Reseñas: estrellas de calificación ──
-    let resRatingSeleccion = @json(optional($miResena)->calificacion) || 0;
-
-    function pintarEstrellasInput() {
-        const input = document.getElementById('resRatingInput');
-        if (!input) return;
-        input.innerHTML = '';
-        for (let i = 1; i <= 5; i++) {
-            const activa = i <= resRatingSeleccion;
-            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            svg.setAttribute('class', `res-star-input h-7 w-7 ${activa ? 'text-yellow-400' : 'text-gray-200'}`);
-            svg.setAttribute('fill', 'currentColor');
-            svg.setAttribute('viewBox', '0 0 20 20');
-            svg.innerHTML = '<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>';
-            const idx = i;
-            svg.onclick = () => { resRatingSeleccion = idx; pintarEstrellasInput(); };
-            input.appendChild(svg);
-        }
-    }
-    pintarEstrellasInput();
-
-    @if ($miResena)
-        document.getElementById('resComentarioInput').value = @json($miResena->comentario);
-        document.getElementById('resEnviarBtn').textContent = 'Actualizar reseña';
-        document.getElementById('resFormTitulo').textContent = 'Tu opinión';
-    @endif
-
-    async function enviarResena() {
-        const comentario = document.getElementById('resComentarioInput').value.trim();
-        if (resRatingSeleccion < 1) { showToast('Selecciona una calificación en estrellas'); return; }
-        if (comentario.length < 5) { showToast('Escribe una reseña un poco más larga'); return; }
-
-        const payload = { calificacion: resRatingSeleccion, comentario };
-
-        // Las reseñas siempre quedan ligadas a un usuario.
-        if (!window.usuarioActualId) {
-            window.location.href = @json(route('login', ['volver' => request()->getPathInfo() . '#resenas']));
-            return;
-        }
-
-        const btn = document.getElementById('resEnviarBtn');
-        const textoOriginal = btn.textContent;
-        btn.disabled = true;
-        btn.textContent = 'Enviando...';
-
-        try {
-            const resp = await fetch(window.rutaResenaStore, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (!resp.ok) throw new Error('No se pudo enviar la reseña');
-            const data = await resp.json();
-
-            showToast('Gracias. Tu reseña se publicará cuando la revisemos.');
-            setTimeout(() => window.location.reload(), 900);
-        } catch (e) {
-            showToast('Ocurrió un error, intenta de nuevo');
-            btn.disabled = false;
-            btn.textContent = textoOriginal;
-        }
-    }
 
     document.addEventListener('keydown', (e) => {
         if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;

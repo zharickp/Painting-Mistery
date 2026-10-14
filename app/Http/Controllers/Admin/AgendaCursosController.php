@@ -37,14 +37,11 @@ class AgendaCursosController extends Controller
 
         $inscritos = Inscripcion::activas()
             ->with('usuario')
-            ->whereIn('curso_id', $sesiones->pluck('curso_id')->unique())
+            ->whereIn('curso_fecha_id', $sesiones->pluck('id'))
             ->get();
 
         foreach ($sesiones as $s) {
-            $s->inscritos = $inscritos->filter(function ($i) use ($s) {
-                $f = $i->fecha_confirmada ?? $i->fecha_preferida;
-                return $i->curso_id === $s->curso_id && $f && $f->isSameDay($s->fecha);
-            })->values();
+            $s->inscritos = $inscritos->where('curso_fecha_id', $s->id)->values();
         }
 
         // Semanas -> días -> chips de sesión

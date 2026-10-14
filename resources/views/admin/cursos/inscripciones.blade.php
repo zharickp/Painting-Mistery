@@ -20,18 +20,18 @@
 
 <div class="space-y-4">
     @forelse($inscripciones as $ins)
-    @php $ag = $ins; $puedeEditar = auth()->user()->tieneRol('Administrador', 'Asesor'); @endphp
+    @php $puedeEditar = auth()->user()->tieneRol('Administrador', 'Asesor'); @endphp
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
         <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
             <div>
                 <p class="font-semibold text-gray-800">{{ $ins->usuario->primer_nombre ?? '' }} {{ $ins->usuario->primer_apellido ?? '' }}</p>
                 <p class="text-xs text-gray-400">{{ $ins->usuario->correo ?? '' }} · solicitado {{ $ins->created_at->format('d/m/Y') }} · {{ $ins->codigoReserva() }}</p>
-                @if($ag?->fecha_preferida)
-                    <p class="text-xs text-gray-500 mt-1">Fecha elegida: <strong>{{ \App\Models\CursoFecha::etiquetaDe($ag->fecha_preferida, $curso->dias()) }}</strong></p>
+                @if($ins->fechaTexto())
+                    <p class="text-xs text-gray-500 mt-1">Fecha del curso: <strong>{{ $ins->fechaTexto() }}</strong></p>
                 @endif
                 @if($ins->venta)
                     <p class="text-xs text-gray-500 mt-1">Pago:
-                        <a href="{{ route('admin.ventas.show', $ins->venta_id) }}" class="font-semibold text-gray-700 hover:text-red-600">{{ $ins->venta->numero_orden }}</a>
+                        <a href="{{ route('admin.ventas.show', $ins->venta->id) }}" class="font-semibold text-gray-700 hover:text-red-600">{{ $ins->venta->numero_orden }}</a>
                         · {{ $ins->venta->estadoEtiqueta() }}
                     </p>
                 @endif
@@ -41,8 +41,8 @@
 
         @if($ins->estado === 'pendiente' && $ins->venta?->estado === 'pendiente')
             <p class="mb-4 text-xs text-amber-800 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
-                Esperando el pago. Queda inscrito solo cuando se pague; si pagó en efectivo, confirma el pago desde
-                <a href="{{ route('admin.ventas.show', $ins->venta_id) }}" class="font-semibold underline">la venta</a>.
+                Esperando el pago. Queda inscrito cuando se pague; si el pago ya se verificó, puedes confirmarlo desde
+                <a href="{{ route('admin.ventas.show', $ins->venta->id) }}" class="font-semibold underline">la venta</a>.
             </p>
         @elseif($ins->esReservaAntigua())
             <p class="mb-4 text-xs text-gray-600 bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">
@@ -67,12 +67,16 @@
             </div>
             <div>
                 <label class="block text-xs font-medium text-gray-500 mb-1">Fecha del curso</label>
-                <input type="date" name="fecha_confirmada" value="{{ ($ag?->fecha_confirmada ?? $ag?->fecha_preferida)?->format('Y-m-d') }}"
-                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                <select name="curso_fecha_id" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                    @if(! $ins->curso_fecha_id)<option value="">Sin fecha</option>@endif
+                    @foreach($curso->fechas as $f)
+                        <option value="{{ $f->id }}" @selected($ins->curso_fecha_id === $f->id)>{{ $f->fecha->format('d/m/Y') }}</option>
+                    @endforeach
+                </select>
             </div>
             <div class="sm:col-span-2">
                 <label class="block text-xs font-medium text-gray-500 mb-1">Indicaciones para el estudiante</label>
-                <input type="text" name="notas" value="{{ $ag?->notas }}" maxlength="1000" placeholder="Hora, qué traer, punto de encuentro..."
+                <input type="text" name="indicaciones" value="{{ $ins->indicaciones }}" maxlength="1000" placeholder="Hora, qué traer, punto de encuentro..."
                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
             </div>
             <div class="sm:col-span-4 flex flex-wrap items-center gap-3">
@@ -82,8 +86,6 @@
                 @endif
             </div>
         </form>
-        @elseif($ag?->fecha_confirmada)
-            <p class="text-sm text-gray-600">Fecha del curso: {{ $ag->fecha_confirmada->format('d/m/Y') }}</p>
         @endif
     </div>
     @empty

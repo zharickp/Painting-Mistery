@@ -28,16 +28,16 @@ class TipoIvaController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'descripcion' => 'required|string|max:100|unique:tipo_iva,descripcion',
+            'nombre' => 'required|string|max:40|unique:tipo_iva,nombre',
             'porcentaje'  => 'required|numeric|min:0|max:100',
         ], [
-            'descripcion.unique' => 'Ya existe un tipo de IVA con esa descripción.',
+            'nombre.unique' => 'Ya existe un tipo de IVA con ese nombre.',
             'porcentaje.min'     => 'El porcentaje no puede ser negativo.',
             'porcentaje.max'     => 'El porcentaje no puede superar 100.',
         ]);
 
         TipoIva::create([
-            'descripcion' => $request->descripcion,
+            'nombre' => $request->nombre,
             'porcentaje'  => $request->porcentaje,
         ]);
 
@@ -53,14 +53,14 @@ class TipoIvaController extends Controller
     public function update(Request $request, TipoIva $tipoIva): RedirectResponse
     {
         $request->validate([
-            'descripcion' => 'required|string|max:100|unique:tipo_iva,descripcion,' . $tipoIva->id,
+            'nombre' => 'required|string|max:40|unique:tipo_iva,nombre,' . $tipoIva->id,
             'porcentaje'  => 'required|numeric|min:0|max:100',
         ], [
-            'descripcion.unique' => 'Ya existe un tipo de IVA con esa descripción.',
+            'nombre.unique' => 'Ya existe un tipo de IVA con ese nombre.',
         ]);
 
         $tipoIva->update([
-            'descripcion' => $request->descripcion,
+            'nombre' => $request->nombre,
             'porcentaje'  => $request->porcentaje,
         ]);
 
@@ -97,9 +97,9 @@ class TipoIvaController extends Controller
         AuditoriaService::registrar([
             'accion'             => $anterior ? 'desactivado' : 'activado',
             'modulo'             => 'Tipo de IVA',
-            'registro_id'        => $tipoIva->id,
-            'registro_etiqueta'  => $tipoIva->descripcion,
-            'descripcion'        => ($anterior ? 'Desactivó' : 'Activó') . ' Tipo de IVA "' . $tipoIva->descripcion . '"'
+            'registro_afectado'        => $tipoIva->id,
+            'nombre_registro'  => $tipoIva->nombre,
+            'descripcion'        => ($anterior ? 'Desactivó' : 'Activó') . ' Tipo de IVA "' . $tipoIva->nombre . '"'
                                     . ($anterior ? ' (Activo → Inactivo)' : ' (Inactivo → Activo)'),
             'valores_anteriores' => ['estado' => $anterior],
             'valores_nuevos'     => ['estado' => ! $anterior],

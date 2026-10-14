@@ -22,7 +22,7 @@ class InscripcionController extends Controller
     public function index()
     {
         return response()->json(
-            Inscripcion::with(['usuario', 'curso'])->get(),
+            Inscripcion::with(['usuario', 'cursoFecha.curso'])->get(),
             200
         );
     }
@@ -34,10 +34,10 @@ class InscripcionController extends Controller
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ["usuario_id", "curso_id"],
+                required: ["usuario_id", "curso_fecha_id"],
                 properties: [
                     new OA\Property(property: "usuario_id", type: "integer"),
-                    new OA\Property(property: "curso_id", type: "integer"),
+                    new OA\Property(property: "curso_fecha_id", type: "integer"),
                     new OA\Property(property: "estado", type: "string", example: "pendiente")
                 ]
             )
@@ -52,7 +52,7 @@ class InscripcionController extends Controller
         try {
             $data = $request->validate([
                 'usuario_id' => 'required|exists:usuario,id',
-                'curso_id' => 'required|exists:curso,id',
+                'curso_fecha_id' => 'required|exists:curso_fecha,id',
                 'estado' => 'nullable|in:pendiente,confirmada,completada,cancelada'
             ]);
 
@@ -95,7 +95,7 @@ class InscripcionController extends Controller
     public function show($id)
     {
         try {
-            $inscripcion = Inscripcion::with(['usuario', 'curso'])->findOrFail($id);
+            $inscripcion = Inscripcion::with(['usuario', 'cursoFecha.curso'])->findOrFail($id);
 
             return response()->json($inscripcion, 200);
 

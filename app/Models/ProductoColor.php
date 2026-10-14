@@ -11,7 +11,7 @@ class ProductoColor extends Model
     protected $fillable = [
         'producto_id',
         'nombre',
-        'hex',
+        'codigo_color',
         'orden',
     ];
 

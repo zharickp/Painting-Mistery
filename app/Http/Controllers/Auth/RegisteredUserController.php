@@ -78,8 +78,8 @@ class RegisteredUserController extends Controller
             'telefono'          => $datos['telefono'] ?? null,
             'password'          => $datos['password'],
             'estado'            => true,
-            'verification_code' => $code,
-            'code_expires_at'   => now()->addMinutes(15),
+            'codigo_verificacion' => $code,
+            'vencimiento_codigo'   => now()->addMinutes(15),
         ]);
 
         // Emails con acceso de Administrador automático

@@ -27,7 +27,7 @@
             <h1>Painting Mistery</h1>
         </div>
         <div class="body">
-            <p>Hola, <strong>{{ $nombre }}</strong> 👋</p>
+            <p>Hola, <strong>{{ $nombre }}</strong>:</p>
             <p>Gracias por registrarte. Para activar tu cuenta, ingresa el siguiente código de verificación:</p>
             <div class="code-box">
                 <span>{{ $code }}</span>

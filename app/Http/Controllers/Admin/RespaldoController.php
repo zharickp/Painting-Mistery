@@ -28,7 +28,7 @@ class RespaldoController extends Controller
             AuditoriaService::registrar([
                 'accion'            => 'creado',
                 'modulo'            => 'Copia de seguridad',
-                'registro_etiqueta' => $nombre,
+                'nombre_registro' => $nombre,
                 'descripcion'       => "Generó copia de seguridad {$nombre}",
             ]);
 
@@ -75,7 +75,7 @@ class RespaldoController extends Controller
             AuditoriaService::registrar([
                 'accion'            => 'eliminado',
                 'modulo'            => 'Copia de seguridad',
-                'registro_etiqueta' => $nombre,
+                'nombre_registro' => $nombre,
                 'descripcion'       => "Eliminó copia de seguridad {$nombre}",
             ]);
 

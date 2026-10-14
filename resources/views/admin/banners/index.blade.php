@@ -47,12 +47,12 @@
                         <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full font-medium">{{ $banner->orden }}</span>
                     </td>
                     <td class="px-5 py-3 text-center text-xs text-gray-500">
-                        {{ $banner->publicar_en ? $banner->publicar_en->format('d/m/Y H:i') : 'Inmediata' }}
+                        {{ $banner->fecha_publicacion ? $banner->fecha_publicacion->format('d/m/Y H:i') : 'Inmediata' }}
                     </td>
                     <td class="px-5 py-3 text-center">
                         <span class="px-2 py-0.5 rounded-full text-xs font-medium
-                            {{ $banner->activo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                            {{ $banner->activo ? 'Activo' : 'Inactivo' }}
+                            {{ $banner->estado ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                            {{ $banner->estado ? 'Activo' : 'Inactivo' }}
                         </span>
                     </td>
                     <td class="px-5 py-3 text-center">
@@ -65,10 +65,10 @@
                                 @csrf
                                 <button type="submit"
                                         class="px-3 py-1 text-xs rounded-md transition
-                                            {{ $banner->activo
+                                            {{ $banner->estado
                                                 ? 'bg-yellow-50 hover:bg-yellow-100 text-yellow-700'
                                                 : 'bg-green-50 hover:bg-green-100 text-green-700' }}">
-                                    {{ $banner->activo ? 'Desactivar' : 'Activar' }}
+                                    {{ $banner->estado ? 'Desactivar' : 'Activar' }}
                                 </button>
                             </form>
                             {{-- Botón eliminar retirado: los banners solo se activan o desactivan

@@ -28,8 +28,8 @@ class BannerController extends Controller
             'imagen'        => 'required|image|mimes:jpg,jpeg,png,webp|max:8192',
             'titulo'        => 'required|string|max:150',
             'orden'         => 'nullable|integer|min:0',
-            'activo'        => 'nullable|boolean',
-            'publicar_en'   => 'nullable|date',
+            'estado'        => 'nullable|boolean',
+            'fecha_publicacion'   => 'nullable|date',
         ]);
 
         $nombreArchivo = time() . '_' . $request->file('imagen')->getClientOriginalName();
@@ -39,8 +39,8 @@ class BannerController extends Controller
             'imagen'       => '/images/banners/' . $nombreArchivo,
             'titulo'       => $request->titulo,
             'orden'        => (int) ($request->orden ?? 0),
-            'activo'       => $request->boolean('activo', true),
-            'publicar_en'  => $request->publicar_en,
+            'estado'       => $request->boolean('estado', true),
+            'fecha_publicacion'  => $request->fecha_publicacion,
         ]);
 
         return redirect()->route('admin.banners.index')
@@ -58,8 +58,8 @@ class BannerController extends Controller
             'imagen'        => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
             'titulo'        => 'required|string|max:150',
             'orden'         => 'nullable|integer|min:0',
-            'activo'        => 'nullable|boolean',
-            'publicar_en'   => 'nullable|date',
+            'estado'        => 'nullable|boolean',
+            'fecha_publicacion'   => 'nullable|date',
         ]);
 
         $rutaImagen = $banner->imagen;
@@ -76,8 +76,8 @@ class BannerController extends Controller
             'imagen'       => $rutaImagen,
             'titulo'       => $request->titulo,
             'orden'        => (int) ($request->orden ?? 0),
-            'activo'       => $request->boolean('activo', true),
-            'publicar_en'  => $request->publicar_en,
+            'estado'       => $request->boolean('estado', true),
+            'fecha_publicacion'  => $request->fecha_publicacion,
         ]);
 
         return redirect()->route('admin.banners.index')
@@ -97,9 +97,9 @@ class BannerController extends Controller
 
     public function toggleEstado(Banner $banner): RedirectResponse
     {
-        $banner->update(['activo' => ! $banner->activo]);
+        $banner->update(['estado' => ! $banner->estado]);
 
-        $mensaje = $banner->activo ? 'Banner activado.' : 'Banner desactivado.';
+        $mensaje = $banner->estado ? 'Banner activado.' : 'Banner desactivado.';
 
         return redirect()->route('admin.banners.index')
             ->with('success', $mensaje);

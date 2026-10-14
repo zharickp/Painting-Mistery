@@ -28,14 +28,14 @@
             <h1>Painting Mistery</h1>
         </div>
         <div class="body">
-            <p>Hola, <strong>{{ $nombre }}</strong> 👋</p>
+            <p>Hola, <strong>{{ $nombre }}</strong>:</p>
             <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta. Usa el siguiente código:</p>
             <div class="code-box">
                 <span>{{ $code }}</span>
                 <small>Este código expira en <strong>15 minutos</strong>.</small>
             </div>
             <div class="warning">
-                ⚠️ Si no solicitaste restablecer tu contraseña, ignora este correo. Tu cuenta sigue segura.
+                Si no pediste cambiar tu contraseña, ignora este correo; tu cuenta sigue igual.
             </div>
         </div>
         <div class="footer">
