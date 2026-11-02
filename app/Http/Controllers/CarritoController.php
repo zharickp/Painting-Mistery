@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Carrito;
 use App\Models\CarritoDetalle;
 use App\Models\Producto;
+use App\Services\CarritoCuentaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -159,5 +160,24 @@ class CarritoController extends Controller
         }
 
         return response()->json(['ok' => true, 'avisos' => $avisos]);
+    }
+
+    /**
+     * Guarda en la cuenta del cliente el carrito y la lista de deseos que
+     * tiene en el navegador, para recuperarlos al volver a iniciar sesión.
+     */
+    public function guardarEnCuenta(Request $request)
+    {
+        $data = $request->validate([
+            'carrito'       => 'present|array|max:100',
+            'carrito.*.id'  => 'required|integer',
+            'carrito.*.qty' => 'required|integer|min:1|max:99',
+            'deseos'        => 'present|array|max:200',
+            'deseos.*'      => 'integer',
+        ]);
+
+        CarritoCuentaService::guardar($request->user(), $data['carrito'], $data['deseos']);
+
+        return response()->json(['ok' => true]);
     }
 }

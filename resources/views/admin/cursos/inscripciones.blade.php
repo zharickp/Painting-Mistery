@@ -11,9 +11,6 @@
     </p>
 </div>
 
-@if(session('success'))
-<div class="mb-4 bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-xl">{{ session('success') }}</div>
-@endif
 @if($errors->any())
 <div class="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{{ $errors->first() }}</div>
 @endif

@@ -8,8 +8,6 @@
     <h1 class="text-xl font-bold text-gray-800 mt-2">Editar curso</h1>
 </div>
 
-@if(session('success'))<div class="mb-4 max-w-2xl bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-xl">{{ session('success') }}</div>@endif
-@if(session('error'))<div class="mb-4 max-w-2xl bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{{ session('error') }}</div>@endif
 
 <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 max-w-2xl">
     @if ($errors->any())

@@ -33,9 +33,7 @@
         <button onclick="window.print()" class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition">Imprimir / guardar PDF</button>
     </div>
 
-    @if(session('success'))
-        <div class="no-print mb-4 bg-green-50 border border-green-200 text-green-800 text-sm px-4 py-3 rounded-xl">{{ session('success') }}</div>
-    @endif
+    @include('partials.aviso')
 
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 sm:p-10 print:shadow-none print:border-0">
 

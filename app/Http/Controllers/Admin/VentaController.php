@@ -60,7 +60,7 @@ class VentaController extends Controller
             return back()->with('error', 'Solo se puede confirmar el pago de una orden pendiente.');
         }
 
-        // Confirmación manual desde el panel (por ejemplo, cuando el taller verifica el pago):
+        // Confirmación manual desde el panel (por ejemplo, cuando se verifica el pago a mano):
         // queda registrado con el método que eligió el cliente.
         $svc->confirmarPago($venta, auth()->user(), 'panel administrativo');
 

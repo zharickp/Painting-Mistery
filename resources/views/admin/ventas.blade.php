@@ -17,8 +17,6 @@
     <p class="text-sm text-gray-400 mt-1">Las órdenes canceladas también quedan en el historial.</p>
 </div>
 
-@if(session('success'))<div class="mb-4 bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-xl">{{ session('success') }}</div>@endif
-@if(session('error'))<div class="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{{ session('error') }}</div>@endif
 
 <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-4">
     <div class="flex flex-wrap gap-2">

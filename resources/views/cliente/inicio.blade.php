@@ -86,10 +86,10 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div>
 
         {{-- Últimas compras --}}
-        <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl overflow-hidden">
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                 <h2 class="text-lg font-bold text-slate-800">Últimas compras</h2>
                 <a href="{{ route('mi-cuenta.pedidos') }}" class="text-xs font-semibold text-red-600 hover:text-red-700">
@@ -128,56 +128,6 @@
                     @endforeach
                 </div>
             @endif
-        </div>
-
-        {{-- Accesos rápidos --}}
-        <div class="bg-white border border-slate-200 rounded-2xl p-6">
-            <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4">Accesos rápidos</h2>
-            <div class="space-y-2">
-                <a href="{{ route('tienda.index') }}"
-                   class="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition group">
-                    <div class="flex items-center gap-3">
-                        <div class="h-9 w-9 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
-                            <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
-                            </svg>
-                        </div>
-                        <span class="text-sm font-semibold text-slate-700 group-hover:text-red-600">Ir a la tienda</span>
-                    </div>
-                    <svg class="h-4 w-4 text-slate-300 group-hover:text-red-600 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                    </svg>
-                </a>
-                <a href="{{ route('mi-cuenta.pedidos') }}"
-                   class="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition group">
-                    <div class="flex items-center gap-3">
-                        <div class="h-9 w-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                            <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                            </svg>
-                        </div>
-                        <span class="text-sm font-semibold text-slate-700 group-hover:text-red-600">Mis compras</span>
-                    </div>
-                    <svg class="h-4 w-4 text-slate-300 group-hover:text-red-600 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                    </svg>
-                </a>
-                <a href="{{ route('mi-cuenta.cursos') }}"
-                   class="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition group">
-                    <span class="text-sm font-semibold text-slate-700 group-hover:text-red-600">Mis cursos</span>
-                    <svg class="h-4 w-4 text-slate-300 group-hover:text-red-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-                </a>
-                <a href="{{ route('mi-cuenta.perfil') }}"
-                   class="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition group">
-                    <span class="text-sm font-semibold text-slate-700 group-hover:text-red-600">Mi perfil</span>
-                    <svg class="h-4 w-4 text-slate-300 group-hover:text-red-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-                </a>
-                <a href="{{ route('academia') }}"
-                   class="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition group">
-                    <span class="text-sm font-semibold text-slate-700 group-hover:text-red-600">Explorar los cursos</span>
-                    <svg class="h-4 w-4 text-slate-300 group-hover:text-red-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-                </a>
-            </div>
         </div>
     </div>
 
@@ -262,4 +212,7 @@
 </div>
 
 @include('partials.footer')
+{{-- El carrito y la lista de deseos del menú también funcionan en esta página --}}
+@include('partials.carrito-wishlist-modales')
+@include('partials.tienda-scripts')
 @endsection

@@ -12,10 +12,10 @@ use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
- * Inscripciones de un curso vistas por el taller. No se aprueban a mano:
- * quedan "Inscrito" solas cuando se paga la venta. Desde aquí el taller
- * ajusta la fecha, deja indicaciones, marca el curso como completado o
- * cancela la inscripción (lo que también cancela su venta).
+ * Inscripciones de un curso vistas desde el panel. No se aprueban a mano:
+ * quedan "Inscrito" solas cuando se paga la venta. Desde aquí se
+ * ajusta la fecha, se dejan indicaciones, se marca el curso como completado
+ * o se cancela la inscripción (lo que también cancela su venta).
  */
 class InscripcionController extends Controller
 {

@@ -74,4 +74,7 @@
 </div>
 
 @include('partials.footer')
+{{-- El carrito y la lista de deseos del menú también funcionan en esta página --}}
+@include('partials.carrito-wishlist-modales')
+@include('partials.tienda-scripts')
 @endsection

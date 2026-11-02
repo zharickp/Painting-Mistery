@@ -1,3 +1,4 @@
+@php $puedeComprar = ! auth()->check() || auth()->user()->puedeComprar(); @endphp
 @php
     $segunda = $producto->segundaImagen();
 @endphp
@@ -36,6 +37,7 @@
             @endif
         </div>
 
+        @if($puedeComprar)
         <button type="button" onclick="event.preventDefault(); event.stopPropagation(); toggleWish(this.closest('.prod-card'), this)"
             class="wish-btn absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-md hover:scale-110 transition-transform"
             title="Agregar a lista de deseos">
@@ -43,6 +45,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
             </svg>
         </button>
+        @endif
     </a>
 
     <div class="p-4">
@@ -59,7 +62,7 @@
             </div>
             @if ($producto->estaAgotado())
                 <span class="text-[11px] font-semibold text-gray-400 bg-gray-100 rounded-full px-3 py-1.5">Agotado</span>
-            @else
+            @elseif ($puedeComprar)
                 <button type="button" onclick="addToCartDesdeCard(this.closest('.prod-card'), this)"
                     title="Agregar al carrito" aria-label="Agregar al carrito"
                     class="h-11 w-11 shrink-0 rounded-full bg-red-600 hover:bg-gray-900 text-white flex items-center justify-center shadow-md shadow-red-600/30 hover:shadow-gray-900/30 transition-all duration-300 hover:scale-110 active:scale-90">

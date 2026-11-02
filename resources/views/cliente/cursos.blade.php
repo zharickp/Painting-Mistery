@@ -12,8 +12,6 @@
         <p class="text-sm text-slate-500 mt-1">Tus inscripciones y los cursos que puedes tomar en el taller.</p>
     </div>
 
-    @if(session('success'))<div class="mb-4 bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-xl">{{ session('success') }}</div>@endif
-    @if(session('error'))<div class="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{{ session('error') }}</div>@endif
 
     <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3">Mis inscripciones</h2>
     @if($inscripciones->isEmpty())
@@ -91,4 +89,7 @@
 </div>
 
 @include('partials.footer')
+{{-- El carrito y la lista de deseos del menú también funcionan en esta página --}}
+@include('partials.carrito-wishlist-modales')
+@include('partials.tienda-scripts')
 @endsection

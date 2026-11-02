@@ -6,7 +6,7 @@ use App\Models\Resena;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
-/** Reseña del cliente sobre el taller. Cada cliente tiene una sola y puede editarla. */
+/** Reseña del cliente. Cada cliente tiene una sola y puede editarla. */
 class ResenaController extends Controller
 {
     public function store(Request $request): RedirectResponse
@@ -20,13 +20,14 @@ class ResenaController extends Controller
             'comentario.min'        => 'Escribe un poco más en tu opinión.',
         ]);
 
-        // Nueva o editada, la reseña vuelve a revisión antes de publicarse.
-        Resena::updateOrCreate(
+        // Se publica de una vez. Si el Administrador la desactivó, editarla no la vuelve a mostrar
+        // (el cliente no ve ese estado).
+        $resena = Resena::updateOrCreate(
             ['usuario_id' => $request->user()->id],
-            ['calificacion' => $request->calificacion, 'comentario' => $request->comentario, 'estado' => 'pendiente']
+            ['calificacion' => $request->calificacion, 'comentario' => $request->comentario]
         );
 
         return redirect()->to(route('inicio') . '#resenas')
-            ->with('resena_ok', 'Gracias por tu reseña. La publicaremos cuando la revisemos.');
+            ->with('resena_ok', $resena->wasRecentlyCreated ? 'Gracias por tu reseña.' : 'Tu reseña quedó actualizada.');
     }
 }

@@ -24,7 +24,8 @@ class UsuarioController extends Controller
     public function create(): View
     {
         $tiposDocumento = TipoDocumento::orderBy('nombre')->get();
-        $roles          = Rol::orderBy('nombre')->get();
+        // Desde el panel solo se crea personal; los clientes se registran solos desde la página.
+        $roles          = Rol::whereIn('nombre', RolesController::ROLES_DEL_SISTEMA)->orderBy('nombre')->get();
 
         return view('admin.usuarios.create', compact('tiposDocumento', 'roles'));
     }
@@ -42,8 +43,9 @@ class UsuarioController extends Controller
             'correo'            => 'required|email|max:100|unique:usuario,correo',
             'telefono'          => 'nullable|string|max:20',
             'password'          => 'required|string|min:8|confirmed',
-            'rol_id'            => 'required|exists:rol,id',
+            'rol_id'            => ['required', 'in:' . Rol::whereIn('nombre', RolesController::ROLES_DEL_SISTEMA)->pluck('id')->implode(',')],
         ], [
+            'rol_id.in'               => 'Desde el panel solo se crean usuarios del personal: Administrador, Asesor o Gerente.',
             'numero_documento.unique' => 'Ya existe un usuario con ese número de documento.',
             'correo.unique'           => 'Ya existe un usuario con ese correo.',
             'password.min'            => 'La contraseña debe tener mínimo 8 caracteres.',

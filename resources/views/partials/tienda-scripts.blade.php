@@ -3,14 +3,14 @@
 .animate-pulso { animation: pulsoMicro .35s ease; }
 </style>
 <script>
-// ── Carrito & Wishlist (localStorage, compartido en todas las páginas) ──
+// ── Carrito & Wishlist (localStorage, compartido en todas las páginas; con sesión de cliente se guardan en su cuenta) ──
 const CART_KEY = 'pm_carrito';
 const WISH_KEY = 'pm_wishlist';
 
 function getCarrito() { try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch(e) { return []; } }
-function saveCarrito(c) { localStorage.setItem(CART_KEY, JSON.stringify(c)); syncUI(); }
+function saveCarrito(c) { localStorage.setItem(CART_KEY, JSON.stringify(c)); syncUI(); if (typeof guardarEnCuenta === 'function') guardarEnCuenta(); }
 function getWish() { try { return JSON.parse(localStorage.getItem(WISH_KEY)) || []; } catch(e) { return []; } }
-function saveWish(w) { localStorage.setItem(WISH_KEY, JSON.stringify(w)); syncUI(); }
+function saveWish(w) { localStorage.setItem(WISH_KEY, JSON.stringify(w)); syncUI(); if (typeof guardarEnCuenta === 'function') guardarEnCuenta(); }
 
 function fmt(n) { return '$' + Number(n).toLocaleString('es-CO'); }
 
@@ -222,12 +222,6 @@ function renderCarrito() {
     footer.classList.remove('hidden');
     document.getElementById('carritoTotal').textContent = fmt(total);
 
-    // Mensaje de WhatsApp (alternativa a la compra en línea, siempre disponible)
-    let msg = 'Hola! Quiero hacer este pedido en Painting Mistery:\n\n';
-    cart.forEach(i => { msg += `• ${i.nombre} x${i.qty} = ${fmt(i.precio * i.qty)}\n`; });
-    msg += `\nTotal: ${fmt(total)}`;
-    const waBtn = document.getElementById('carritoWaBtn');
-    if (waBtn) waBtn.href = 'https://wa.me/573144557602?text=' + encodeURIComponent(msg);
 }
 
 function cambiarQtyCarrito(id, delta) {

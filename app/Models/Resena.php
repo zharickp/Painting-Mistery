@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-/** Reseña de un cliente sobre el taller (una por cliente; se publica cuando el taller la aprueba). */
+/** Reseña de un cliente (una por cliente). Se publica al enviarla; el Administrador puede desactivarla. */
 class Resena extends Model
 {
     protected $table = 'resena';
@@ -16,14 +16,9 @@ class Resena extends Model
         'estado',
     ];
 
-    public const ESTADOS = [
-        'pendiente' => 'Pendiente',
-        'aprobada'  => 'Aprobada',
-        'rechazada' => 'Rechazada',
-    ];
-
     protected $casts = [
         'calificacion' => 'integer',
+        'estado'       => 'boolean',
     ];
 
     public function usuario()
@@ -31,15 +26,15 @@ class Resena extends Model
         return $this->belongsTo(Usuario::class);
     }
 
-    /** Solo las aprobadas se muestran en la página. */
-    public function scopeAprobadas($query)
+    /** Solo las activas se muestran en la página. */
+    public function scopeActivas($query)
     {
-        return $query->where('estado', 'aprobada');
+        return $query->where('estado', true);
     }
 
     public function estadoEtiqueta(): string
     {
-        return self::ESTADOS[$this->estado] ?? ucfirst((string) $this->estado);
+        return $this->estado ? 'Activa' : 'Desactivada';
     }
 
     public function nombreMostrar(): string

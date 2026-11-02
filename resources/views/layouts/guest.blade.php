@@ -16,39 +16,97 @@
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    {{-- Carrito local: se vacía cuando el cliente ya hizo un pedido que este navegador no había registrado. --}}
-    @auth
-        @php
-            $ultimaOrden = session('pm_ultima_orden.' . auth()->id());
-            if ($ultimaOrden === null) {
-                $ultimaOrden = (int) \App\Models\Venta::where('usuario_id', auth()->id())->max('id');
-                session(['pm_ultima_orden.' . auth()->id() => $ultimaOrden]);
-            }
-        @endphp
-        <script>window.PM_ORDEN = { usuario: {{ auth()->id() }}, ultima: {{ (int) $ultimaOrden }} };</script>
-    @endauth
+    {{-- Carrito y lista de deseos.
+         Mientras se navega viven en el navegador (localStorage). Si hay un cliente con sesión,
+         su cuenta manda: al entrar se carga lo guardado en ella (sumando lo que haya agregado
+         antes de iniciar sesión) y cada cambio se guarda de nuevo en la cuenta.
+         Sin sesión de cliente, el navegador no conserva lo de ninguna cuenta. --}}
+    @php
+        $pmCuenta = auth()->check() && auth()->user()->tieneRol('Cliente')
+            ? \App\Services\CarritoCuentaService::estado(auth()->user())
+            : null;
+    @endphp
     <script>
+        window.PM_CUENTA = @json($pmCuenta);
+        window.PM_CUENTA_URL = @json($pmCuenta ? route('carrito.cuenta') : null);
+
         (function () {
-            var limpiar = false;
-            if (document.cookie.split('; ').some(function (c) { return c.indexOf('pm_vaciar_carrito=') === 0; })) {
-                limpiar = true;
-                document.cookie = 'pm_vaciar_carrito=; Max-Age=0; path=/';
-            }
+            var CART = 'pm_carrito', WISH = 'pm_wishlist', DUENO = 'pm_dueno';
+            function leer(k) { try { return JSON.parse(localStorage.getItem(k)) || []; } catch (e) { return []; } }
             try {
-                if (window.PM_ORDEN) {
-                    var clave = 'pm_orden_vista_' + window.PM_ORDEN.usuario;
-                    var vista = localStorage.getItem(clave);
-                    if (String(window.PM_ORDEN.ultima) !== vista) {
-                        if (window.PM_ORDEN.ultima > 0) { limpiar = true; }
-                        localStorage.setItem(clave, String(window.PM_ORDEN.ultima));
-                    }
+                // Después de un pedido, el carrito del navegador se vacía.
+                if (document.cookie.split('; ').some(function (c) { return c.indexOf('pm_vaciar_carrito=') === 0; })) {
+                    localStorage.removeItem(CART);
+                    document.cookie = 'pm_vaciar_carrito=; Max-Age=0; path=/';
                 }
-                if (limpiar) { localStorage.removeItem('pm_carrito'); }
+
+                var cuenta = window.PM_CUENTA;
+                var dueno = localStorage.getItem(DUENO);
+
+                if (!cuenta) {
+                    // Sin cliente con sesión: si lo guardado es de una cuenta, se borra.
+                    if (dueno) {
+                        localStorage.removeItem(CART);
+                        localStorage.removeItem(WISH);
+                        localStorage.removeItem(DUENO);
+                    }
+                    return;
+                }
+
+                var carrito = cuenta.carrito.slice();
+                var deseos = cuenta.deseos.slice();
+                var cambio = false;
+
+                // Lo que agregó sin sesión se suma a su cuenta.
+                if (!dueno) {
+                    leer(CART).forEach(function (i) {
+                        var ya = carrito.find(function (c) { return c.id == i.id; });
+                        if (ya) { ya.qty = Math.max(ya.qty, i.qty); } else { carrito.push(i); }
+                        cambio = true;
+                    });
+                    leer(WISH).forEach(function (i) {
+                        if (!deseos.some(function (d) { return d.id == i.id; })) { deseos.push(i); cambio = true; }
+                    });
+                }
+
+                localStorage.setItem(CART, JSON.stringify(carrito));
+                localStorage.setItem(WISH, JSON.stringify(deseos));
+                localStorage.setItem(DUENO, String(cuenta.usuario));
+                if (cambio) { window.PM_GUARDAR_AL_CARGAR = true; }
             } catch (e) {}
         })();
+
+        // Guarda en la cuenta del cliente el carrito y los deseos actuales del navegador.
+        // Espera un momento para juntar varios cambios seguidos, y si el cliente sale
+        // de la página antes, lo envía en ese instante para no perder el último cambio.
+        var pmTemporizadorCuenta = null;
+        function enviarALaCuenta() {
+            clearTimeout(pmTemporizadorCuenta);
+            pmTemporizadorCuenta = null;
+            if (!window.PM_CUENTA_URL) return;
+            var leer = function (k) { try { return JSON.parse(localStorage.getItem(k)) || []; } catch (e) { return []; } };
+            var token = document.querySelector('meta[name="csrf-token"]');
+            fetch(window.PM_CUENTA_URL, {
+                method: 'POST',
+                keepalive: true,
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': token ? token.content : '' },
+                body: JSON.stringify({
+                    carrito: leer('pm_carrito').map(function (i) { return { id: Number(i.id), qty: Number(i.qty) }; }),
+                    deseos: leer('pm_wishlist').map(function (i) { return Number(i.id); }),
+                }),
+            }).catch(function () {});
+        }
+        function guardarEnCuenta() {
+            if (!window.PM_CUENTA_URL) return;
+            clearTimeout(pmTemporizadorCuenta);
+            pmTemporizadorCuenta = setTimeout(enviarALaCuenta, 400);
+        }
+        window.addEventListener('pagehide', function () { if (pmTemporizadorCuenta) enviarALaCuenta(); });
+        if (window.PM_GUARDAR_AL_CARGAR) { enviarALaCuenta(); }
     </script>
 </head>
 <body class="antialiased">
     @yield('content')
+    @include('partials.aviso')
 </body>
 </html>

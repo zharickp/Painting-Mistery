@@ -25,15 +25,14 @@ class LandingController extends Controller
             ->get();
 
         $banners = Banner::activos()->get();
-        // Reseñas del inicio: las más recientes de 4 o 5 estrellas ya aprobadas.
+        // Reseñas del inicio: las más recientes que estén activas, con cualquier calificación.
         $resenasClientes = Resena::with('usuario')
-            ->aprobadas()
-            ->where('calificacion', '>=', 4)
+            ->activas()
             ->latest()
             ->take(3)
             ->get();
 
-        // La reseña del cliente que está viendo la página (puede estar pendiente o rechazada).
+        // La reseña del cliente que está viendo la página, para que pueda editarla.
         $miResena = auth()->user()?->resena;
 
         return view('landing', compact('productosDestacados', 'cursosDestacados', 'banners', 'resenasClientes', 'miResena'));
@@ -52,9 +51,7 @@ class LandingController extends Controller
             ? Inscripcion::with('cursoFecha')->where('usuario_id', auth()->id())->get()->keyBy('curso_id')
             : collect();
 
-        $metodosPago = \App\Models\MetodoPago::paraCheckout()->get();
-
-        return view('academia', compact('cursos', 'misInscripciones', 'metodosPago'));
+        return view('academia', compact('cursos', 'misInscripciones'));
     }
 
     public function contacto()

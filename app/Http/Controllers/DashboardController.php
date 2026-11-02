@@ -31,7 +31,7 @@ class DashboardController extends Controller
             fn() => $this->buildStats($esAdmin, $esAsesor, $esGerente, $usuario));
 
         $ventasMensuales = $esAdmin
-            ? Cache::remember('dashboard_ventas_mensuales_' . now()->year, 300, fn() => $this->ventasMensuales())
+            ? Cache::remember('dashboard_ventas_mensuales_v2_' . now()->year, 300, fn() => $this->ventasMensuales())
             : collect();
 
         $ventasRecientes = ($esAdmin || $esAsesor) ? $this->ventasRecientes() : collect();
@@ -51,7 +51,6 @@ class DashboardController extends Controller
                 'cursos'          => Curso::count(),
                 'categorias'      => CategoriaProducto::where('estado', true)->count(),
                 'usuarios'        => Usuario::count(),
-                'inventario'      => (int) Inventario::sum('stock_actual'),
                 'inventario_bajo' => Inventario::whereColumn('stock_actual', '<=', 'stock_minimo')->count(),
                 'ventas_hoy'      => Venta::pagadas()->whereDate('fecha', today())->sum('total'),
                 'ventas_mes'      => Venta::pagadas()->whereYear('fecha', now()->year)
@@ -67,7 +66,6 @@ class DashboardController extends Controller
                 'productos'       => Producto::where('estado', true)->count(),
                 'cursos'          => Curso::where('estado', true)->count(),
                 'categorias'      => CategoriaProducto::where('estado', true)->count(),
-                'inventario'      => (int) Inventario::sum('stock_actual'),
                 'inventario_bajo' => Inventario::whereColumn('stock_actual', '<=', 'stock_minimo')->count(),
                 'ventas_mes'      => Venta::pagadas()->whereYear('fecha', now()->year)
                                       ->whereMonth('fecha', now()->month)->sum('total'),
@@ -99,17 +97,23 @@ class DashboardController extends Controller
 
     private function ventasMensuales(): array
     {
-        $datos = Venta::pagadas()->selectRaw("EXTRACT(MONTH FROM fecha)::int AS mes, SUM(total) AS total")
+        // Por mes: dinero recibido y cuántas ventas se pagaron (solo ventas pagadas del año actual).
+        $datos = Venta::pagadas()->selectRaw("EXTRACT(MONTH FROM fecha)::int AS mes, SUM(total) AS total, COUNT(*) AS ordenes")
             ->whereRaw("EXTRACT(YEAR FROM fecha) = ?", [now()->year])
             ->groupByRaw("EXTRACT(MONTH FROM fecha)")
             ->orderByRaw("EXTRACT(MONTH FROM fecha)")
-            ->pluck('total', 'mes')
-            ->toArray();
+            ->get()
+            ->keyBy('mes');
 
         $meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
         $resultado = [];
         foreach ($meses as $i => $nombre) {
-            $resultado[] = ['mes' => $nombre, 'total' => (float)($datos[$i + 1] ?? 0)];
+            $fila = $datos->get($i + 1);
+            $resultado[] = [
+                'mes'     => $nombre,
+                'total'   => (float) ($fila->total ?? 0),
+                'ordenes' => (int) ($fila->ordenes ?? 0),
+            ];
         }
         return $resultado;
     }

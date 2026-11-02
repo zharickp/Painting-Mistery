@@ -12,7 +12,6 @@
         <p class="text-sm text-slate-500 mt-1">Actualiza tus datos de contacto.</p>
     </div>
 
-    @if(session('success'))<div class="mb-4 bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-xl">{{ session('success') }}</div>@endif
     @if($errors->any())<div class="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{{ $errors->first() }}</div>@endif
 
     <form method="POST" action="{{ route('mi-cuenta.perfil.update') }}" class="bg-white border border-slate-200 rounded-2xl p-6 space-y-5">
@@ -47,4 +46,7 @@
 </div>
 
 @include('partials.footer')
+{{-- El carrito y la lista de deseos del menú también funcionan en esta página --}}
+@include('partials.carrito-wishlist-modales')
+@include('partials.tienda-scripts')
 @endsection

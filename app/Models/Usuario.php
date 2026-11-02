@@ -72,11 +72,6 @@ class Usuario extends Authenticatable
         );
     }
 
-    public function carritos()
-    {
-        return $this->hasMany(Carrito::class);
-    }
-
     public function inscripciones()
     {
         return $this->hasMany(Inscripcion::class);
@@ -90,6 +85,25 @@ class Usuario extends Authenticatable
     public function resena()
     {
         return $this->hasOne(Resena::class);
+    }
+
+    public function listaDeseos()
+    {
+        return $this->hasMany(ListaDeseos::class);
+    }
+
+    public function carritos()
+    {
+        return $this->hasMany(Carrito::class);
+    }
+
+    /**
+     * Solo los clientes compran en la tienda. El personal (Administrador,
+     * Asesor y Gerente) puede ver los productos, pero no usar carrito ni lista de deseos.
+     */
+    public function puedeComprar(): bool
+    {
+        return $this->tieneRol('Cliente') && ! $this->tieneRol('Administrador', 'Asesor', 'Gerente');
     }
 
     public function nombreCompleto(): string

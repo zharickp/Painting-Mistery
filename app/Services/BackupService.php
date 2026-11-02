@@ -8,13 +8,19 @@ use Symfony\Component\Process\Process;
 
 class BackupService
 {
+    /** Prefijo del archivo que se está generando (manual, automática o previa a restaurar). */
+    private string $prefijo = 'respaldo_';
+
     public const CARPETA = 'backups';
 
     /** Las copias automáticas se reconocen por el nombre del archivo. */
     public const PREFIJO_AUTO = 'respaldo_auto_';
 
-    /** Días entre copias automáticas. */
-    public const DIAS_ENTRE_AUTOMATICAS = 15;
+    /** Copia que se guarda sola justo antes de restaurar otra, para poder deshacerlo. */
+    public const PREFIJO_PREVIA = 'respaldo_previo_';
+
+    /** Se hace una copia automática al día y se conservan solo las más recientes. */
+    public const MAX_AUTOMATICAS = 30;
 
     public function directorio(): string
     {
@@ -36,9 +42,10 @@ class BackupService
             $items[] = [
                 'nombre'         => $archivo->getFilename(),
                 'automatica'     => str_starts_with($archivo->getFilename(), self::PREFIJO_AUTO),
+                'previa'         => str_starts_with($archivo->getFilename(), self::PREFIJO_PREVIA),
                 'tamano_bytes'   => $archivo->getSize(),
                 'tamano_legible' => $this->formatearTamano($archivo->getSize()),
-                'fecha'          => \Carbon\Carbon::createFromTimestamp($archivo->getMTime()),
+                'fecha'          => \Carbon\Carbon::createFromTimestamp($archivo->getMTime(), config('app.timezone')),
             ];
         }
 
@@ -52,8 +59,10 @@ class BackupService
      * Detecta automáticamente el driver (pgsql o mysql) desde la config.
      * @throws \RuntimeException
      */
-    public function generar(bool $automatica = false): string
+    public function generar(bool $automatica = false, bool $previa = false): string
     {
+        $this->prefijo = $previa ? self::PREFIJO_PREVIA : ($automatica ? self::PREFIJO_AUTO : 'respaldo_');
+
         // Desde el navegador PHP corta a los 30 s por defecto; un volcado de
         // una BD remota puede tardar más.
         @set_time_limit(0);
@@ -82,7 +91,7 @@ class BackupService
         $binario = $this->rutaBinario('pg_dump');
 
         $marca   = now()->format('Y-m-d_His');
-        $nombre  = ($automatica ? self::PREFIJO_AUTO : 'respaldo_') . "{$marca}.sql";
+        $nombre  = $this->prefijo . "{$marca}.sql";
         $destino = $this->directorio() . DIRECTORY_SEPARATOR . $nombre;
 
         $comando = [
@@ -170,7 +179,7 @@ class BackupService
         $binario = $this->rutaBinario('mysqldump');
 
         $marca   = now()->format('Y-m-d_His');
-        $nombre  = ($automatica ? self::PREFIJO_AUTO : 'respaldo_') . "{$marca}.sql";
+        $nombre  = $this->prefijo . "{$marca}.sql";
         $destino = $this->directorio() . DIRECTORY_SEPARATOR . $nombre;
 
         $comando = [
@@ -224,6 +233,85 @@ class BackupService
         return null;
     }
 
+    /** ¿Ya se hizo hoy la copia automática? */
+    public function automaticaDeHoyHecha(): bool
+    {
+        return (bool) $this->ultimaAutomatica()?->isToday();
+    }
+
+    /** Borra las copias automáticas más viejas y deja solo las MAX_AUTOMATICAS más recientes. Las manuales no se tocan. */
+    public function limpiarAutomaticas(): int
+    {
+        $automaticas = array_values(array_filter($this->listar(), fn ($c) => $c['automatica']));
+        $sobran = array_slice($automaticas, self::MAX_AUTOMATICAS);
+
+        foreach ($sobran as $copia) {
+            $this->eliminar($copia['nombre']);
+        }
+
+        return count($sobran);
+    }
+
+    /**
+     * Aplica una copia al sistema: la base de datos vuelve a quedar como estaba cuando se hizo.
+     * Antes se guarda una copia del estado actual (respaldo_previo_...) para poder deshacerlo.
+     * Todo corre en una sola transacción: si algo falla, la base de datos queda como estaba.
+     * Devuelve el nombre de la copia previa.
+     * @throws \RuntimeException
+     */
+    public function restaurar(string $nombre): string
+    {
+        @set_time_limit(0);
+
+        $archivo = $this->rutaSegura($nombre);
+
+        $default = config('database.default');
+        $conf    = config("database.connections.{$default}");
+        if (($conf['driver'] ?? $default) !== 'pgsql') {
+            throw new \RuntimeException('La restauración solo está disponible con PostgreSQL.');
+        }
+
+        $previa = $this->generar(previa: true);
+
+        $binario = $this->rutaBinario('psql');
+        $comando = [
+            $binario,
+            '--host=' . ($conf['host'] ?? '127.0.0.1'),
+            '--port=' . ($conf['port'] ?? '5432'),
+            '--username=' . ($conf['username'] ?? ''),
+            '--dbname=' . ($conf['database'] ?? ''),
+            '--no-psqlrc',
+            '--quiet',
+            '--single-transaction',
+            '--set=ON_ERROR_STOP=1',
+            // Se vacía el esquema y se carga la copia; si algo falla se deshace todo.
+            '--command=DROP SCHEMA public CASCADE; CREATE SCHEMA public;',
+            '--file=' . $archivo,
+        ];
+
+        $entorno = $this->entornoSistema() + ['PGPASSWORD' => (string) ($conf['password'] ?? '')];
+        if (!empty($conf['sslmode'])) {
+            $entorno['PGSSLMODE'] = (string) $conf['sslmode'];
+        }
+
+        $proceso = $this->ejecutar($comando, $entorno);
+
+        if (!$proceso->isSuccessful()) {
+            $error = trim($proceso->getErrorOutput());
+            Log::error('Fallo la restauración con psql: ' . $error);
+
+            // No se cambió nada, así que la copia previa no hace falta.
+            File::delete($this->directorio() . DIRECTORY_SEPARATOR . $previa);
+
+            if (stripos($error, 'must be owner') !== false) {
+                throw new \RuntimeException('El usuario de la base de datos no tiene permiso para restaurar. No se cambió nada.');
+            }
+            throw new \RuntimeException(str_replace('generar la copia', 'restaurar la copia', $this->mensajeError('psql', $binario, $error)) . ' No se cambió nada.');
+        }
+
+        return $previa;
+    }
+
     public function eliminar(string $nombre): bool
     {
         $ruta = $this->rutaSegura($nombre);
@@ -252,18 +340,26 @@ class BackupService
         // 1) Ruta explícita en .env: DB_DUMP_PATH (pg_dump o mysqldump).
         //    Se lee vía config() para que funcione también con "config:cache".
         $env = config('database.dump_path');
-        if ($env && file_exists($env)) return $env;
+        if ($env && file_exists($env)) {
+            if ($nombre === 'psql') {
+                // DB_DUMP_PATH apunta a pg_dump; psql está en la misma carpeta.
+                $psql = dirname($env) . DIRECTORY_SEPARATOR . (str_ends_with(strtolower($env), '.exe') ? 'psql.exe' : 'psql');
+                if (file_exists($psql)) return $psql;
+            } else {
+                return $env;
+            }
+        }
 
         // 2) Instalaciones de Windows: se busca CUALQUIER versión instalada
         //    (antes solo se buscaban la 14–17 y el equipo tiene la 18), y se
         //    prefiere la más reciente: pg_dump debe ser igual o más nuevo
         //    que el servidor al que se conecta.
-        $patrones = $nombre === 'pg_dump' ? [
+        $patrones = in_array($nombre, ['pg_dump', 'psql'], true) ? array_map(fn ($p) => str_replace('pg_dump.exe', $nombre . '.exe', $p), [
             'C:/Program Files/PostgreSQL/*/bin/pg_dump.exe',
             'C:/Program Files (x86)/PostgreSQL/*/bin/pg_dump.exe',
             'C:/laragon/bin/postgresql/*/bin/pg_dump.exe',
             'C:/xampp/pgsql/bin/pg_dump.exe',
-        ] : [
+        ]) : [
             'C:/Program Files/MySQL/MySQL Server */bin/mysqldump.exe',
             'C:/laragon/bin/mysql/*/bin/mysqldump.exe',
             'C:/xampp/mysql/bin/mysqldump.exe',

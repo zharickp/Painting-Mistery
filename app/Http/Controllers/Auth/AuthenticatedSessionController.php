@@ -50,10 +50,10 @@ class AuthenticatedSessionController extends Controller
         AuditoriaService::login(Auth::user());
 
         // Vuelve a la página donde estaba (curso, carrito, producto...) o, si no
-        // venía de ninguna, al inicio (clientes) o al panel (personal del taller).
+        // venía de ninguna, al inicio (clientes) o al panel (Administrador, Asesor y Gerente).
         $destino = auth()->user()->tieneRol('Cliente') ? route('inicio') : route('dashboard');
 
-        return redirect()->intended($destino)->with('success', '¡Bienvenido de nuevo!');
+        return redirect()->intended($destino);
     }
 
     /**

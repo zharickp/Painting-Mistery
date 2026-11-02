@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -88,7 +89,7 @@ class ProductoController extends Controller
         }
 
         $archivo       = $request->file('imagen');
-        $nombreArchivo = time() . '_portada_' . $archivo->getClientOriginalName();
+        $nombreArchivo = $this->nombreImagen($producto, $archivo, 'portada');
         $archivo->move(public_path('images/productos'), $nombreArchivo);
 
         $orden = (int) $producto->imagenes()->min('orden');
@@ -112,7 +113,7 @@ class ProductoController extends Controller
 
         foreach ($request->file('imagenes') as $archivo) {
             $orden++;
-            $nombreArchivo = time() . '_' . $orden . '_' . $archivo->getClientOriginalName();
+            $nombreArchivo = $this->nombreImagen($producto, $archivo, '');
             $archivo->move(public_path('images/productos'), $nombreArchivo);
 
             ProductoImagen::create([
@@ -175,7 +176,7 @@ class ProductoController extends Controller
                 }
 
                 $orden++;
-                $nombreArchivo = time() . '_' . $orden . '_' . $archivo->getClientOriginalName();
+                $nombreArchivo = $this->nombreImagen($producto, $archivo, $color->nombre);
                 $archivo->move(public_path('images/productos'), $nombreArchivo);
 
                 ProductoImagen::create([
@@ -323,7 +324,7 @@ class ProductoController extends Controller
                 }
 
                 $orden++;
-                $nombreArchivo = time() . '_' . $orden . '_' . $archivo->getClientOriginalName();
+                $nombreArchivo = $this->nombreImagen($producto, $archivo, $color->nombre);
                 $archivo->move(public_path('images/productos'), $nombreArchivo);
 
                 ProductoImagen::create([
@@ -418,5 +419,20 @@ class ProductoController extends Controller
 
         return redirect()->route('admin.productos.index')
             ->with('success', $mensaje);
+    }
+
+    /**
+     * Nombre con el que se guarda una foto: el nombre del producto, un detalle
+     * (portada o el color, si tiene) y un código corto para que no se repita.
+     * Ej.: pechera-ns-200-portada-k3f9.jpg, pechera-ns-200-rojo-x7pq.jpg
+     * La extensión sale del contenido real del archivo, no del nombre que traía.
+     */
+    private function nombreImagen(Producto $producto, UploadedFile $archivo, string $detalle): string
+    {
+        $base = Str::limit(Str::slug($producto->nombre), 60, '');
+        $extension = $archivo->guessExtension() ?: 'jpg';
+        $extension = $extension === 'jpeg' ? 'jpg' : $extension;
+
+        return trim($base . '-' . Str::slug($detalle), '-') . '-' . Str::lower(Str::random(4)) . '.' . $extension;
     }
 }

@@ -7,19 +7,19 @@
 
     @include('partials.nav')
 
-    {{-- HERO: banner con esquinas redondeadas, dentro del mismo ancho del contenido --}}
-    <section class="bg-white pt-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    {{-- HERO: banner completo, de borde a borde y sin esquinas redondeadas --}}
+    <section class="bg-white">
+    <div>
     @if ($banners->isEmpty())
         {{-- Sin banners configurados: imagen fija de siempre, sin cambios --}}
-        <div class="h-[360px] sm:h-[480px] md:h-[560px] lg:h-[clamp(580px,35vw,700px)] overflow-hidden rounded-3xl">
+        <div class="h-[360px] sm:h-[480px] md:h-[560px] lg:h-[clamp(580px,35vw,700px)] overflow-hidden">
             <img src="/images/hero.jpeg"
                  alt="Painting Mistery"
                  class="w-full h-full object-cover object-center block">
         </div>
 
         {{-- Texto completamente separado, debajo --}}
-        <div class="rounded-3xl mt-4" style="background-color: #111827; padding: 40px 24px;">
+        <div style="background-color: #111827; padding: 40px 24px;">
             <div class="max-w-7xl mx-auto">
                 <span class="inline-flex items-center gap-2 bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full mb-4 uppercase tracking-widest">
                     <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
@@ -40,7 +40,7 @@
         {{-- Slider administrable desde /admin/banners.
              Sin overlay de texto: los banners se ven completos y limpios.
              La altura es responsiva por breakpoint para que la imagen respire. --}}
-        <div id="heroSlider" class="relative overflow-hidden rounded-3xl bg-gray-900 h-[360px] sm:h-[480px] md:h-[560px] lg:h-[clamp(580px,35vw,700px)]">
+        <div id="heroSlider" class="relative overflow-hidden bg-gray-900 h-[360px] sm:h-[480px] md:h-[560px] lg:h-[clamp(580px,35vw,700px)]">
             @foreach ($banners as $i => $banner)
                 <div class="hero-slide absolute inset-0 transition-opacity duration-1000 ease-in-out {{ $i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}">
                     <img src="{{ $banner->imagen }}" alt="{{ $banner->titulo }}"
@@ -76,7 +76,7 @@
     @php
         $fotoTienda = optional($productosDestacados->first(fn ($p) => $p->imagen))->imagen ?? asset('images/hero.jpeg');
         $fotoCursos = asset('images/cursos.jpeg');
-        $fotoTaller = optional($banners->first())->imagen ?? asset('images/hero.jpeg');
+        $fotoContacto = optional($banners->first())->imagen ?? asset('images/hero.jpeg');
     @endphp
 
     {{-- ACCESOS --}}
@@ -88,8 +88,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-5">
             @foreach ([
                 ['Tienda',            'Accesorios y repuestos para tu moto.',          route('tienda.index'), $fotoTienda],
-                ['Cursos',            'Pintura, latonería y polichado en el taller.',  route('academia'),     $fotoCursos],
-                ['Contacto',          'Comunícate con nosotros.',                      route('contacto'),     $fotoTaller],
+                ['Cursos',            'Oferta de cursos.',                             route('academia'),     $fotoCursos],
+                ['Contacto',          'Comunícate con nosotros.',                      route('contacto'),     $fotoContacto],
             ] as [$titulo, $texto, $url, $foto])
                 <a href="{{ $url }}" class="group relative block h-72 rounded-2xl overflow-hidden bg-gray-900">
                     <img src="{{ $foto }}" alt="" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition duration-500">
@@ -138,7 +138,7 @@
 
             <div>
                 <h2 class="font-display uppercase text-3xl sm:text-4xl font-bold text-white tracking-tight">Cursos</h2>
-                <p class="text-gray-400 mt-2">Clases prácticas en el taller, con cupos limitados.</p>
+                <p class="text-gray-400 mt-2">Cursos disponibles, con cupos limitados.</p>
 
                 @if ($cursosDestacados->isEmpty())
                     <p class="text-gray-400 text-sm mt-8">Por ahora no hay cursos abiertos.</p>
@@ -171,7 +171,7 @@
             <div class="flex items-end justify-between gap-4 mb-8">
                 <div>
                     <h2 class="font-display uppercase text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">Reseñas</h2>
-                    <p class="text-gray-500 text-sm mt-1">Lo que dicen los clientes del taller.</p>
+                    <p class="text-gray-500 text-sm mt-1">Lo que dicen nuestros clientes.</p>
                 </div>
                 <a href="https://search.google.com/local/writereview?placeid=ChIJv7Zab8DfPo4R1AyV2wRvzJM" target="_blank" rel="noopener"
                    class="shrink-0 text-sm font-semibold text-red-600 hover:text-red-700">Opinar en Google →</a>
@@ -201,21 +201,14 @@
                 <p class="text-gray-500 text-sm">Todavía no hay reseñas publicadas.</p>
             @endif
 
-            {{-- Dejar o editar la reseña del cliente (el personal del taller no ve este cuadro) --}}
+            {{-- Dejar o editar la reseña del cliente (el personal: Administrador, Asesor y Gerente, no ve este cuadro) --}}
             @if (! auth()->check() || auth()->user()->tieneRol('Cliente'))
             <div class="mt-10 max-w-2xl rounded-2xl border border-gray-200 p-6">
-                @if (session('resena_ok'))
-                    <p class="mb-4 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">{{ session('resena_ok') }}</p>
-                @endif
 
                 @auth
                         <p class="font-semibold text-gray-900 mb-1">{{ $miResena ? 'Tu reseña' : 'Cuéntanos cómo te fue' }}</p>
-                        @if ($miResena?->estado === 'pendiente')
-                            <p class="text-xs text-amber-700 mb-3">La estamos revisando; la verás publicada cuando la aprobemos.</p>
-                        @elseif ($miResena?->estado === 'rechazada')
-                            <p class="text-xs text-rose-700 mb-3">No la publicamos. Puedes editarla y enviarla de nuevo.</p>
-                        @elseif ($miResena?->estado === 'aprobada')
-                            <p class="text-xs text-gray-500 mb-3">Está publicada. Si la editas, vuelve a revisión.</p>
+                        @if ($miResena)
+                            <p class="text-xs text-gray-500 mb-3">Puedes editarla cuando quieras.</p>
                         @else
                             <p class="text-xs text-gray-500 mb-3">Sobre un trabajo de pintura, un curso o una compra en la tienda.</p>
                         @endif
@@ -271,10 +264,10 @@
             <div class="space-y-3">
                 @php
                     $faqs = [
-                        ['¿Cuánto tarda un trabajo de pintura?', 'Depende del diseño. El tiempo se acuerda contigo al momento de agendar.'],
-                        ['¿Aceptan diseños personalizados?', 'Claro. Puedes traernos tu idea o referencia y la adaptamos a tu moto. Escríbenos por WhatsApp para cotizar tu diseño.'],
-                        ['¿Qué medios de pago reciben?', 'En la tienda puedes elegir tarjeta, PSE, Nequi o Daviplata al finalizar la compra. Para trabajos de taller también recibimos transferencia o efectivo.'],
-                        ['¿Los productos tienen garantía?', 'Sí, todos nuestros productos y accesorios cuentan con garantía por defectos de fábrica. Los trabajos de pintura tienen garantía sobre el acabado; pregúntanos las condiciones.'],
+                        ['¿Qué medios de pago aceptan?', 'Tarjeta de crédito, tarjeta débito, PSE, Nequi y Daviplata. Eliges el medio al finalizar la compra; todos los pagos se hacen en línea.'],
+                        ['¿Los productos tienen garantía?', 'Sí. Todos los productos tienen garantía por defectos de fabricación. Si el tuyo presenta un problema, escríbenos y lo revisamos.'],
+                        ['¿Cómo me inscribo a un curso?', 'Elige el curso y una de las fechas disponibles, y paga el curso completo. Cuando el pago se confirma, tu cupo queda asegurado.'],
+                        ['¿Cuánto tiempo tengo para pagar la inscripción?', 'Tu cupo queda apartado 24 horas mientras haces el pago. Si no se paga en ese tiempo, el cupo se libera para otra persona.'],
                     ];
                 @endphp
                 @foreach($faqs as $i => $faq)

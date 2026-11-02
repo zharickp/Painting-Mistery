@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Curso;
+use App\Models\MetodoPago;
 use App\Models\DetalleVentaCurso;
 use App\Models\Inscripcion;
 use App\Models\Pago;
@@ -14,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 /**
  * Inscripción a un curso. Se paga completa, como una compra de la tienda:
@@ -24,6 +26,48 @@ use Illuminate\Validation\Rule;
 class InscripcionController extends Controller
 {
     public function __construct(private OrdenEstadoService $estados) {}
+
+    /**
+     * Página para inscribirse a un curso: el cliente elige la fecha y cómo va a pagar.
+     * Sin sesión, primero se pide iniciarla y luego se vuelve aquí.
+     */
+    public function create(Request $request, Curso $curso): View|RedirectResponse
+    {
+        abort_unless($curso->estado, 404);
+
+        $volverAqui = '/cursos/' . $curso->id . '/inscribirse';
+
+        if (! $request->user()) {
+            return redirect()->route('login', ['volver' => $volverAqui]);
+        }
+
+        $volverAlCurso = redirect()->to(route('academia') . '#curso-' . $curso->id);
+
+        if (! $request->user()->tieneRol('Cliente')) {
+            return $volverAlCurso->with('error', 'Las inscripciones se hacen desde una cuenta de cliente.');
+        }
+
+        $existente = Inscripcion::where('usuario_id', $request->user()->id)->delCurso($curso->id)->first();
+        if ($existente && in_array($existente->estado, Inscripcion::ESTADOS_ACTIVOS, true) && ! $existente->esReservaAntigua()) {
+            return $volverAlCurso->with('error', 'Ya tienes una inscripción activa para este curso. Revísala en "Mis cursos".');
+        }
+
+        $fechas = $curso->fechasDisponibles()->get();
+        if ($fechas->isEmpty()) {
+            return $volverAlCurso->with('error', 'Este curso aún no tiene fechas publicadas.');
+        }
+
+        $libres = $curso->cuposDisponibles();
+        if ($libres !== null && $libres <= 0 && ! $existente?->esReservaAntigua()) {
+            return $volverAlCurso->with('error', 'No quedan cupos disponibles para este curso por ahora.');
+        }
+
+        return view('cursos.inscripcion', [
+            'curso'       => $curso,
+            'fechas'      => $fechas,
+            'metodosPago' => MetodoPago::paraCheckout()->get(),
+        ]);
+    }
 
     public function store(Request $request, Curso $curso): RedirectResponse
     {

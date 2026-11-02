@@ -15,7 +15,7 @@
         <div>
             <h1 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100">Copias de seguridad</h1>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                Copias automáticas y manuales de la base de datos.
+                La copia automática se hace todos los días a las 3:00 a. m.
             </p>
         </div>
     </div>
@@ -131,7 +131,9 @@
                             {{ $copia['nombre'] }}
                         </p>
                         <div class="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
-                            @if($copia['automatica'])
+                            @if($copia['previa'])
+                                <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-bold uppercase tracking-wider">Antes de restaurar</span>
+                            @elseif($copia['automatica'])
                                 <span class="px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold uppercase tracking-wider">Automática</span>
                             @else
                                 <span class="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wider">Manual</span>
@@ -158,6 +160,14 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4"/>
                             </svg>
                         </a>
+                        <form method="POST" action="{{ route('admin.respaldos.restaurar', $copia['nombre']) }}" class="inline"
+                              onsubmit="return confirm('¿Restaurar esta copia?\n\nLa base de datos volverá a como estaba el {{ $copia['fecha']->format('d/m/Y \a \l\a\s H:i') }}. Lo que se haya registrado después se perderá.\n\nAntes se guardará una copia del estado actual, por si necesitas deshacerlo. Al terminar tendrás que iniciar sesión de nuevo.');">
+                            @csrf
+                            <button type="submit"
+                                    class="px-3 py-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs font-semibold transition" title="Aplicar esta copia al sistema">
+                                Restaurar
+                            </button>
+                        </form>
                         <form method="POST" action="{{ route('admin.respaldos.destroy', $copia['nombre']) }}"
                               onsubmit="return confirm('¿Eliminar esta copia de seguridad?');" class="inline">
                             @csrf

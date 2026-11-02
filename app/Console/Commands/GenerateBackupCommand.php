@@ -9,17 +9,15 @@ use Illuminate\Console\Command;
 class GenerateBackupCommand extends Command
 {
     protected $signature = 'respaldos:generar
-                            {--si-corresponde : Solo genera la copia si ya pasaron los días definidos desde la última automática}';
+                            {--si-corresponde : Solo genera la copia si todavía no se hizo la automática de hoy}';
 
     protected $description = 'Genera una copia de seguridad automática de la base de datos.';
 
     public function handle(BackupService $backup): int
     {
         if ($this->option('si-corresponde')) {
-            $ultima = $backup->ultimaAutomatica();
-
-            if ($ultima && $ultima->gt(now()->subDays(BackupService::DIAS_ENTRE_AUTOMATICAS))) {
-                $this->line('Todavía no corresponde una copia automática. Última: ' . $ultima->format('d/m/Y H:i'));
+            if ($backup->automaticaDeHoyHecha()) {
+                $this->line('La copia automática de hoy ya está hecha.');
                 return self::SUCCESS;
             }
         }
@@ -40,7 +38,9 @@ class GenerateBackupCommand extends Command
             'descripcion'       => "Copia de seguridad automática {$nombre}",
         ]);
 
-        $this->info("Copia generada: {$nombre}");
+        $borradas = $backup->limpiarAutomaticas();
+
+        $this->info("Copia generada: {$nombre}" . ($borradas ? " (se borraron {$borradas} automáticas antiguas)" : ''));
 
         return self::SUCCESS;
     }

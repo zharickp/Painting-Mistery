@@ -140,7 +140,7 @@ class Inscripcion extends Model
     }
 
     /**
-     * Estados a los que el taller puede pasar la inscripción desde el panel.
+     * Estados a los que se puede pasar la inscripción desde el panel.
      * No hay aprobación manual: queda "Inscrito" sola cuando se paga.
      */
     public function estadosPermitidos(): array

@@ -44,6 +44,7 @@
                     </button>
                 </form>
 
+                @if(! auth()->check() || auth()->user()->puedeComprar())
                 {{-- Lista de deseos --}}
                 <button onclick="abrirWishlist()"
                    class="relative p-2 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition" title="Lista de deseos">
@@ -63,6 +64,7 @@
                     </svg>
                     <span id="navCartBadge" class="hidden absolute -top-0.5 -right-0.5 bg-red-600 text-white text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center leading-none">0</span>
                 </button>
+                @endif
 
                 @auth
                 @php

@@ -5,12 +5,12 @@
 @section('content')
 
 {{-- ══════════════════════════════════════════════════════
-     CABECERA + BANNER DECORATIVO
+     CABECERA
 ══════════════════════════════════════════════════════ --}}
-<div class="mb-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
+<div class="mb-6">
 
     {{-- Título --}}
-    <div class="lg:col-span-2">
+    <div>
         <div class="flex items-center gap-3">
             <div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-red-600 to-red-800 flex items-center justify-center text-white shadow-lg shadow-red-950/20 shrink-0">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -33,20 +33,6 @@
                 <span class="h-2 w-2 rounded-full bg-red-500"></span>
                 {{ auth()->user()->roles->pluck('nombre')->join(' · ') }}
             </span>
-        </div>
-    </div>
-
-    {{-- Banner decorativo "Ideas que se convierten en arte" --}}
-    <div class="relative rounded-2xl overflow-hidden bg-gradient-to-br from-red-600 via-red-700 to-slate-900 dark:from-red-700 dark:via-red-900 dark:to-black p-6 flex items-center justify-between shadow-lg">
-        <div class="absolute -right-6 -bottom-6 w-40 h-40 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -left-4 -top-4 w-32 h-32 bg-red-400/10 rounded-full blur-2xl pointer-events-none"></div>
-        <div class="relative">
-            <p class="text-white/70 text-[10px] font-bold uppercase tracking-widest">Painting Mistery</p>
-            <p class="text-white font-bold text-lg leading-tight mt-1">Ideas que se</p>
-            <p class="text-white font-bold text-lg leading-tight italic">convierten en arte</p>
-        </div>
-        <div class="relative h-16 w-16 shrink-0 rounded-2xl overflow-hidden ring-2 ring-white/20">
-            <img src="{{ asset('images/logo-painting-mistery.png') }}" alt="PM" class="w-full h-full object-cover">
         </div>
     </div>
 </div>
@@ -102,7 +88,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
             </div>
-            <div class="h-8 w-20 opacity-90">{!! $sparkline($spark, '#10b981', 'rgba(16,185,129,0.15)') !!}</div>
         </div>
         <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ventas de hoy</p>
         <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">${{ number_format($ventasHoy, 0, ',', '.') }}</p>
@@ -127,7 +112,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                 </svg>
             </div>
-            <div class="h-8 w-20 opacity-90">{!! $sparkline(collect($ventasMensuales)->pluck('total')->take(-7)->all(), '#6366f1', 'rgba(99,102,241,0.15)') !!}</div>
         </div>
         <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Órdenes pagadas</p>
         <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">{{ number_format($stats['ordenes_mes'] ?? 0) }}</p>
@@ -148,9 +132,6 @@
         </div>
         <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Usuarios registrados</p>
         <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">{{ number_format($stats['usuarios'] ?? 0) }}</p>
-        <p class="mt-2 text-[11px] text-slate-400 dark:text-slate-500">
-            <span class="font-bold text-slate-600 dark:text-slate-300">en total</span>
-        </p>
     </a>
 
     {{-- 4. INGRESOS DEL MES --}}
@@ -162,7 +143,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
             </div>
-            <div class="h-8 w-20 opacity-90">{!! $sparkline($spark, '#ef4444', 'rgba(239,68,68,0.15)') !!}</div>
         </div>
         <p class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ingresos del mes</p>
         <p class="text-2xl font-black text-slate-800 dark:text-slate-100 mt-1">${{ number_format($stats['ventas_mes'] ?? 0, 0, ',', '.') }}</p>
@@ -191,29 +171,14 @@
 
 </div>
 
-{{-- SECCIÓN CENTRAL: GRÁFICOS Y ACCESOS DIRECTOS (SIMILAR A IMAGEN DE REFERENCIA) --}}
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+{{-- GRÁFICOS: ventas por mes y estado de las ventas, lado a lado --}}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
-    {{-- Gráficos de Ventas (8 columnas) --}}
-    <div class="lg:col-span-8 space-y-6">
-
-        {{-- Gráfico Línea: Ventas en el tiempo --}}
+        {{-- Gráfico de barras: dinero recibido por mes --}}
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-                <div>
-                    <h2 class="text-base font-bold text-slate-800 dark:text-slate-100">Ventas en el tiempo</h2>
-                    <p class="text-xs text-slate-400 mt-0.5">Ingresos por mes en {{ now()->year }}</p>
-                </div>
-                <div class="flex items-center gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400">
-                    <span class="flex items-center gap-1.5">
-                        <span class="h-2.5 w-2.5 rounded-full bg-red-600"></span>
-                        Ingresos ($)
-                    </span>
-                    <span class="flex items-center gap-1.5">
-                        <span class="h-2.5 w-2.5 rounded-full bg-indigo-500"></span>
-                        Órdenes
-                    </span>
-                </div>
+            <div class="mb-5">
+                <h2 class="text-base font-bold text-slate-800 dark:text-slate-100">Ventas por mes</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Dinero recibido en {{ now()->year }} (solo ventas pagadas)</p>
             </div>
             <div class="relative w-full h-[220px]">
                 <canvas id="salesChart"></canvas>
@@ -262,144 +227,6 @@
                 </div>
             </div>
         </div>
-
-    </div>
-
-    {{-- Panel Lateral: Accesos Directos (4 columnas - Inspirado en Imagen 1) --}}
-    <div class="lg:col-span-4 space-y-6">
-
-        {{-- Tarjeta: Accesos Directos --}}
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
-            <div class="mb-4 pb-3 border-b border-slate-100 dark:border-slate-800 dark:border-slate-800 flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                    <div class="h-8 w-8 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 dark:text-slate-100">Accesos rápidos</h3>
-                </div>
-                <a href="#" class="text-[11px] font-semibold text-slate-400 dark:text-slate-500 dark:text-slate-400 hover:text-red-600 transition">Ver todos →</a>
-            </div>
-
-            <div class="space-y-2.5">
-                {{-- Productos --}}
-                <a href="{{ route('admin.productos.index') }}"
-                   class="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition group">
-                    <div class="flex items-center gap-3">
-                        <div class="h-9 w-9 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 flex items-center justify-center">
-                            <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
-                            </svg>
-                        </div>
-                        <div class="text-left">
-                            <p class="text-[13px] font-bold text-slate-800 dark:text-slate-100 dark:text-slate-100 group-hover:text-red-600 transition">Productos</p>
-                            <p class="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">Catálogo, precios y fotos</p>
-                        </div>
-                    </div>
-                    <svg class="h-4 w-4 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                    </svg>
-                </a>
-
-                {{-- Cursos --}}
-                <a href="{{ route('admin.cursos.index') }}"
-                   class="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition group">
-                    <div class="flex items-center gap-3">
-                        <div class="h-9 w-9 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-                            <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                            </svg>
-                        </div>
-                        <div class="text-left">
-                            <p class="text-[13px] font-bold text-slate-800 dark:text-slate-100 dark:text-slate-100 group-hover:text-red-600 transition">Cursos</p>
-                            <p class="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">Fechas e inscripciones</p>
-                        </div>
-                    </div>
-                    <svg class="h-4 w-4 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                    </svg>
-                </a>
-
-                {{-- Ventas --}}
-                <a href="{{ route('admin.ventas') }}"
-                   class="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition group">
-                    <div class="flex items-center gap-3">
-                        <div class="h-9 w-9 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                            <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                        </div>
-                        <div class="text-left">
-                            <p class="text-[13px] font-bold text-slate-800 dark:text-slate-100 dark:text-slate-100 group-hover:text-red-600 transition">Ventas</p>
-                            <p class="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">Órdenes y pagos</p>
-                        </div>
-                    </div>
-                    <svg class="h-4 w-4 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                    </svg>
-                </a>
-
-                {{-- Inventario --}}
-                <a href="{{ route('admin.inventario') }}"
-                   class="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition group">
-                    <div class="flex items-center gap-3">
-                        <div class="h-9 w-9 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-                            <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
-                            </svg>
-                        </div>
-                        <div class="text-left">
-                            <p class="text-[13px] font-bold text-slate-800 dark:text-slate-100 dark:text-slate-100 group-hover:text-red-600 transition">Inventario</p>
-                            <p class="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">Existencias y stock mínimo</p>
-                        </div>
-                    </div>
-                    <svg class="h-4 w-4 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                    </svg>
-                </a>
-
-                {{-- Reportes --}}
-                <a href="{{ route('admin.reportes') }}"
-                   class="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition group">
-                    <div class="flex items-center gap-3">
-                        <div class="h-9 w-9 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                            <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                            </svg>
-                        </div>
-                        <div class="text-left">
-                            <p class="text-[13px] font-bold text-slate-800 dark:text-slate-100 dark:text-slate-100 group-hover:text-red-600 transition">Reportes</p>
-                            <p class="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">Ingresos y más vendidos</p>
-                        </div>
-                    </div>
-                    <svg class="h-4 w-4 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                    </svg>
-                </a>
-
-                {{-- Usuarios --}}
-                <a href="{{ route('admin.usuarios.index') }}"
-                   class="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 dark:border-slate-800 hover:border-slate-200 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition group">
-                    <div class="flex items-center gap-3">
-                        <div class="h-9 w-9 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center">
-                            <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                        </div>
-                        <div class="text-left">
-                            <p class="text-[13px] font-bold text-slate-800 dark:text-slate-100 dark:text-slate-100 group-hover:text-red-600 transition">Usuarios</p>
-                            <p class="text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">Cuentas y roles</p>
-                        </div>
-                    </div>
-                    <svg class="h-4 w-4 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                    </svg>
-                </a>
-            </div>
-        </div>
-
-    </div>
 
 </div>
 
@@ -479,6 +306,7 @@
 @php
     $mesesLabels = json_encode(array_column($ventasMensuales, 'mes'));
     $mesesData   = json_encode(array_column($ventasMensuales, 'total'));
+    $mesesOrdenes = json_encode(array_column($ventasMensuales, 'ordenes'));
     $statusData  = json_encode([$pagadas, $pendientes, $canceladas]);
 @endphp
 
@@ -487,12 +315,11 @@
 ══════════════════════════════════════════════════════ --}}
 @elseif($esAsesor)
 
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
     @foreach([
-        ['Productos activos', $stats['productos'], 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10', 'bg-red-50 text-red-600'],
+        ['Productos', $stats['productos'], 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10', 'bg-red-50 text-red-600'],
         ['Cursos disponibles', $stats['cursos'], 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253', 'bg-indigo-50 text-indigo-600'],
         ['Ventas del mes', '$'.number_format($stats['ventas_mes'],0,',','.'), 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'bg-emerald-50 text-emerald-600'],
-        ['Unidades en inventario', number_format($stats['inventario']).' uds', 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4', 'bg-amber-50 text-amber-600'],
     ] as [$label, $value, $icon, $color])
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 flex items-center gap-4 shadow-xs hover:shadow-md transition">
         <div class="rounded-xl p-3 {{ explode(' ',$color)[0] }}">
@@ -550,8 +377,8 @@
 {{-- Indicadores: 4 tarjetas para que la cuadrícula quede pareja (2 o 4 por fila) --}}
 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
     @foreach([
-        ['Productos activos', number_format($stats['productos']), 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10', 'bg-red-50 text-red-600'],
-        ['Cursos activos', number_format($stats['cursos']), 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253', 'bg-indigo-50 text-indigo-600'],
+        ['Productos', number_format($stats['productos']), 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10', 'bg-red-50 text-red-600'],
+        ['Cursos', number_format($stats['cursos']), 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253', 'bg-indigo-50 text-indigo-600'],
         ['Ventas del mes', '$'.number_format($stats['ventas_mes'],0,',','.'), 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'bg-emerald-50 text-emerald-600'],
         ['Ventas del año', '$'.number_format($stats['ventas_anio'],0,',','.'), 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6', 'bg-purple-50 text-purple-600'],
     ] as [$label, $value, $icon, $color])
@@ -684,6 +511,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const mesesLabels = {!! $mesesLabels !!};
     const mesesData   = {!! $mesesData !!};
+    const mesesOrdenes = {!! $mesesOrdenes !!};
     const statusData  = {!! $statusData !!};
 
     const totalEl = document.getElementById('totalVentas');
@@ -722,47 +550,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const salesCanvas = document.getElementById('salesChart');
     if (salesCanvas) {
+        const pesos = v => '$' + Math.round(v).toLocaleString('es-CO');
+        // Eje en millones o miles para que se lea fácil: $5 M, $500 mil
+        const corto = v => v >= 1000000 ? '$' + (v / 1000000).toLocaleString('es-CO', { maximumFractionDigits: 1 }) + ' M'
+                         : v >= 1000    ? '$' + Math.round(v / 1000) + ' mil'
+                         : '$' + v;
         new Chart(salesCanvas, {
-            type: 'line',
+            type: 'bar',
             data: {
                 labels: mesesLabels,
-                datasets: [
-                    {
-                        label: 'Ingresos ($)',
-                        data: mesesData,
-                        borderColor: '#dc2626',
-                        backgroundColor: 'rgba(220, 38, 38, 0.08)',
-                        borderWidth: 2.5,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#dc2626',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                    },
-                    {
-                        label: 'Órdenes',
-                        data: mesesLabels.map((_, i) => Math.round((mesesData[i] || 0) / 50000) || 0),
-                        borderColor: '#6366f1',
-                        backgroundColor: 'rgba(99, 102, 241, 0.05)',
-                        borderWidth: 2,
-                        borderDash: [4, 4],
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#6366f1',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 3,
-                        pointHoverRadius: 5,
-                        yAxisID: 'y2',
-                    }
-                ]
+                datasets: [{
+                    label: 'Dinero recibido',
+                    data: mesesData,
+                    backgroundColor: mesesLabels.map((_, i) => i === new Date().getMonth() ? '#dc2626' : '#fca5a5'),
+                    hoverBackgroundColor: '#b91c1c',
+                    borderRadius: 6,
+                    maxBarThickness: 28,
+                }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
@@ -771,19 +579,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         bodyColor: '#cbd5e1',
                         padding: 10,
                         cornerRadius: 10,
+                        displayColors: false,
+                        callbacks: {
+                            label: ctx => {
+                                const n = mesesOrdenes[ctx.dataIndex] || 0;
+                                return [pesos(ctx.parsed.y), n + (n === 1 ? ' venta pagada' : ' ventas pagadas')];
+                            }
+                        }
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         grid: { color: '#f1f5f9' },
-                        ticks: { color: '#94a3b8', font: { size: 11 }, callback: v => '$' + v.toLocaleString() }
-                    },
-                    y2: {
-                        position: 'right',
-                        beginAtZero: true,
-                        grid: { display: false },
-                        ticks: { color: '#6366f1', font: { size: 11 } }
+                        ticks: { color: '#94a3b8', font: { size: 11 }, callback: v => corto(v), maxTicksLimit: 5 }
                     },
                     x: {
                         grid: { display: false },

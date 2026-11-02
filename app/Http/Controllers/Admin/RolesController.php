@@ -24,18 +24,36 @@ class RolesController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        $roles = Rol::orderBy('nombre')->get();
+        // Orden fijo: primero el personal (Administrador, Gerente, Asesor) y al final Cliente.
+        $orden = ['Administrador', 'Gerente', 'Asesor', 'Cliente'];
+        $roles = Rol::all()->sortBy(fn ($r) => array_search($r->nombre, $orden) === false ? 99 : array_search($r->nombre, $orden))->values();
 
         return view('admin.roles', compact('usuarios', 'roles', 'buscar'));
     }
 
+    /** Roles del personal: entre ellos se puede cambiar. El de Cliente no se asigna ni se quita aquí. */
+    public const ROLES_DEL_SISTEMA = ['Administrador', 'Asesor', 'Gerente'];
+
     public function updateRole(Request $request, Usuario $usuario): RedirectResponse
     {
+        $rolesSistema = Rol::whereIn('nombre', self::ROLES_DEL_SISTEMA)->pluck('id');
+
         $request->validate([
-            'rol_id' => ['required', 'exists:rol,id'],
+            'rol_id' => ['required', 'in:' . $rolesSistema->implode(',')],
+        ], [
+            'rol_id.in' => 'Solo se puede asignar un rol del sistema: Administrador, Asesor o Gerente.',
         ]);
 
-        // Reemplaza todos los roles del usuario con el seleccionado
+        // Un cliente tiene compras e inscripciones a su nombre: no se convierte en personal.
+        if ($usuario->tieneRol('Cliente')) {
+            return back()->with('error', 'El rol de un cliente no se puede cambiar.');
+        }
+
+        if ($usuario->id === auth()->id()) {
+            return back()->with('error', 'No puedes cambiar tu propio rol.');
+        }
+
+        // Reemplaza el rol del sistema que tenía por el seleccionado
         $usuario->roles()->sync([$request->rol_id]);
 
         return back()->with('success', "Rol actualizado para {$usuario->primer_nombre} {$usuario->primer_apellido}.");

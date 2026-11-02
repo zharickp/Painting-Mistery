@@ -25,9 +25,6 @@
             </ul>
         </div>
     @endif
-    @if(session('error'))
-        <div class="mb-6 bg-red-50 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded text-sm">{{ session('error') }}</div>
-    @endif
 
     <form method="POST" action="{{ route('checkout.procesar') }}" id="checkoutForm">
         @csrf
@@ -205,4 +202,7 @@
 
 
 @include('partials.footer')
+{{-- El carrito y la lista de deseos del menú también funcionan en esta página --}}
+@include('partials.carrito-wishlist-modales')
+@include('partials.tienda-scripts')
 @endsection

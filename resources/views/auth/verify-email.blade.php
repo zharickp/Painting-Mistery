@@ -19,16 +19,6 @@
         <div class="p-6 sm:p-8">
 
             {{-- Alertas de éxito --}}
-            @if (session('success'))
-                <div class="mb-4 bg-green-50 text-green-700 p-3 rounded-md border-l-4 border-green-500 text-sm flex items-start gap-2">
-                    {{ session('success') }}
-                </div>
-            @endif
-            @if (session('error'))
-                <div class="mb-4 bg-red-50 text-red-700 p-3 rounded-md border-l-4 border-red-500 text-sm">
-                    {{ session('error') }}
-                </div>
-            @endif
 
             {{-- Mensaje principal --}}
             @if(auth()->user()->codigo_verificacion)

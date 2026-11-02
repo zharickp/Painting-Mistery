@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Banner;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class BannerController extends Controller
@@ -32,7 +34,7 @@ class BannerController extends Controller
             'fecha_publicacion'   => 'nullable|date',
         ]);
 
-        $nombreArchivo = time() . '_' . $request->file('imagen')->getClientOriginalName();
+        $nombreArchivo = $this->nombreImagen($request->file('imagen'), $request->titulo);
         $request->file('imagen')->move(public_path('images/banners'), $nombreArchivo);
 
         Banner::create([
@@ -67,7 +69,7 @@ class BannerController extends Controller
             if ($banner->imagen && file_exists(public_path($banner->imagen))) {
                 unlink(public_path($banner->imagen));
             }
-            $nombreArchivo = time() . '_' . $request->file('imagen')->getClientOriginalName();
+            $nombreArchivo = $this->nombreImagen($request->file('imagen'), $request->titulo);
             $request->file('imagen')->move(public_path('images/banners'), $nombreArchivo);
             $rutaImagen = '/images/banners/' . $nombreArchivo;
         }
@@ -103,5 +105,17 @@ class BannerController extends Controller
 
         return redirect()->route('admin.banners.index')
             ->with('success', $mensaje);
+    }
+
+    /**
+     * Nombre con el que se guarda la imagen del banner. Ej.: banner-primero-m2a8.jpg
+     * La extensión sale del contenido real del archivo, no del nombre que traía.
+     */
+    private function nombreImagen(UploadedFile $archivo, string $titulo): string
+    {
+        $extension = $archivo->guessExtension() ?: 'jpg';
+        $extension = $extension === 'jpeg' ? 'jpg' : $extension;
+
+        return trim('banner-' . Str::limit(Str::slug($titulo), 60, ''), '-') . '-' . Str::lower(Str::random(4)) . '.' . $extension;
     }
 }

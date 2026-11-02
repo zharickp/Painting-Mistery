@@ -35,15 +35,16 @@ Route::get('/nosotros', [LandingController::class, 'nosotros'])->name('nosotros'
 Route::get('/contacto', [LandingController::class, 'contacto'])->name('contacto');
 Route::get('/cursos', [LandingController::class, 'academia'])->name('academia');
 Route::redirect('/academia', '/cursos', 301);
-Route::get('/cursos/{curso}/inscribirse', fn (int $curso) => redirect(route('academia') . '#curso-' . $curso))
-    ->whereNumber('curso');
+// Página para elegir fecha y método de pago (si no hay sesión, primero pide iniciarla).
+Route::get('/cursos/{curso}/inscribirse', [InscripcionController::class, 'create'])
+    ->whereNumber('curso')->name('cursos.inscripcion');
 
 
 // ─── Tienda pública ───────────────────────────────────────────────────────────
 Route::get('/tienda', [TiendaController::class, 'index'])->name('tienda.index');
 Route::get('/productos/{producto}', [PublicProductoController::class, 'show'])->name('producto.show');
 
-// ── Reseña del taller (solo clientes con sesión: queda ligada al usuario) ───
+// ── Reseña (solo clientes con sesión: queda ligada al usuario) ───────────
 Route::post('/resenas', [ResenaController::class, 'store'])
     ->middleware(['auth', 'role:Cliente', 'throttle:10,1'])
     ->name('resenas.store');
@@ -82,6 +83,10 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
 
     // ── Solo Administrador ────────────────────────────────────────────────────
     Route::prefix('admin')->name('admin.')->middleware('role:Administrador')->group(function () {
+        // Reseñas: solo el Administrador las ve y las activa o desactiva (no se eliminan).
+        Route::get('resenas',               [AdminResenaController::class, 'index'])->name('resenas.index');
+        Route::post('resenas/{resena}/toggle', [AdminResenaController::class, 'toggleEstado'])->name('resenas.toggle');
+
 
         Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
         Route::get('/usuarios/create', [UsuarioController::class, 'create'])->name('usuarios.create');  // antes de {usuario}
@@ -107,6 +112,7 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::post('/respaldos',           [RespaldoController::class, 'store'])->name('respaldos.store');
         Route::get('/respaldos/{nombre}',   [RespaldoController::class, 'download'])->name('respaldos.download');
         Route::delete('/respaldos/{nombre}',[RespaldoController::class, 'destroy'])->name('respaldos.destroy');
+        Route::post('/respaldos/{nombre}/restaurar', [RespaldoController::class, 'restaurar'])->name('respaldos.restaurar');
 
     });
 
@@ -145,9 +151,6 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
 
         Route::post('/inventario/{inventario}/actualizar', [InventarioController::class, 'actualizar'])->name('inventario.actualizar');
 
-        Route::post('resenas/{resena}/aprobar',  [AdminResenaController::class, 'aprobar'])->name('resenas.aprobar');
-        Route::post('resenas/{resena}/rechazar', [AdminResenaController::class, 'rechazar'])->name('resenas.rechazar');
-        Route::delete('resenas/{resena}',        [AdminResenaController::class, 'destroy'])->name('resenas.destroy');
     });
 
     // ── Consulta de catálogo, inventario, ventas y reportes (Admin + Asesor + Gerente) ─
@@ -156,12 +159,12 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::get('cursos',                 [CursoController::class, 'index'])->name('cursos.index');
         Route::get('agenda-cursos',          [\App\Http\Controllers\Admin\AgendaCursosController::class, 'index'])->name('agenda-cursos.index');
         Route::get('cursos/{curso}/inscripciones', [AdminInscripcionController::class, 'index'])->name('cursos.inscripciones');
-        Route::get('resenas',                [AdminResenaController::class, 'index'])->name('resenas.index');
         Route::get('/inventario',            [InventarioController::class, 'index'])->name('inventario');
         Route::get('/ventas',                [AdminVentaController::class, 'index'])->name('ventas');
         Route::get('/ventas/{venta}',             [AdminVentaController::class, 'show'])->whereNumber('venta')->name('ventas.show');
         Route::get('/ventas/{venta}/orden-venta', [AdminVentaController::class, 'orden'])->name('ventas.orden');
         Route::get('/reportes',              fn() => view('admin.reportes'))->name('reportes');
+        Route::get('/buscar',                [\App\Http\Controllers\Admin\BuscarController::class, 'index'])->name('buscar');
     });
 
     // ── Carrito (solo Clientes) ───────────────────────────────────────────────
@@ -172,6 +175,7 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::delete('/eliminar/{detalle}', [CarritoController::class, 'eliminar'])->name('eliminar');
         Route::post('/vaciar',               [CarritoController::class, 'vaciar'])->name('vaciar');
         Route::post('/sincronizar',          [CarritoController::class, 'sincronizar'])->name('sincronizar');
+        Route::post('/cuenta',               [CarritoController::class, 'guardarEnCuenta'])->name('cuenta');
     });
 
     Route::post('/cursos/{curso}/inscribirse', [InscripcionController::class, 'store'])

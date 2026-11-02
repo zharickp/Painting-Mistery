@@ -23,6 +23,7 @@
     </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('partials.tema-oscuro')
 </head>
 <body class="bg-slate-100 dark:bg-slate-950 transition-colors">
 @php
@@ -35,7 +36,6 @@
     // inscripción — no tiene sentido mostrarlo vacío a quien solo compra productos.
 
     $productosOpen = request()->routeIs('admin.productos.*')
-        || request()->routeIs('admin.resenas.*')
         || request()->routeIs('admin.tipo-iva.*')
         || request()->routeIs('admin.categorias.*');
 
@@ -43,7 +43,8 @@
         || request()->routeIs('admin.agenda-cursos.*');
 
     $seguimientoOpen = request()->routeIs('admin.reportes')
-        || request()->routeIs('admin.auditoria.*');
+        || request()->routeIs('admin.auditoria.*')
+        || request()->routeIs('admin.resenas.*');
 
     $configOpen = request()->routeIs('admin.banners.*')
         || request()->routeIs('admin.usuarios.*')
@@ -69,7 +70,7 @@
         themeMenuOpen: false,
         notiCount: 0,
         setTheme(t) {
-            this.$root.__x?.$data && (this.$root.__x.$data.theme = t);
+            this.theme = t;
             document.documentElement.classList.toggle('dark', t === 'dark');
             localStorage.setItem('pm-theme', t);
             this.themeMenuOpen = false;
@@ -120,9 +121,9 @@
             </a>
 
             @if($verOperaciones)
-            {{-- OPERACIONES --}}
+            {{-- GESTIÓN COMERCIAL --}}
             <div class="pt-4 pb-1 px-3">
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">Operaciones</p>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">Gestión comercial</p>
             </div>
 
             {{-- PRODUCTOS (grupo desplegable) --}}
@@ -165,14 +166,6 @@
                         Categorías
                     </a>
                     @endif
-                    <a href="{{ route('admin.resenas.index') }}"
-                       class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition
-                              {{ request()->routeIs('admin.resenas.*') ? 'text-white bg-red-600/85' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
-                        <svg class="h-4 w-4 shrink-0 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                        </svg>
-                        Reseñas
-                    </a>
                 </div>
             </div>
 
@@ -231,12 +224,12 @@
             @endif
 
             @if($esAdmin || $esGerente)
-            {{-- GESTIÓN --}}
+            {{-- GESTIÓN DEL SISTEMA --}}
             <div class="pt-4 pb-1 px-3">
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">Gestión del sistema</p>
             </div>
 
-            {{-- SEGUIMIENTO: reportes y auditoría (Administrador y Gerente) --}}
+            {{-- SEGUIMIENTO: reportes y auditoría (Administrador y Gerente); reseñas (solo Administrador) --}}
             <div x-data="{ open: {{ $seguimientoOpen ? 'true' : 'false' }} }">
                 <button type="button" @click="open = !open"
                         class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-left
@@ -266,6 +259,16 @@
                         </svg>
                         Auditoría
                     </a>
+                    @if($esAdmin)
+                    <a href="{{ route('admin.resenas.index') }}"
+                       class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition
+                              {{ request()->routeIs('admin.resenas.*') ? 'text-white bg-red-600/85' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <svg class="h-4 w-4 shrink-0 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                        </svg>
+                        Reseñas
+                    </a>
+                    @endif
                 </div>
             </div>
 
@@ -426,42 +429,16 @@
                 </button>
 
                 {{-- Buscador --}}
-                <div class="relative flex-1 max-w-md hidden sm:block">
+                <form method="GET" action="{{ route('admin.buscar') }}" role="search" class="relative flex-1 max-w-md hidden sm:block">
                     <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
-                    <input type="search" placeholder="Buscar en el sistema..."
+                    <input type="search" name="q" value="{{ request()->routeIs('admin.buscar') ? request('q') : '' }}" placeholder="Buscar productos, cursos, ventas..." aria-label="Buscar en el sistema"
                            class="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-red-400 focus:bg-white dark:focus:bg-slate-900 focus:outline-none text-slate-700 dark:text-slate-200 placeholder-slate-400">
-                </div>
+                </form>
             </div>
 
             <div class="flex items-center gap-2">
-
-                {{-- Notificaciones --}}
-                <div class="relative">
-                    <button @click="notiOpen = !notiOpen; userOpen = false"
-                            class="relative p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                            aria-label="Notificaciones">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                        </svg>
-                        <span class="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-slate-900"></span>
-                    </button>
-
-                    <div x-show="notiOpen" x-transition x-cloak @click.outside="notiOpen = false"
-                         class="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg overflow-hidden z-50">
-                        <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">Notificaciones</p>
-                            <span class="text-[10px] text-slate-400 uppercase tracking-wider">Al día</span>
-                        </div>
-                        <div class="px-4 py-8 text-center">
-                            <svg class="h-10 w-10 mx-auto text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                            </svg>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">No tienes notificaciones nuevas.</p>
-                        </div>
-                    </div>
-                </div>
 
                 {{-- Perfil --}}
                 <div class="relative">
@@ -516,16 +493,7 @@
 
         {{-- CONTENT --}}
         <main class="flex-1 overflow-y-auto pm-scroll bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
-            @if (session('success'))
-                <div class="bg-emerald-50 dark:bg-emerald-900/30 border-l-4 border-emerald-500 text-emerald-800 dark:text-emerald-200 px-6 py-3 text-sm">
-                    {{ session('success') }}
-                </div>
-            @endif
-            @if (session('error'))
-                <div class="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 text-red-800 dark:text-red-200 px-6 py-3 text-sm">
-                    {{ session('error') }}
-                </div>
-            @endif
+            @include('partials.aviso')
             <div class="p-4 sm:p-6">
                 @include('partials.breadcrumbs')
                 @yield('content')

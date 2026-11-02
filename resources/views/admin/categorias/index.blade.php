@@ -16,17 +16,7 @@
     @endif
 </div>
 
-@if (session('success'))
-    <div class="mb-4 bg-green-50 text-green-700 border border-green-200 px-4 py-3 rounded-lg text-sm">
-        {{ session('success') }}
-    </div>
-@endif
 
-@if (session('error'))
-    <div class="mb-4 bg-red-50 text-red-700 border border-red-200 px-4 py-3 rounded-lg text-sm">
-        {{ session('error') }}
-    </div>
-@endif
 
 <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
     <div class="overflow-x-auto">

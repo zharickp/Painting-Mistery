@@ -15,9 +15,6 @@
             {{ $label }}
         </a>
     @endforeach
-    <a href="{{ route('inicio') }}#resenas" class="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-white border border-slate-200 text-slate-600 hover:border-red-300 hover:text-red-600 transition">
-        Mi reseña
-    </a>
     <a href="{{ route('tienda.index') }}" class="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-white border border-slate-200 text-slate-600 hover:border-red-300 hover:text-red-600 transition ml-auto">
         Ir a la tienda →
     </a>

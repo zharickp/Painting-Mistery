@@ -29,11 +29,8 @@
 </div>
 
 {{-- Flash message --}}
-@if(session('success'))
-<div class="mb-4 bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-lg flex items-center gap-2">
-    <svg class="h-4 w-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-    {{ session('success') }}
-</div>
+@if(! session('error') && $errors->any())
+<div class="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg">{{ $errors->first() }}</div>
 @endif
 
 {{-- Buscador --}}
@@ -109,13 +106,15 @@
                 {{-- Selector de rol (solo admins) --}}
                 @if(auth()->user()->tieneRol('Administrador'))
                 <td class="px-5 py-4">
-                    @if($u->id !== auth()->id())
+                    @if($u->tieneRol('Cliente'))
+                    <span class="text-gray-300">—</span>
+                    @elseif($u->id !== auth()->id())
                     <form method="POST" action="{{ route('admin.roles.update', $u) }}" class="flex items-center gap-2">
                         @csrf
                         <select name="rol_id"
                                 onchange="this.form.submit()"
                                 class="text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-red-400 bg-white text-gray-700 cursor-pointer hover:border-gray-300 transition">
-                            @foreach($roles as $rol)
+                            @foreach($roles->whereIn('nombre', \App\Http\Controllers\Admin\RolesController::ROLES_DEL_SISTEMA) as $rol)
                             <option value="{{ $rol->id }}"
                                 {{ $u->roles->contains('id', $rol->id) ? 'selected' : '' }}>
                                 {{ $rol->nombre }}

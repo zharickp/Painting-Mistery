@@ -4,27 +4,20 @@
 
 @php
     $tabs = [
-        ['pendiente', 'Pendientes', $conteos['pendiente'] ?? 0],
-        ['aprobada',  'Aprobadas',  $conteos['aprobada'] ?? 0],
-        ['rechazada', 'Rechazadas', $conteos['rechazada'] ?? 0],
-        ['todas',     'Todas',      $conteos->sum()],
+        ['todas',        'Todas',        $conteos['activas'] + $conteos['desactivadas']],
+        ['activas',      'Activas',      $conteos['activas']],
+        ['desactivadas', 'Desactivadas', $conteos['desactivadas']],
     ];
     $params = fn (array $o = []) => array_filter(array_merge(['estado' => $estado, 'buscar' => $buscar, 'calificacion' => $calificacion], $o), fn ($v) => $v !== null && $v !== '');
-    $colorEstado = [
-        'pendiente' => 'bg-amber-100 text-amber-700',
-        'aprobada'  => 'bg-green-100 text-green-700',
-        'rechazada' => 'bg-gray-100 text-gray-500',
-    ];
 @endphp
 
 <div class="mb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
     <div>
-        <h1 class="text-xl font-bold text-gray-800 dark:text-slate-100">Reseñas del taller</h1>
-        <p class="text-sm text-gray-400 mt-1">Las reseñas aprobadas de 4 o 5 estrellas se muestran en el inicio. Si el cliente edita la suya, vuelve a quedar pendiente.</p>
+        <h1 class="text-xl font-bold text-gray-800 dark:text-slate-100">Reseñas</h1>
     </div>
     <div class="text-right text-sm">
-        <p class="text-xs text-gray-400">Promedio publicado</p>
-        <p class="font-bold text-gray-800 dark:text-slate-100"><span class="text-yellow-500">★</span> {{ ($conteos['aprobada'] ?? 0) ? number_format($promedio, 1, ',', '.') : '—' }}</p>
+        <p class="text-xs text-gray-400">Promedio de las activas</p>
+        <p class="font-bold text-gray-800 dark:text-slate-100"><span class="text-yellow-500">★</span> {{ $conteos['activas'] ? number_format($promedio, 1, ',', '.') : '—' }}</p>
     </div>
 </div>
 
@@ -35,7 +28,7 @@
             <a href="{{ route('admin.resenas.index', $params(['estado' => $valor])) }}"
                class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border transition {{ $on ? 'bg-gray-900 border-gray-900 text-white' : 'bg-white border-gray-200 text-gray-600 hover:border-gray-400' }}">
                 {{ $label }}
-                <span class="text-[11px] rounded-full px-2 py-0.5 {{ $on ? 'bg-white/20' : ($valor === 'pendiente' && $n > 0 ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-500') }}">{{ $n }}</span>
+                <span class="text-[11px] rounded-full px-2 py-0.5 {{ $on ? 'bg-white/20' : 'bg-gray-100 text-gray-500' }}">{{ $n }}</span>
             </a>
         @endforeach
     </div>
@@ -63,41 +56,25 @@
             <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mb-1">
                 <span class="text-yellow-500 text-sm tracking-tight">{{ str_repeat('★', $r->calificacion) }}<span class="text-gray-300 dark:text-slate-600">{{ str_repeat('★', 5 - $r->calificacion) }}</span></span>
                 <p class="font-semibold text-gray-800 dark:text-slate-100">{{ $r->nombreMostrar() }}</p>
-                <span class="px-2 py-0.5 text-[11px] rounded-full font-semibold {{ $colorEstado[$r->estado] ?? 'bg-gray-100 text-gray-500' }}">{{ $r->estadoEtiqueta() }}</span>
+                <span class="px-2 py-0.5 text-[11px] rounded-full font-semibold {{ $r->estado ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500' }}">{{ $r->estadoEtiqueta() }}</span>
                 <span class="text-xs text-gray-400">{{ $r->updated_at?->format('d/m/Y H:i') }}</span>
             </div>
             <p class="text-xs text-gray-500 dark:text-slate-400 mb-2">{{ $r->usuario?->correo }}</p>
             <p class="text-sm text-gray-600 dark:text-slate-300 whitespace-pre-line break-words">{{ $r->comentario }}</p>
         </div>
-        @if($puedeEditar)
         <div class="flex flex-wrap gap-2 shrink-0">
-            @if($r->estado !== 'aprobada')
-                <form method="POST" action="{{ route('admin.resenas.aprobar', $r) }}">
-                    @csrf
-                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-green-50 hover:bg-green-100 text-green-700 text-xs font-semibold transition">Aprobar</button>
-                </form>
-            @endif
-            @if($r->estado !== 'rechazada')
-                <form method="POST" action="{{ route('admin.resenas.rechazar', $r) }}">
-                    @csrf
-                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold transition">Rechazar</button>
-                </form>
-            @endif
-            <form method="POST" action="{{ route('admin.resenas.destroy', $r) }}"
-                  onsubmit="return confirm('¿Eliminar esta reseña? No se puede recuperar.');">
+            <form method="POST" action="{{ route('admin.resenas.toggle', $r) }}">
                 @csrf
-                @method('DELETE')
-                <button type="submit" class="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold transition">Eliminar</button>
+                <button type="submit" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition {{ $r->estado ? 'bg-yellow-50 hover:bg-yellow-100 text-yellow-700' : 'bg-green-50 hover:bg-green-100 text-green-700' }}">{{ $r->estado ? 'Desactivar' : 'Activar' }}</button>
             </form>
         </div>
-        @endif
     </div>
     @empty
     <div class="bg-white dark:bg-slate-900 rounded-xl border border-dashed border-gray-200 dark:border-slate-700 p-12 text-center text-gray-400">
         @if($buscar !== '' || $calificacion)
             No hay reseñas con esos filtros.
-        @elseif($estado === 'pendiente')
-            No hay reseñas pendientes de revisar.
+        @elseif($estado === 'desactivadas')
+            No hay reseñas desactivadas.
         @else
             No hay reseñas en esta lista.
         @endif

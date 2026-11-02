@@ -18,11 +18,6 @@
 
         <div class="p-6 sm:p-8">
 
-            @if (session('success'))
-                <div class="mb-4 bg-green-50 text-green-700 p-3 rounded-md border-l-4 border-green-500 text-sm">
-                    {{ session('success') }}
-                </div>
-            @endif
 
             <p class="text-gray-500 text-sm mb-6 text-center">
                 Ingresa el código que enviamos a tu correo y elige una nueva contraseña.
