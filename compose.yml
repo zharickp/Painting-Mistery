@@ -20,7 +20,8 @@ services:
       - "${APP_PORT:-8080}:80"
     volumes:
       # Lo que se sube desde el panel queda fuera del contenedor, así no se
-      # pierde al actualizar o reconstruir la imagen.
+      # pierde al actualizar o reconstruir la imagen. La primera vez que se
+      # levanta, Docker copia aquí las fotos que ya vienen en el repositorio.
       - imagenes_productos:/var/www/html/public/images/productos
       - imagenes_banners:/var/www/html/public/images/banners
       - respaldos:/var/www/html/storage/app/backups
