@@ -21,7 +21,9 @@ use App\Http\Controllers\Api\UsuariosRolesController;
 
 
 // Toda la API administrativa exige sesión iniciada y rol Administrador.
-Route::middleware(['web', 'auth', 'role:Administrador'])->group(function () {
+// Los nombres llevan "api." adelante para no chocar con los de las páginas
+// (por ejemplo carrito.index); si chocan, Laravel no puede guardar las rutas en caché.
+Route::middleware(['web', 'auth', 'role:Administrador'])->name('api.')->group(function () {
     Route::apiResource('tipo-documento', TipoDocumentoController::class);
     Route::apiResource('usuarios', UsuarioController::class);
     Route::apiResource('roles', RolController::class);
