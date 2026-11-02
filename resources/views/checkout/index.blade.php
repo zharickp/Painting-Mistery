@@ -10,7 +10,7 @@
         <p class="text-xs text-slate-500 mb-2">
             <a href="{{ route('inicio') }}" class="hover:text-red-600">Inicio</a>
             <span class="mx-1">/</span>
-            <a href="{{ route('carrito.index') }}" class="hover:text-red-600">Carrito</a>
+            <a href="{{ route('carrito.index') }}" onclick="abrirCarrito(); return false;" class="hover:text-red-600">Carrito</a>
             <span class="mx-1">/</span>
             <span class="text-slate-800 font-semibold">Finalizar compra</span>
         </p>

@@ -8,7 +8,6 @@ use App\Models\Producto;
 use App\Services\CarritoCuentaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 class CarritoController extends Controller
 {
@@ -20,13 +19,16 @@ class CarritoController extends Controller
         );
     }
 
-    public function index(): View
+    /**
+     * El carrito no tiene página propia: se muestra como ventana en la tienda.
+     * Esta ruta lleva a la tienda con el carrito abierto (?carrito=1) y conserva
+     * el aviso que venga, por ejemplo "Tu carrito está vacío".
+     */
+    public function index(): RedirectResponse
     {
-        $carrito  = $this->carritoActivo();
-        $detalles = $carrito->detalles()->with('producto.imagenes')->get();
-        $total    = $detalles->sum(fn($d) => $d->cantidad * ($d->producto?->precio ?? 0));
+        session()->reflash();
 
-        return view('cliente.carrito', compact('carrito', 'detalles', 'total'));
+        return redirect()->route('tienda.index', ['carrito' => 1]);
     }
 
     public function agregar(Request $request): RedirectResponse
