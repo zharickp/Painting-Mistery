@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'Inscripción: ' . $curso->nombre . ' - Painting Mistery')
+@section('title', 'Inscripción: ' . $curso->nombre . '')
 
 @section('content')
 <div class="bg-gray-50 min-h-screen">

@@ -1,6 +1,5 @@
 @extends('layouts.guest')
 
-@section('title', 'Painting Mistery - Accesorios y cursos para tu moto')
 
 @section('content')
 <div class="bg-white">

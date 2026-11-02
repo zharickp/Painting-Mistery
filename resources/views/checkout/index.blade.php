@@ -1,5 +1,5 @@
 @extends('layouts.guest')
-@section('title', 'Finalizar compra — Painting Mistery')
+@section('title', 'Finalizar compra')
 
 @section('content')
 @include('partials.nav')

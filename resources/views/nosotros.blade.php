@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'Nosotros - Painting Mistery')
+@section('title', 'Nosotros')
 
 @section('content')
 <div class="bg-white">

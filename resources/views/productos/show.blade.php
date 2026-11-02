@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', $producto->nombre . ' - Painting Mistery')
+@section('title', $producto->nombre)
 
 @section('content')
 @php

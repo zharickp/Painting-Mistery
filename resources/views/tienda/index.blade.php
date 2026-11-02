@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', $buscar ? "Resultados para \"{$buscar}\" - Painting Mistery" : 'Tienda - Painting Mistery')
+@section('title', $buscar ? "Resultados para \"{$buscar}\"" : 'Tienda')
 
 @section('content')
 @php

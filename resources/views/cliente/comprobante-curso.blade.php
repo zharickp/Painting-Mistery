@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comprobante de reserva {{ $ins->codigoReserva() }} — Painting Mistery</title>
+    <title>Comprobante de reserva {{ $ins->codigoReserva() }} - Painting Mistery</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <style>
