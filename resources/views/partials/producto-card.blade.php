@@ -48,12 +48,12 @@
         @endif
     </a>
 
-    <div class="p-4">
+    <div class="p-3 sm:p-4">
         <a href="{{ route('producto.show', $producto) }}" class="font-semibold text-gray-800 text-sm mb-1 hover:text-red-600 transition-colors block line-clamp-2">{{ $producto->nombre }}</a>
         @if ($producto->categoria)
             <span class="inline-block bg-red-50 text-red-600 text-xs px-2 py-0.5 rounded-full my-1.5">{{ $producto->categoria->nombre }}</span>
         @endif
-        <div class="flex items-center justify-between mt-1.5">
+        <div class="flex items-center justify-between gap-2 mt-1.5">
             <div>
                 @if ($producto->tieneDescuento())
                     <p class="text-gray-400 text-xs line-through">${{ number_format($producto->precio_anterior, 0, ',', '.') }}</p>
@@ -61,11 +61,11 @@
                 <p class="text-red-600 font-bold">${{ number_format($producto->precio, 0, ',', '.') }}</p>
             </div>
             @if ($producto->estaAgotado())
-                <span class="text-[11px] font-semibold text-gray-400 bg-gray-100 rounded-full px-3 py-1.5">Agotado</span>
+                <span class="shrink-0 text-[11px] font-semibold text-gray-400 bg-gray-100 rounded-full px-2 sm:px-3 py-1.5">Agotado</span>
             @elseif ($puedeComprar)
                 <button type="button" onclick="addToCartDesdeCard(this.closest('.prod-card'), this)"
                     title="Agregar al carrito" aria-label="Agregar al carrito"
-                    class="h-11 w-11 shrink-0 rounded-full bg-red-600 hover:bg-gray-900 text-white flex items-center justify-center shadow-md shadow-red-600/30 hover:shadow-gray-900/30 transition-all duration-300 hover:scale-110 active:scale-90">
+                    class="h-10 w-10 sm:h-11 sm:w-11 shrink-0 rounded-full bg-red-600 hover:bg-gray-900 text-white flex items-center justify-center shadow-md shadow-red-600/30 hover:shadow-gray-900/30 transition-all duration-300 hover:scale-110 active:scale-90">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v4m-2-2h4" stroke-width="2.2"/>

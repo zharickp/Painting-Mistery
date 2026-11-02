@@ -9,11 +9,11 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16 items-center">
             {{-- Brand --}}
-            <a href="{{ route('inicio') }}" class="flex items-center gap-3 group">
+            <a href="{{ route('inicio') }}" class="flex items-center gap-2 sm:gap-3 group shrink-0">
                 <img src="{{ asset('images/logo-painting-mistery.png') }}"
                      onerror="this.onerror=null;this.src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG2lZPkThC_r_yCEWDX5xCRiDZiXel_ZbUnw&s';"
                      alt="Painting Mistery" class="h-10 w-10 rounded-full object-cover border-2 border-red-100 group-hover:border-red-400 transition">
-                <span class="text-lg font-bold text-gray-900 group-hover:text-red-600 transition">
+                <span class="text-base sm:text-lg font-bold text-gray-900 group-hover:text-red-600 transition whitespace-nowrap">
                     Painting <span class="text-red-600">Mistery</span>
                 </span>
             </a>
@@ -28,7 +28,7 @@
             </div>
 
             {{-- Derecha: barra búsqueda + iconos --}}
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-0.5 sm:gap-2">
 
                 {{-- Búsqueda: envía directo al catálogo --}}
                 <form action="{{ route('tienda.index') }}" method="GET" class="relative hidden sm:flex items-center" id="searchWrapper">
@@ -120,7 +120,7 @@
                 </a>
                 {{-- Register icon --}}
                 <a href="{{ route('register') }}"
-                   class="p-2 rounded-full bg-red-600 text-white hover:bg-red-700 transition" title="Registrarse">
+                   class="hidden sm:block p-2 rounded-full bg-red-600 text-white hover:bg-red-700 transition" title="Registrarse">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>

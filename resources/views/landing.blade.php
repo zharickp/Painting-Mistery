@@ -11,7 +11,7 @@
     <div>
     @if ($banners->isEmpty())
         {{-- Sin banners configurados: imagen fija de siempre, sin cambios --}}
-        <div class="h-[360px] sm:h-[480px] md:h-[560px] lg:h-[clamp(580px,35vw,700px)] overflow-hidden">
+        <div class="aspect-[16/9] sm:aspect-auto sm:h-[480px] md:h-[560px] lg:h-[clamp(580px,35vw,700px)] overflow-hidden">
             <img src="/images/hero.jpeg"
                  alt="Painting Mistery"
                  class="w-full h-full object-cover object-center block">
@@ -39,7 +39,7 @@
         {{-- Slider administrable desde /admin/banners.
              Sin overlay de texto: los banners se ven completos y limpios.
              La altura es responsiva por breakpoint para que la imagen respire. --}}
-        <div id="heroSlider" class="relative overflow-hidden bg-gray-900 h-[360px] sm:h-[480px] md:h-[560px] lg:h-[clamp(580px,35vw,700px)]">
+        <div id="heroSlider" class="relative overflow-hidden bg-gray-900 aspect-[16/9] sm:aspect-auto sm:h-[480px] md:h-[560px] lg:h-[clamp(580px,35vw,700px)]">
             @foreach ($banners as $i => $banner)
                 <div class="hero-slide absolute inset-0 transition-opacity duration-1000 ease-in-out {{ $i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' }}">
                     <img src="{{ $banner->imagen }}" alt="{{ $banner->titulo }}"
@@ -52,12 +52,12 @@
 
             @if ($banners->count() > 1)
                 <button onclick="heroMover(-1)" aria-label="Anterior"
-                    class="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-white/90 hover:bg-white shadow-lg hover:shadow-xl flex items-center justify-center text-gray-800 transition-all duration-200 hover:scale-110">
-                    <svg class="h-6 w-6 sm:h-7 sm:w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                    class="absolute left-2 sm:left-5 top-1/2 -translate-y-1/2 z-20 h-9 w-9 sm:h-14 sm:w-14 rounded-full bg-white/90 hover:bg-white shadow-lg hover:shadow-xl flex items-center justify-center text-gray-800 transition-all duration-200 hover:scale-110">
+                    <svg class="h-5 w-5 sm:h-7 sm:w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
                 </button>
                 <button onclick="heroMover(1)" aria-label="Siguiente"
-                    class="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-white/90 hover:bg-white shadow-lg hover:shadow-xl flex items-center justify-center text-gray-800 transition-all duration-200 hover:scale-110">
-                    <svg class="h-6 w-6 sm:h-7 sm:w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                    class="absolute right-2 sm:right-5 top-1/2 -translate-y-1/2 z-20 h-9 w-9 sm:h-14 sm:w-14 rounded-full bg-white/90 hover:bg-white shadow-lg hover:shadow-xl flex items-center justify-center text-gray-800 transition-all duration-200 hover:scale-110">
+                    <svg class="h-5 w-5 sm:h-7 sm:w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                 </button>
                 {{-- Un punto por banner; el activo se ve más largo --}}
                 <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2" id="heroDots">
@@ -90,7 +90,7 @@
                 ['Cursos',            'Oferta de cursos.',                             route('academia'),     $fotoCursos],
                 ['Contacto',          'Comunícate con nosotros.',                      route('contacto'),     $fotoContacto],
             ] as [$titulo, $texto, $url, $foto])
-                <a href="{{ $url }}" class="group relative block h-72 rounded-2xl overflow-hidden bg-gray-900">
+                <a href="{{ $url }}" class="group relative block h-48 sm:h-72 rounded-2xl overflow-hidden bg-gray-900">
                     <img src="{{ $foto }}" alt="" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition duration-500">
                     <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
                     <div class="absolute inset-x-0 bottom-0 p-6">
@@ -119,7 +119,7 @@
                     <p class="text-gray-500 text-sm">Todavía no hay productos publicados.</p>
                 </div>
             @else
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="productosGrid">
+                <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6" id="productosGrid">
                     @foreach ($productosDestacados as $producto)
                         @include('partials.producto-card', ['producto' => $producto])
                     @endforeach
