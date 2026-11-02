@@ -26,6 +26,11 @@ services:
       - imagenes_banners:/var/www/html/public/images/banners
       - respaldos:/var/www/html/storage/app/backups
       - logs:/var/www/html/storage/logs
+    networks:
+      - default
+      # Red del proxy general del VPS (global_proxy): por aquí le llegan las
+      # visitas de paintingmistery.dev con HTTPS.
+      - proxy_network
 
   scheduler:
     image: painting-mistery:latest
@@ -45,3 +50,7 @@ volumes:
   imagenes_banners:
   respaldos:
   logs:
+
+networks:
+  proxy_network:
+    external: true
