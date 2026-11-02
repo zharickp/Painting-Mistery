@@ -1,0 +1,46 @@
+# ─────────────────────────────────────────────────────────────────────
+#  Painting Mistery — contenedores
+#    app        → la página (Apache + PHP)
+#    scheduler  → tareas programadas de Laravel: copia de seguridad diaria
+#                 a las 3:00 a. m. y vencimiento de órdenes pendientes.
+#  La base de datos está en Neon, por eso no hay contenedor de PostgreSQL.
+#  Las variables (Neon, APP_KEY, etc.) se leen del archivo .env de esta carpeta.
+# ─────────────────────────────────────────────────────────────────────
+
+services:
+  app:
+    build: .
+    image: painting-mistery:latest
+    container_name: painting-mistery-app
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      # Puerto del VPS → puerto 80 del contenedor. Cambiar APP_PORT en el .env
+      # al puerto que asigne el administrador del VPS.
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      # Lo que se sube desde el panel queda fuera del contenedor, así no se
+      # pierde al actualizar o reconstruir la imagen.
+      - imagenes_productos:/var/www/html/public/images/productos
+      - imagenes_banners:/var/www/html/public/images/banners
+      - respaldos:/var/www/html/storage/app/backups
+      - logs:/var/www/html/storage/logs
+
+  scheduler:
+    image: painting-mistery:latest
+    container_name: painting-mistery-scheduler
+    restart: unless-stopped
+    env_file: .env
+    user: www-data
+    command: ["php", "artisan", "schedule:work"]
+    depends_on:
+      - app
+    volumes:
+      - respaldos:/var/www/html/storage/app/backups
+      - logs:/var/www/html/storage/logs
+
+volumes:
+  imagenes_productos:
+  imagenes_banners:
+  respaldos:
+  logs:

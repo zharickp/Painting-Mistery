@@ -21,6 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // Cookie de señal para vaciar el carrito local tras crear una orden (la lee JS)
         $middleware->encryptCookies(except: ['pm_vaciar_carrito']);
 
+        // En el servidor la página va detrás de un proxy que maneja el HTTPS.
+        // Sin esto Laravel cree que la visita es http y arma mal los enlaces.
+        $middleware->trustProxies(at: '*');
+
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

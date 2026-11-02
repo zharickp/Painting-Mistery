@@ -1,0 +1,27 @@
+# Lo que NO se copia dentro de la imagen
+.git
+.github
+.claude
+.idea
+.vscode
+.env
+.env.*
+!.env.example
+node_modules
+vendor
+public/build
+public/hot
+public/storage
+storage/logs/*
+storage/app/backups/*
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*.php
+public/images/productos/*
+!public/images/productos/.gitkeep
+public/images/banners/*
+!public/images/banners/.gitkeep
+Dockerfile
+compose.yml
+.dockerignore
