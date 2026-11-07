@@ -99,6 +99,20 @@ class Venta extends Model
         return $query->where('estado', 'pagada');
     }
 
+    /**
+     * Día en que se pagó la venta (fecha del pago aprobado). Los reportes
+     * cuentan el dinero ese día y no el día en que se hizo el pedido.
+     * Si una venta vieja no tiene la fecha del pago, se usa la del pedido.
+     */
+    public const FECHA_PAGO_SQL = "COALESCE((SELECT MAX(pago.fecha_pago) FROM pago WHERE pago.venta_id = venta.id AND pago.estado = 'aprobado'), venta.fecha)";
+
+    /** Ventas pagadas cuyo pago se hizo entre esas dos fechas. */
+    public function scopePagadasEntre($query, $desde, $hasta)
+    {
+        return $query->where('estado', 'pagada')
+            ->whereRaw(self::FECHA_PAGO_SQL . ' BETWEEN ? AND ?', [$desde, $hasta]);
+    }
+
     public function estadoEtiqueta(): string
     {
         return self::ESTADOS_ORDEN[$this->estado] ?? ucfirst((string) $this->estado);

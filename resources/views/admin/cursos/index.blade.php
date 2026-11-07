@@ -28,7 +28,7 @@
                 <tr class="text-xs text-gray-500 font-bold uppercase tracking-wide text-left">
                     <th class="px-5 py-3.5">Curso</th>
                     <th class="px-5 py-3.5 hidden sm:table-cell">Fechas</th>
-                    <th class="px-5 py-3.5 text-center">Cupos</th>
+                    <th class="px-5 py-3.5 text-center">Cupos por fecha</th>
                     <th class="px-5 py-3.5 text-center">Inscritos</th>
                     <th class="px-5 py-3.5 text-right">Costo</th>
                     <th class="px-5 py-3.5 text-center">Estado</th>
@@ -54,7 +54,11 @@
                         @endif
                     </td>
                     <td class="px-5 py-4 text-center">
-                        @php $pct = $c->cupos ? min(100, round(($c->inscripciones_count / $c->cupos) * 100)) : 0; @endphp
+                        @php
+                            // Qué tan llenas están las próximas fechas (cada fecha tiene sus propios cupos).
+                            $totalCupos = $c->cupos ? $c->cupos * $c->fechasDisponibles->count() : 0;
+                            $pct = $totalCupos ? min(100, round((($totalCupos - $c->cuposDisponibles()) / $totalCupos) * 100)) : 0;
+                        @endphp
                         <div class="flex flex-col items-center gap-1">
                             <span class="font-semibold text-gray-700">{{ $c->cupos ?? '∞' }}</span>
                             @if($c->cupos)

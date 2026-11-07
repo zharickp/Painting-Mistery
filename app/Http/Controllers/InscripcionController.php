@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Curso;
+use App\Models\CursoFecha;
 use App\Models\MetodoPago;
 use App\Models\DetalleVentaCurso;
 use App\Models\Inscripcion;
 use App\Models\Pago;
+use App\Models\Usuario;
 use App\Models\Venta;
 use App\Services\AuditoriaService;
 use App\Services\OrdenEstadoService;
@@ -47,8 +49,8 @@ class InscripcionController extends Controller
             return $volverAlCurso->with('error', 'Las inscripciones se hacen desde una cuenta de cliente.');
         }
 
-        $existente = Inscripcion::where('usuario_id', $request->user()->id)->delCurso($curso->id)->first();
-        if ($existente && in_array($existente->estado, Inscripcion::ESTADOS_ACTIVOS, true) && ! $existente->esReservaAntigua()) {
+        $mias = $this->inscripcionesDelCliente($request->user(), $curso);
+        if ($mias->contains(fn (Inscripcion $i) => $i->estaVigente())) {
             return $volverAlCurso->with('error', 'Ya tienes una inscripción activa para este curso. Revísala en "Mis cursos".');
         }
 
@@ -57,14 +59,18 @@ class InscripcionController extends Controller
             return $volverAlCurso->with('error', 'Este curso aún no tiene fechas publicadas.');
         }
 
-        $libres = $curso->cuposDisponibles();
-        if ($libres !== null && $libres <= 0 && ! $existente?->esReservaAntigua()) {
+        // Cupos libres de cada fecha (la reserva antigua del cliente ya ocupa uno en su fecha).
+        $reserva = $mias->first(fn (Inscripcion $i) => $i->esReservaAntigua());
+        $libres  = $fechas->mapWithKeys(fn (CursoFecha $f) => [$f->id => $this->libresPara($f, $reserva)]);
+
+        if ($libres->every(fn ($n) => $n !== null && $n <= 0)) {
             return $volverAlCurso->with('error', 'No quedan cupos disponibles para este curso por ahora.');
         }
 
         return view('cursos.inscripcion', [
             'curso'       => $curso,
             'fechas'      => $fechas,
+            'libres'      => $libres,
             'metodosPago' => MetodoPago::paraCheckout()->get(),
         ]);
     }
@@ -86,29 +92,27 @@ class InscripcionController extends Controller
             'metodo_pago_id.required' => 'Elige cómo vas a pagar.',
         ]);
 
-        $fecha   = $curso->fechasDisponibles()->findOrFail($request->curso_fecha_id);
         $usuario = $request->user();
-
-        // Un cliente tiene una sola inscripción por curso (en cualquiera de sus fechas).
-        $existente = Inscripcion::where('usuario_id', $usuario->id)
-            ->delCurso($curso->id)
-            ->first();
-
-        if ($existente && in_array($existente->estado, Inscripcion::ESTADOS_ACTIVOS, true) && ! $existente->esReservaAntigua()) {
-            return back()->with('error', 'Ya tienes una inscripción activa para este curso. Revísala en "Mis cursos".');
-        }
-
-        // La reserva antigua ya ocupa un cupo, así que no se cuenta dos veces.
-        $disponibles = $curso->cuposDisponibles();
-        if ($disponibles !== null && $existente?->esReservaAntigua()) {
-            $disponibles++;
-        }
-        if ($disponibles !== null && $disponibles <= 0) {
-            return back()->with('error', 'No quedan cupos disponibles para este curso por ahora.');
-        }
+        $fecha   = null;
 
         try {
-            $venta = DB::transaction(function () use ($curso, $fecha, $usuario, $request, $existente) {
+            $venta = DB::transaction(function () use ($curso, $usuario, $request, &$fecha) {
+                // Se bloquean el cliente y la fecha: así un doble clic no crea dos
+                // inscripciones y dos personas no se quedan con el último cupo.
+                Usuario::whereKey($usuario->id)->lockForUpdate()->first();
+                $fecha = CursoFecha::whereKey($request->curso_fecha_id)->lockForUpdate()->firstOrFail();
+
+                $mias = $this->inscripcionesDelCliente($usuario, $curso);
+                if ($mias->contains(fn (Inscripcion $i) => $i->estaVigente())) {
+                    return 'ya_inscrito';
+                }
+
+                $reserva = $mias->first(fn (Inscripcion $i) => $i->esReservaAntigua());
+                $libres  = $this->libresPara($fecha, $reserva);
+                if ($libres !== null && $libres <= 0) {
+                    return 'sin_cupos';
+                }
+
                 $venta = Venta::create([
                     'usuario_id'       => $usuario->id,
                     'total'            => $curso->precio,
@@ -137,20 +141,24 @@ class InscripcionController extends Controller
                     'estado'             => 'pendiente',
                 ]);
 
-                // Si ya tenía una inscripción a este curso (cancelada o de antes), se reutiliza.
+                // Cada vez que toma el curso queda una inscripción nueva (las anteriores
+                // se conservan). Solo una reserva antigua sin pago se reutiliza.
                 $datos = ['estado' => 'pendiente', 'curso_fecha_id' => $fecha->id, 'indicaciones' => null];
-                $existente
-                    ? $existente->update($datos)
-                    : Inscripcion::create($datos + ['usuario_id' => $usuario->id]);
-
-                return $venta;
+                $reserva
+                    ? $reserva->update($datos)
+                    : Inscripcion::create($datos + ['usuario_id' => $usuario->id]);                return $venta;
             });
         } catch (\Throwable $e) {
             Log::error('Inscripción falló: ' . $e->getMessage());
             return back()->with('error', 'No se pudo registrar la inscripción. Inténtalo de nuevo.');
         }
 
-        AuditoriaService::registrar([
+        if ($venta === 'ya_inscrito') {
+            return back()->with('error', 'Ya tienes una inscripción activa para este curso. Revísala en "Mis cursos".');
+        }
+        if ($venta === 'sin_cupos') {
+            return back()->withInput()->with('error', 'Esa fecha ya no tiene cupos. Elige otra.');
+        }        AuditoriaService::registrar([
             'accion'            => 'creado',
             'modulo'            => 'Venta',
             'registro_afectado' => $venta->id,
@@ -160,5 +168,23 @@ class InscripcionController extends Controller
         ]);
 
         return redirect()->route('checkout.pago', $venta->numero_orden);
+    }
+
+    /** Inscripciones del cliente a este curso, de la más vieja a la más nueva. */
+    private function inscripcionesDelCliente(Usuario $usuario, Curso $curso)
+    {
+        return Inscripcion::with('cursoFecha.curso')
+            ->where('usuario_id', $usuario->id)
+            ->delCurso($curso->id)
+            ->orderBy('id')
+            ->get();
+    }
+
+    /** Cupos libres de la fecha; si la reserva antigua del cliente está en esa fecha, su cupo cuenta como libre. */
+    private function libresPara(CursoFecha $fecha, ?Inscripcion $reserva): ?int
+    {
+        $libres = $fecha->cuposLibres();
+
+        return $libres !== null && $reserva && $reserva->curso_fecha_id === $fecha->id ? $libres + 1 : $libres;
     }
 }

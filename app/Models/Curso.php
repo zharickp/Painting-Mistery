@@ -64,15 +64,26 @@ class Curso extends Model
         return $this->dias() . ($this->dias() === 1 ? ' día' : ' días');
     }
 
+    /**
+     * Los cupos son por fecha: cada fecha tiene los mismos cupos del curso.
+     * Aquí se suman los libres de las próximas fechas (null = sin límite).
+     */
     public function cuposDisponibles(): ?int
     {
         if (! $this->cupos) {
             return null;
         }
 
-        $ocupados = $this->inscripciones()->activas()->count();
+        $ids = $this->fechasDisponibles()->pluck('id');
+        if ($ids->isEmpty()) {
+            return 0;
+        }
 
-        return max(0, $this->cupos - $ocupados);
+        $ocupados = Inscripcion::activas()->whereIn('curso_fecha_id', $ids)
+            ->selectRaw('curso_fecha_id, count(*) as total')->groupBy('curso_fecha_id')
+            ->pluck('total', 'curso_fecha_id');
+
+        return $ids->sum(fn ($id) => max(0, $this->cupos - (int) ($ocupados[$id] ?? 0)));
     }
 }
 

@@ -7,7 +7,7 @@
     <h1 class="text-xl font-bold text-gray-800 mt-2">Inscripciones · {{ $curso->nombre }}</h1>
     <p class="text-sm text-gray-400 mt-0.5">
         {{ $inscripciones->total() }} inscripción(es)
-        @if($curso->cupos) · {{ $curso->cuposDisponibles() }} de {{ $curso->cupos }} cupos libres @endif
+        @if($curso->cupos) · {{ $curso->cupos }} cupos por fecha, {{ $curso->cuposDisponibles() }} libres en las próximas fechas @endif
     </p>
 </div>
 

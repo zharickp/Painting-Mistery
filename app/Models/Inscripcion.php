@@ -56,21 +56,53 @@ class Inscripcion extends Model
 
     /**
      * Venta con la que se paga la inscripción. No se guarda en la inscripción:
-     * es la venta más reciente del mismo cliente que incluye este curso en
-     * detalle_venta_curso (igual que un producto se relaciona con su venta).
-     * Un cliente tiene una sola inscripción por curso, así que no hay ambigüedad.
+     * se busca entre las ventas del mismo cliente que incluyen este curso en
+     * detalle_venta_curso. Como un cliente puede tomar el mismo curso más de
+     * una vez, se emparejan en orden: cada inscripción nueva se crea junto con
+     * su venta, así que la última inscripción va con la última venta, la
+     * penúltima con la penúltima, etc. A la primera le queda la más reciente de
+     * las que sobran (antes, si se cancelaba y se volvía a inscribir, se
+     * reutilizaba la misma inscripción con una venta nueva).
      */
     public function ventaActual(): ?Venta
     {
         if (! $this->ventaBuscada) {
-            $this->ventaEncontrada = Venta::where('usuario_id', $this->usuario_id)
-                ->whereHas('detalleCursos', fn ($q) => $q->where('curso_id', $this->curso_id))
-                ->latest('id')
-                ->first();
             $this->ventaBuscada = true;
+
+            $cursoId = $this->curso_id;
+            if (! $cursoId) {
+                return null;
+            }
+
+            $inscripciones = self::where('usuario_id', $this->usuario_id)->delCurso($cursoId)
+                ->orderBy('id')->pluck('id')->values();
+            $ventas = Venta::where('usuario_id', $this->usuario_id)
+                ->whereHas('detalleCursos', fn ($q) => $q->where('curso_id', $cursoId))
+                ->orderBy('id')->pluck('id')->values();
+
+            $posicion = $inscripciones->search($this->id);
+            $indice   = $posicion === false ? -1 : $ventas->count() - $inscripciones->count() + $posicion;
+
+            $this->ventaEncontrada = $indice >= 0 ? Venta::find($ventas[$indice]) : null;
         }
 
         return $this->ventaEncontrada;
+    }
+
+    /**
+     * Inscripción que sigue en curso: pendiente de pago o inscrito, y el curso
+     * todavía no ha terminado. Mientras tenga una así, el cliente no se puede
+     * volver a inscribir al mismo curso; cuando termina (o se cancela), sí.
+     */
+    public function estaVigente(): bool
+    {
+        if (! in_array($this->estado, ['pendiente', 'confirmada'], true) || $this->esReservaAntigua()) {
+            return false;
+        }
+
+        $fecha = $this->cursoFecha;
+
+        return ! $fecha || $fecha->fin($this->curso?->dias() ?? 1)->gte(today());
     }
 
     /** Permite usar $inscripcion->venta en las vistas. */

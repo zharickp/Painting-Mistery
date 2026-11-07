@@ -23,6 +23,17 @@ class CursoFecha extends Model
         return $this->hasMany(Inscripcion::class);
     }
 
+    /** Cupos libres en esta fecha (null = el curso no tiene límite). */
+    public function cuposLibres(): ?int
+    {
+        $cupos = $this->curso?->cupos;
+        if (! $cupos) {
+            return null;
+        }
+
+        return max(0, $cupos - $this->inscripciones()->activas()->count());
+    }
+
     public function fin(int $dias = 1)
     {
         return $this->fecha->copy()->addDays(max(1, $dias) - 1);

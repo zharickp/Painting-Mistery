@@ -76,7 +76,7 @@ class OrdenEstadoService
             ])->save());
 
             // Las inscripciones a los cursos de esta venta quedan confirmadas.
-            $this->inscripcionesDe($venta)->where('estado', 'pendiente')
+            Inscripcion::whereKey($this->inscripcionesDe($venta)->where('estado', 'pendiente')->modelKeys())
                 ->update(['estado' => 'confirmada', 'updated_at' => now()]);
         });
 
@@ -115,8 +115,7 @@ class OrdenEstadoService
                 'inventario_descontado' => false,
             ])->save());
 
-            $this->inscripcionesDe($venta)
-                ->whereIn('estado', ['pendiente', 'confirmada'])
+            Inscripcion::whereKey($this->inscripcionesDe($venta)->whereIn('estado', ['pendiente', 'confirmada'])->modelKeys())
                 ->update(['estado' => 'cancelada', 'updated_at' => now()]);
         });
 
@@ -126,15 +125,18 @@ class OrdenEstadoService
     }
 
     /**
-     * Inscripciones que se pagan con esta venta: las del mismo cliente para los
-     * cursos que están en su detalle_venta_curso.
+     * Inscripciones que se pagan con esta venta: de las del mismo cliente para
+     * los cursos de su detalle_venta_curso, solo las que van con esta venta
+     * (si tomó el curso antes, esa inscripción vieja no se toca).
      */
     private function inscripcionesDe(Venta $venta)
     {
-        $cursos = $venta->detalleCursos()->select('curso_id');
+        $cursos = $venta->detalleCursos()->pluck('curso_id');
 
         return Inscripcion::where('usuario_id', $venta->usuario_id)
-            ->whereHas('cursoFecha', fn ($q) => $q->whereIn('curso_id', $cursos));
+            ->whereHas('cursoFecha', fn ($q) => $q->whereIn('curso_id', $cursos))
+            ->get()
+            ->filter(fn (Inscripcion $i) => $i->ventaActual()?->id === $venta->id);
     }
 
     public function nuevoComprobante(Venta $venta): string

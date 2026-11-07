@@ -52,12 +52,10 @@ class DashboardController extends Controller
                 'categorias'      => CategoriaProducto::where('estado', true)->count(),
                 'usuarios'        => Usuario::count(),
                 'inventario_bajo' => Inventario::whereColumn('stock_actual', '<=', 'stock_minimo')->count(),
-                'ventas_hoy'      => Venta::pagadas()->whereDate('fecha', today())->sum('total'),
-                'ventas_mes'      => Venta::pagadas()->whereYear('fecha', now()->year)
-                                      ->whereMonth('fecha', now()->month)->sum('total'),
-                'ventas_anio'     => Venta::pagadas()->whereYear('fecha', now()->year)->sum('total'),
-                'ordenes_mes'     => Venta::pagadas()->whereYear('fecha', now()->year)
-                                      ->whereMonth('fecha', now()->month)->count(),
+                'ventas_hoy'      => Venta::pagadasEntre(today(), today()->endOfDay())->sum('total'),
+                'ventas_mes'      => Venta::pagadasEntre(now()->startOfMonth(), now()->endOfMonth())->sum('total'),
+                'ventas_anio'     => Venta::pagadasEntre(now()->startOfYear(), now()->endOfYear())->sum('total'),
+                'ordenes_mes'     => Venta::pagadasEntre(now()->startOfMonth(), now()->endOfMonth())->count(),
             ];
         }
 
@@ -67,10 +65,8 @@ class DashboardController extends Controller
                 'cursos'          => Curso::where('estado', true)->count(),
                 'categorias'      => CategoriaProducto::where('estado', true)->count(),
                 'inventario_bajo' => Inventario::whereColumn('stock_actual', '<=', 'stock_minimo')->count(),
-                'ventas_mes'      => Venta::pagadas()->whereYear('fecha', now()->year)
-                                      ->whereMonth('fecha', now()->month)->sum('total'),
-                'ordenes_mes'     => Venta::pagadas()->whereYear('fecha', now()->year)
-                                      ->whereMonth('fecha', now()->month)->count(),
+                'ventas_mes'      => Venta::pagadasEntre(now()->startOfMonth(), now()->endOfMonth())->sum('total'),
+                'ordenes_mes'     => Venta::pagadasEntre(now()->startOfMonth(), now()->endOfMonth())->count(),
             ];
         }
 
@@ -79,11 +75,9 @@ class DashboardController extends Controller
                 'productos'       => Producto::where('estado', true)->count(),
                 'cursos'          => Curso::where('estado', true)->count(),
                 'inventario_bajo' => Inventario::whereColumn('stock_actual', '<=', 'stock_minimo')->count(),
-                'ventas_mes'      => Venta::pagadas()->whereYear('fecha', now()->year)
-                                      ->whereMonth('fecha', now()->month)->sum('total'),
-                'ventas_anio'     => Venta::pagadas()->whereYear('fecha', now()->year)->sum('total'),
-                'ordenes_mes'     => Venta::pagadas()->whereYear('fecha', now()->year)
-                                      ->whereMonth('fecha', now()->month)->count(),
+                'ventas_mes'      => Venta::pagadasEntre(now()->startOfMonth(), now()->endOfMonth())->sum('total'),
+                'ventas_anio'     => Venta::pagadasEntre(now()->startOfYear(), now()->endOfYear())->sum('total'),
+                'ordenes_mes'     => Venta::pagadasEntre(now()->startOfMonth(), now()->endOfMonth())->count(),
             ];
         }
 
@@ -98,10 +92,12 @@ class DashboardController extends Controller
     private function ventasMensuales(): array
     {
         // Por mes: dinero recibido y cuántas ventas se pagaron (solo ventas pagadas del año actual).
-        $datos = Venta::pagadas()->selectRaw("EXTRACT(MONTH FROM fecha)::int AS mes, SUM(total) AS total, COUNT(*) AS ordenes")
-            ->whereRaw("EXTRACT(YEAR FROM fecha) = ?", [now()->year])
-            ->groupByRaw("EXTRACT(MONTH FROM fecha)")
-            ->orderByRaw("EXTRACT(MONTH FROM fecha)")
+        // Se cuentan en el mes en que se pagaron.
+        $f = Venta::FECHA_PAGO_SQL;
+        $datos = Venta::pagadas()->selectRaw("EXTRACT(MONTH FROM {$f})::int AS mes, SUM(total) AS total, COUNT(*) AS ordenes")
+            ->whereRaw("EXTRACT(YEAR FROM {$f}) = ?", [now()->year])
+            ->groupByRaw("EXTRACT(MONTH FROM {$f})")
+            ->orderByRaw("EXTRACT(MONTH FROM {$f})")
             ->get()
             ->keyBy('mes');
 

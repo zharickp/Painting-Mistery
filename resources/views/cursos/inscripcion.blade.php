@@ -34,11 +34,15 @@
                 <p class="text-xs text-gray-500 mt-1">{{ $curso->dias() === 1 ? 'El curso dura 1 día.' : 'El curso dura ' . $curso->dias() . ' días seguidos.' }}</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
                     @foreach($fechas as $f)
-                    <label class="cursor-pointer">
-                        <input type="radio" name="curso_fecha_id" value="{{ $f->id }}" required class="peer sr-only" @checked((int) old('curso_fecha_id') === $f->id)>
+                    @php $quedan = $libres[$f->id] ?? null; $llena = $quedan !== null && $quedan <= 0; @endphp
+                    <label class="{{ $llena ? 'cursor-not-allowed opacity-50' : 'cursor-pointer' }}">
+                        <input type="radio" name="curso_fecha_id" value="{{ $f->id }}" required class="peer sr-only" @disabled($llena) @checked(! $llena && (int) old('curso_fecha_id') === $f->id)>
                         <span class="block rounded-xl border border-gray-200 text-gray-700 hover:border-gray-400 px-3 py-2.5 text-sm leading-snug transition peer-checked:border-red-500 peer-checked:ring-2 peer-checked:ring-red-500/40 peer-checked:bg-red-600/10 peer-focus-visible:ring-2">
                             <span class="block font-bold">{{ ucfirst($f->fecha->copy()->locale('es')->isoFormat('MMMM')) }}</span>
                             {{ $f->etiqueta($curso->dias()) }}
+                            @if($quedan !== null)
+                                <span class="block text-xs mt-0.5 text-gray-500">{{ $llena ? 'Sin cupos' : ($quedan === 1 ? 'Queda 1 cupo' : 'Quedan ' . $quedan . ' cupos') }}</span>
+                            @endif
                         </span>
                     </label>
                     @endforeach

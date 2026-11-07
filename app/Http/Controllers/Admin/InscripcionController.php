@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Curso;
+use App\Models\CursoFecha;
 use App\Models\Inscripcion;
 use App\Services\OrdenEstadoService;
 use Illuminate\Http\RedirectResponse;
@@ -49,6 +50,14 @@ class InscripcionController extends Controller
             'estado.in'             => 'Ese cambio de estado no está permitido. La inscripción se confirma sola cuando se paga.',
             'curso_fecha_id.exists' => 'Esa fecha no pertenece a este curso.',
         ]);
+
+        // Si se pasa a otra fecha, esa fecha debe tener cupo.
+        if ((int) $request->curso_fecha_id !== (int) $inscripcion->curso_fecha_id && $request->estado !== 'cancelada') {
+            $libres = CursoFecha::find($request->curso_fecha_id)?->cuposLibres();
+            if ($libres !== null && $libres <= 0) {
+                return back()->withErrors(['curso_fecha_id' => 'Esa fecha ya no tiene cupos libres.']);
+            }
+        }
 
         // Cancelar la inscripción cancela también su venta (y libera el cupo).
         if ($request->estado === 'cancelada' && $inscripcion->venta && $inscripcion->venta->estado !== 'cancelada') {

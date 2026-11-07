@@ -18,6 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'role'           => \App\Http\Middleware\EnsureUserHasRole::class,
         ]);
 
+        // Cuentas desactivadas: se les cierra la sesión en la siguiente página.
+        $middleware->web(append: [\App\Http\Middleware\CerrarSesionSiEstaInactivo::class]);
+
         // Cookie de señal para vaciar el carrito local tras crear una orden (la lee JS)
         $middleware->encryptCookies(except: ['pm_vaciar_carrito']);
 

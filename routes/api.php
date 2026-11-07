@@ -30,16 +30,18 @@ Route::middleware(['web', 'auth', 'role:Administrador'])->name('api.')->group(fu
     Route::apiResource('tipo-iva', TipoIvaController::class);
     Route::apiResource('categorias', CategoriaProductoController::class);
     Route::apiResource('productos', ProductoController::class);
-    Route::apiResource('inventario', InventarioController::class);
+    // Ventas, pagos, sus detalles y el inventario solo se consultan por la API:
+    // se modifican desde el sistema, que aplica las reglas (stock, estados, pagos).
+    Route::apiResource('inventario', InventarioController::class)->only(['index', 'show']);
     Route::apiResource('carrito', CarritoController::class);
     Route::apiResource('carrito-detalle', CarritoDetalleController::class);
     Route::apiResource('cursos', CursoController::class);
     Route::apiResource('inscripciones', InscripcionController::class);
-    Route::apiResource('ventas', VentaController::class);
-    Route::apiResource('detalle-venta-producto', DetalleVentaProductoController::class);
-    Route::apiResource('detalle-venta-curso', DetalleVentaCursoController::class);
+    Route::apiResource('ventas', VentaController::class)->only(['index', 'show']);
+    Route::apiResource('detalle-venta-producto', DetalleVentaProductoController::class)->only(['index', 'show']);
+    Route::apiResource('detalle-venta-curso', DetalleVentaCursoController::class)->only(['index', 'show']);
     Route::apiResource('metodos-pago', MetodoPagoController::class);
-    Route::apiResource('pagos', PagoController::class);
+    Route::apiResource('pagos', PagoController::class)->only(['index', 'show']);
 
     Route::apiResource('usuarios-roles', UsuariosRolesController::class)
         ->only(['index', 'store', 'destroy']);

@@ -7,6 +7,8 @@ use App\Services\AuditoriaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
@@ -31,12 +33,23 @@ class AuthenticatedSessionController extends Controller
             'password' => ['required'],
         ]);
 
+        // Máximo 5 intentos fallidos por minuto para el mismo correo desde el mismo equipo.
+        $llave = 'login:' . Str::lower($credenciales['correo']) . '|' . $request->ip();
+        if (RateLimiter::tooManyAttempts($llave, 5)) {
+            return back()
+                ->withErrors(['correo' => 'Demasiados intentos. Espera ' . RateLimiter::availableIn($llave) . ' segundos y vuelve a intentarlo.'])
+                ->withInput();
+        }
+
         if (! Auth::attempt($credenciales, $request->boolean('recordarme'))) {
+            RateLimiter::hit($llave, 60);
+
             return back()
                 ->withErrors(['correo' => 'Las credenciales no coinciden con nuestros registros.'])
                 ->withInput();
         }
 
+        RateLimiter::clear($llave);
         // Bloquea cuentas inactivas
         if (! Auth::user()->estado) {
             Auth::logout();

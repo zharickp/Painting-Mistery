@@ -49,7 +49,7 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Cupos <span class="text-gray-400">(opcional)</span>
+                    Cupos por fecha <span class="text-gray-400">(opcional)</span>
                 </label>
                 <input type="number" name="cupos"
                        value="{{ old('cupos', $curso->cupos) }}"

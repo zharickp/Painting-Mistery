@@ -41,7 +41,7 @@ class ClienteDashboardController extends Controller
         $proximoCurso = $inscripciones->where('estado', 'confirmada')
             ->filter(fn ($i) => $i->fechaInicio()?->gte(today()))
             ->sortBy(fn ($i) => $i->fechaInicio())->first();
-        $inscritosIds = $inscripciones->pluck('curso_id');
+        $inscritosIds = $inscripciones->filter(fn ($i) => $i->estaVigente())->pluck('curso_id');
         $cursosDisponibles = Curso::where('estado', true)->whereNotIn('id', $inscritosIds)->orderBy('precio')->limit(3)->get();
         $ultimaOrden = $ventas->first(fn ($v) => $v->estado === 'pagada');
         $recomendados = Producto::where('estado', true)->with(['categoria', 'imagenes'])->latest()->limit(4)->get();
@@ -95,7 +95,8 @@ class ClienteDashboardController extends Controller
         $inscripciones = Inscripcion::with(['curso', 'cursoFecha'])
             ->where('usuario_id', $userId)->latest()->get();
 
-        $inscritosActivos = $inscripciones->whereIn('estado', ['pendiente', 'confirmada', 'completada'])->pluck('curso_id');
+        // Un curso que ya terminó se puede volver a tomar.
+        $inscritosActivos = $inscripciones->filter(fn ($i) => $i->estaVigente())->pluck('curso_id');
         $disponibles = Curso::where('estado', true)->whereNotIn('id', $inscritosActivos)->orderBy('precio')->get();
 
         return view('cliente.cursos', compact('inscripciones', 'disponibles'));

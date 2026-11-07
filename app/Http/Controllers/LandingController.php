@@ -84,8 +84,11 @@ class LandingController extends Controller
     {
         $cursos = Curso::where('estado', true)->with(['fechas' => fn ($q) => $q->whereDate('fecha', '>=', today())])->orderBy('id')->get();
 
+        // Por curso: la inscripción que sigue en curso o, si no hay, la más reciente.
         $misInscripciones = auth()->check()
-            ? Inscripcion::with('cursoFecha')->where('usuario_id', auth()->id())->get()->keyBy('curso_id')
+            ? Inscripcion::with('cursoFecha.curso')->where('usuario_id', auth()->id())->orderByDesc('id')->get()
+                ->groupBy('curso_id')
+                ->map(fn ($grupo) => $grupo->first(fn ($i) => $i->estaVigente()) ?? $grupo->first())
             : collect();
 
         return view('academia', compact('cursos', 'misInscripciones'));

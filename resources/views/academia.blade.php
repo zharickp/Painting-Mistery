@@ -66,7 +66,7 @@
                 @foreach($cursos as $curso)
                 @php
                     $ins = $misInscripciones->get($curso->id);
-                    $activa = $ins && in_array($ins->estado, ['pendiente','confirmada','completada'], true) && ! $ins->esReservaAntigua();
+                    $activa = $ins && $ins->estaVigente();
                     $libres = $curso->cuposDisponibles();
                     $lineas = array_values(array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', (string) $curso->descripcion))));
                     $intro = $lineas[0] ?? 'Curso práctico dictado en el taller.';

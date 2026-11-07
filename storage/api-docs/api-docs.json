@@ -519,7 +519,7 @@
                             "schema": {
                                 "required": [
                                     "nombre",
-                                    "costo"
+                                    "precio"
                                 ],
                                 "properties": {
                                     "nombre": {
@@ -528,16 +528,8 @@
                                     "descripcion": {
                                         "type": "string"
                                     },
-                                    "costo": {
+                                    "precio": {
                                         "type": "number"
-                                    },
-                                    "fecha_inicio": {
-                                        "type": "string",
-                                        "format": "date"
-                                    },
-                                    "fecha_fin": {
-                                        "type": "string",
-                                        "format": "date"
                                     },
                                     "cupos": {
                                         "type": "integer"
@@ -617,16 +609,8 @@
                                     "descripcion": {
                                         "type": "string"
                                     },
-                                    "costo": {
+                                    "precio": {
                                         "type": "number"
-                                    },
-                                    "fecha_inicio": {
-                                        "type": "string",
-                                        "format": "date"
-                                    },
-                                    "fecha_fin": {
-                                        "type": "string",
-                                        "format": "date"
                                     },
                                     "cupos": {
                                         "type": "integer"
@@ -691,46 +675,6 @@
                         "description": "Lista"
                     }
                 }
-            },
-            "post": {
-                "tags": [
-                    "Detalle Venta Curso"
-                ],
-                "summary": "Agregar curso a una venta",
-                "operationId": "e8969e6ed4d857c60fbccf07f684e50d",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "venta_id",
-                                    "curso_id"
-                                ],
-                                "properties": {
-                                    "venta_id": {
-                                        "type": "integer"
-                                    },
-                                    "curso_id": {
-                                        "type": "integer"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Agregado"
-                    },
-                    "422": {
-                        "description": "Error de validación"
-                    },
-                    "404": {
-                        "description": "No encontrado"
-                    }
-                }
             }
         },
         "/detalle-venta-curso/{id}": {
@@ -758,74 +702,6 @@
                         "description": "No encontrado"
                     }
                 }
-            },
-            "put": {
-                "tags": [
-                    "Detalle Venta Curso"
-                ],
-                "summary": "Actualizar detalle",
-                "operationId": "739a4a05277ac53e32ebe03c74f120bd",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "curso_id": {
-                                        "type": "integer"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Actualizado"
-                    },
-                    "404": {
-                        "description": "No encontrado"
-                    },
-                    "422": {
-                        "description": "Error de validación"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Detalle Venta Curso"
-                ],
-                "summary": "Eliminar detalle",
-                "operationId": "f45b2265b73ea9a7e3e8b14d44f533b4",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Eliminado"
-                    },
-                    "404": {
-                        "description": "No encontrado"
-                    }
-                }
             }
         },
         "/detalle-venta-producto": {
@@ -838,50 +714,6 @@
                 "responses": {
                     "200": {
                         "description": "Lista"
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                    "Detalle Venta Producto"
-                ],
-                "summary": "Agregar producto a una venta",
-                "operationId": "7c5380907d149195f3e619536236b891",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "venta_id",
-                                    "producto_id",
-                                    "cantidad"
-                                ],
-                                "properties": {
-                                    "venta_id": {
-                                        "type": "integer"
-                                    },
-                                    "producto_id": {
-                                        "type": "integer"
-                                    },
-                                    "cantidad": {
-                                        "type": "integer"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Agregado"
-                    },
-                    "422": {
-                        "description": "Error de validación"
-                    },
-                    "400": {
-                        "description": "Error de negocio"
                     }
                 }
             }
@@ -906,74 +738,6 @@
                 "responses": {
                     "200": {
                         "description": "Encontrado"
-                    },
-                    "404": {
-                        "description": "No encontrado"
-                    }
-                }
-            },
-            "put": {
-                "tags": [
-                    "Detalle Venta Producto"
-                ],
-                "summary": "Actualizar detalle",
-                "operationId": "4106922f387c05f001548a7b2721d444",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "cantidad": {
-                                        "type": "integer"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Actualizado"
-                    },
-                    "404": {
-                        "description": "No encontrado"
-                    },
-                    "422": {
-                        "description": "Error de validación"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Detalle Venta Producto"
-                ],
-                "summary": "Eliminar detalle",
-                "operationId": "6351357d55b25f8d889817db405d54e5",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Eliminado"
                     },
                     "404": {
                         "description": "No encontrado"
@@ -1007,18 +771,18 @@
                             "schema": {
                                 "required": [
                                     "usuario_id",
-                                    "curso_id"
+                                    "curso_fecha_id"
                                 ],
                                 "properties": {
                                     "usuario_id": {
                                         "type": "integer"
                                     },
-                                    "curso_id": {
+                                    "curso_fecha_id": {
                                         "type": "integer"
                                     },
                                     "estado": {
                                         "type": "string",
-                                        "example": "inscrito"
+                                        "example": "pendiente"
                                     }
                                 },
                                 "type": "object"
@@ -1086,7 +850,7 @@
                                 "properties": {
                                     "estado": {
                                         "type": "string",
-                                        "example": "cancelado"
+                                        "example": "cancelada"
                                     }
                                 },
                                 "type": "object"
@@ -1147,46 +911,6 @@
                         "description": "Error interno"
                     }
                 }
-            },
-            "post": {
-                "tags": [
-                    "Inventario"
-                ],
-                "summary": "Crear inventario",
-                "operationId": "a56a6497e345aa264cf9501e1acec5df",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "producto_id",
-                                    "stock_actual"
-                                ],
-                                "properties": {
-                                    "producto_id": {
-                                        "type": "integer"
-                                    },
-                                    "stock_actual": {
-                                        "type": "integer"
-                                    },
-                                    "stock_minimo": {
-                                        "type": "integer"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Creado"
-                    },
-                    "422": {
-                        "description": "Error de validación"
-                    }
-                }
             }
         },
         "/inventario/{id}": {
@@ -1210,79 +934,6 @@
                 "responses": {
                     "200": {
                         "description": "Encontrado"
-                    },
-                    "404": {
-                        "description": "No encontrado"
-                    }
-                }
-            },
-            "put": {
-                "tags": [
-                    "Inventario"
-                ],
-                "summary": "Actualizar inventario",
-                "operationId": "86776fdb50e6ff265a7e242b9ae6518d",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        },
-                        "example": 1
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "stock_actual": {
-                                        "type": "integer"
-                                    },
-                                    "stock_minimo": {
-                                        "type": "integer"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Actualizado"
-                    },
-                    "404": {
-                        "description": "No encontrado"
-                    },
-                    "422": {
-                        "description": "Error de validación"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Inventario"
-                ],
-                "summary": "Eliminar inventario",
-                "operationId": "15dced7e0647de7d21f1431765b905fd",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        },
-                        "example": 1
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Eliminado"
                     },
                     "404": {
                         "description": "No encontrado"
@@ -1457,54 +1108,6 @@
                         "description": "Lista de pagos"
                     }
                 }
-            },
-            "post": {
-                "tags": [
-                    "Pagos"
-                ],
-                "summary": "Registrar pago",
-                "operationId": "fa28bea21d9d598b2c20daa6956846b8",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "venta_id",
-                                    "metodo_pago_id",
-                                    "valor"
-                                ],
-                                "properties": {
-                                    "venta_id": {
-                                        "type": "integer"
-                                    },
-                                    "metodo_pago_id": {
-                                        "type": "integer"
-                                    },
-                                    "numero_comprobante": {
-                                        "type": "string"
-                                    },
-                                    "valor": {
-                                        "type": "number"
-                                    },
-                                    "estado": {
-                                        "type": "string",
-                                        "example": "aprobado"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Pago registrado"
-                    },
-                    "422": {
-                        "description": "Error de validación"
-                    }
-                }
             }
         },
         "/pagos/{id}": {
@@ -1530,257 +1133,6 @@
                     },
                     "404": {
                         "description": "No encontrado"
-                    }
-                }
-            },
-            "put": {
-                "tags": [
-                    "Pagos"
-                ],
-                "summary": "Actualizar pago",
-                "operationId": "1a52b0de54a6d4e22486f6a2ebe452ef",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "venta_id": {
-                                        "type": "integer"
-                                    },
-                                    "metodo_pago_id": {
-                                        "type": "integer"
-                                    },
-                                    "numero_comprobante": {
-                                        "type": "string"
-                                    },
-                                    "valor": {
-                                        "type": "number"
-                                    },
-                                    "estado": {
-                                        "type": "string",
-                                        "example": "aprobado"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Actualizado"
-                    },
-                    "404": {
-                        "description": "No encontrado"
-                    },
-                    "422": {
-                        "description": "Error de validación"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Pagos"
-                ],
-                "summary": "Eliminar pago",
-                "operationId": "e99a45ba4bc0deb2cfa97b4bf90e8aac",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Eliminado"
-                    },
-                    "404": {
-                        "description": "No encontrado"
-                    }
-                }
-            }
-        },
-        "/permisos": {
-            "get": {
-                "tags": [
-                    "Permisos"
-                ],
-                "summary": "Listar permisos",
-                "operationId": "db247ea5b5068311a39777fee87f0bea",
-                "responses": {
-                    "200": {
-                        "description": "Lista de permisos"
-                    },
-                    "500": {
-                        "description": "Error interno"
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                    "Permisos"
-                ],
-                "summary": "Crear permiso",
-                "operationId": "11c561d5d2ca92415dab842f381c08c8",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "nombre"
-                                ],
-                                "properties": {
-                                    "nombre": {
-                                        "type": "string",
-                                        "example": "crear_usuario"
-                                    },
-                                    "descripcion": {
-                                        "type": "string",
-                                        "example": "Permite crear usuarios"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Permiso creado"
-                    },
-                    "422": {
-                        "description": "Error de validación"
-                    },
-                    "500": {
-                        "description": "Error interno"
-                    }
-                }
-            }
-        },
-        "/permisos/{id}": {
-            "get": {
-                "tags": [
-                    "Permisos"
-                ],
-                "summary": "Obtener permiso",
-                "operationId": "c28b92bf31bc4d1d9572d755c4e2e761",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        },
-                        "example": 1
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Permiso encontrado"
-                    },
-                    "404": {
-                        "description": "No encontrado"
-                    },
-                    "500": {
-                        "description": "Error interno"
-                    }
-                }
-            },
-            "put": {
-                "tags": [
-                    "Permisos"
-                ],
-                "summary": "Actualizar permiso",
-                "operationId": "5c6e81b46a71ac87a32851f390fc0d60",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        },
-                        "example": 1
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "nombre": {
-                                        "type": "string",
-                                        "example": "editar_usuario"
-                                    },
-                                    "descripcion": {
-                                        "type": "string",
-                                        "example": "Permite editar usuarios"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Actualizado"
-                    },
-                    "404": {
-                        "description": "No encontrado"
-                    },
-                    "422": {
-                        "description": "Error de validación"
-                    },
-                    "400": {
-                        "description": "Sin datos"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Permisos"
-                ],
-                "summary": "Eliminar permiso",
-                "operationId": "251579e4f19c207aff8052579cf58c81",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        },
-                        "example": 1
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Eliminado"
-                    },
-                    "404": {
-                        "description": "No encontrado"
-                    },
-                    "500": {
-                        "description": "Error interno"
                     }
                 }
             }
@@ -1833,9 +1185,6 @@
                                     },
                                     "precio": {
                                         "type": "number"
-                                    },
-                                    "imagen": {
-                                        "type": "string"
                                     },
                                     "estado": {
                                         "type": "boolean"
@@ -2122,86 +1471,6 @@
                 }
             }
         },
-        "/roles-permisos": {
-            "get": {
-                "tags": [
-                    "Roles Permisos"
-                ],
-                "summary": "Listar permisos de roles",
-                "operationId": "8c4c414f39d2c41815d834de51f229c0",
-                "responses": {
-                    "200": {
-                        "description": "Lista obtenida"
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                    "Roles Permisos"
-                ],
-                "summary": "Asignar permiso a rol",
-                "operationId": "cda5af2054307e5bba4cd34000e84f52",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "rol_id",
-                                    "permiso_id"
-                                ],
-                                "properties": {
-                                    "rol_id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "permiso_id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Asignación creada"
-                    },
-                    "422": {
-                        "description": "Error validación"
-                    }
-                }
-            }
-        },
-        "/roles-permisos/{id}": {
-            "delete": {
-                "tags": [
-                    "Roles Permisos"
-                ],
-                "summary": "Eliminar asignación rol-permiso",
-                "operationId": "a5f693174eb419a84bd68e64f5b53fa2",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Eliminado"
-                    },
-                    "404": {
-                        "description": "No encontrado"
-                    }
-                }
-            }
-        },
         "/tipo-documento": {
             "get": {
                 "tags": [
@@ -2389,11 +1658,11 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "descripcion",
+                                    "nombre",
                                     "porcentaje"
                                 ],
                                 "properties": {
-                                    "descripcion": {
+                                    "nombre": {
                                         "type": "string"
                                     },
                                     "porcentaje": {
@@ -2466,7 +1735,7 @@
                         "application/json": {
                             "schema": {
                                 "properties": {
-                                    "descripcion": {
+                                    "nombre": {
                                         "type": "string"
                                     },
                                     "porcentaje": {
@@ -2842,46 +2111,6 @@
                         "description": "Lista de ventas"
                     }
                 }
-            },
-            "post": {
-                "tags": [
-                    "Ventas"
-                ],
-                "summary": "Crear venta",
-                "operationId": "7a926f6262af9bda6082ea3c4bef0ade",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "usuario_id"
-                                ],
-                                "properties": {
-                                    "usuario_id": {
-                                        "type": "integer"
-                                    },
-                                    "total": {
-                                        "type": "number"
-                                    },
-                                    "estado": {
-                                        "type": "string",
-                                        "example": "pendiente"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Venta creada"
-                    },
-                    "422": {
-                        "description": "Error de validación"
-                    }
-                }
             }
         },
         "/ventas/{id}": {
@@ -2904,79 +2133,6 @@
                 "responses": {
                     "200": {
                         "description": "Venta encontrada"
-                    },
-                    "404": {
-                        "description": "No encontrada"
-                    }
-                }
-            },
-            "put": {
-                "tags": [
-                    "Ventas"
-                ],
-                "summary": "Actualizar venta",
-                "operationId": "6b7c7d1c78a9fe445fa17bb755d6f27d",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": false,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "estado": {
-                                        "type": "string",
-                                        "example": "pagada"
-                                    },
-                                    "total": {
-                                        "type": "number",
-                                        "example": 50000
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Actualizada"
-                    },
-                    "404": {
-                        "description": "No encontrada"
-                    },
-                    "422": {
-                        "description": "Error de validación"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Ventas"
-                ],
-                "summary": "Eliminar venta",
-                "operationId": "85a8c8b1f4743a7cbda1e7a97079066d",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Eliminada"
                     },
                     "404": {
                         "description": "No encontrada"
@@ -3027,20 +2183,12 @@
             "description": "Pagos"
         },
         {
-            "name": "Permisos",
-            "description": "Permisos"
-        },
-        {
             "name": "Productos",
             "description": "Productos"
         },
         {
             "name": "Roles",
             "description": "Roles"
-        },
-        {
-            "name": "Roles Permisos",
-            "description": "Roles Permisos"
         },
         {
             "name": "TipoDocumento",
