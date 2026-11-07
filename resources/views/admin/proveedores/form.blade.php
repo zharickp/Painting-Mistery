@@ -22,7 +22,7 @@
         @if ($proveedor->exists) @method('PUT') @endif
 
         <div class="sm:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre o razón social</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
             <input type="text" name="nombre" value="{{ old('nombre', $proveedor->nombre) }}" required maxlength="120" class="{{ $campo }}">
         </div>
         <div>

@@ -58,10 +58,6 @@
                     </td>
                     <td class="px-5 py-3 text-center">
                         <div class="flex items-center justify-center gap-2">
-                            @if ($puedeEditar && $p->estado)
-                            <a href="{{ route('admin.compras.create', ['proveedor' => $p->id]) }}"
-                               class="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-700 text-xs rounded-md transition">Registrar compra</a>
-                            @endif
                             @if ($puedeEditar)
                             <a href="{{ route('admin.proveedores.edit', $p) }}"
                                class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs rounded-md transition">Editar</a>
