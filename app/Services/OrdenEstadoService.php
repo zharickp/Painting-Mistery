@@ -17,8 +17,10 @@ use Illuminate\Support\Facades\DB;
  *   pagada    -> cancelada   (cancelar: devuelve el stock)
  *
  * Cada intento de pago queda en la tabla `pago`.
- * Inventario: solo se descuenta al pasar a pagada y solo se devuelve si la
- * venta estaba pagada.
+ * Inventario: las unidades se apartan (se descuentan) al crear la orden en el
+ * checkout, así nadie más puede comprarlas mientras el cliente paga. Al
+ * cancelar (a mano o porque venció) se devuelven. venta.inventario_descontado
+ * dice si esa venta tiene unidades descontadas.
  * Cursos: al pagar, la inscripción de la venta queda confirmada; al cancelar,
  * queda cancelada y el cupo se libera.
  */
@@ -28,6 +30,8 @@ class OrdenEstadoService
      * @param int|null $metodoPagoId Método con el que se pagó. Si es null se usa el que
      *                               el cliente eligió en su pago pendiente (confirmación
      *                               manual desde el panel).
+     * @throws \App\Exceptions\StockInsuficienteException si la orden no tenía
+     *         unidades apartadas y ya no alcanzan (no cambia nada).
      */
     public function confirmarPago(Venta $venta, ?Usuario $actor = null, string $origen = 'sistema', ?int $metodoPagoId = null): bool
     {
@@ -51,22 +55,25 @@ class OrdenEstadoService
             $pago->metodo_pago_id = $metodoPagoId
                 ?? $pago->metodo_pago_id
                 ?? MetodoPago::where('estado', true)->orderBy('id')->value('id');
+            // Órdenes viejas, creadas antes de apartar el stock: se descuenta
+            // ahora, revisando que alcance. Si no alcanza, no se confirma nada.
+            if (! $venta->inventario_descontado) {
+                InventarioService::descontar(InventarioService::cantidadesDe($venta));
+            }
+
             $pago->estado     = 'aprobado';
             $pago->fecha_pago = now();
             $pago->save();
 
             // Sin eventos: la auditoría de este cambio se registra abajo con más detalle.
-            Venta::withoutEvents(fn () => $venta->update([
-                'estado'             => 'pagada',
-                'confirmado_por'     => $actor?->id,
-                'fecha_cancelacion'  => null,
-                'cancelado_por'      => null,
-                'motivo_cancelacion' => null,
-            ]));
-
-            foreach ($venta->detalleProductos as $d) {
-                $d->producto?->inventario?->decrement('stock_actual', $d->cantidad);
-            }
+            Venta::withoutEvents(fn () => $venta->forceFill([
+                'estado'                => 'pagada',
+                'confirmado_por'        => $actor?->id,
+                'fecha_cancelacion'     => null,
+                'cancelado_por'         => null,
+                'motivo_cancelacion'    => null,
+                'inventario_descontado' => true,
+            ])->save());
 
             // Las inscripciones a los cursos de esta venta quedan confirmadas.
             $this->inscripcionesDe($venta)->where('estado', 'pendiente')
@@ -86,28 +93,27 @@ class OrdenEstadoService
             return false;
         }
 
-        $anterior     = $venta->estado;
-        $estabaPagada = $anterior === 'pagada';
+        $anterior = $venta->estado;
 
-        DB::transaction(function () use ($venta, $actor, $motivo, $estabaPagada) {
+        DB::transaction(function () use ($venta, $actor, $motivo) {
             // Un pago que seguía pendiente queda rechazado.
             $venta->pagos()->where('estado', 'pendiente')->update([
                 'estado'     => 'rechazado',
                 'updated_at' => now(),
             ]);
 
-            Venta::withoutEvents(fn () => $venta->update([
-                'estado'             => 'cancelada',
-                'fecha_cancelacion'  => now(),
-                'cancelado_por'      => $actor?->id,
-                'motivo_cancelacion' => $motivo ? mb_substr($motivo, 0, 255) : null,
-            ]));
-
-            if ($estabaPagada) {
-                foreach ($venta->detalleProductos as $d) {
-                    $d->producto?->inventario?->increment('stock_actual', $d->cantidad);
-                }
+            // Las unidades que la venta tenía apartadas o vendidas vuelven al inventario.
+            if ($venta->inventario_descontado) {
+                InventarioService::devolver(InventarioService::cantidadesDe($venta));
             }
+
+            Venta::withoutEvents(fn () => $venta->forceFill([
+                'estado'                => 'cancelada',
+                'fecha_cancelacion'     => now(),
+                'cancelado_por'         => $actor?->id,
+                'motivo_cancelacion'    => $motivo ? mb_substr($motivo, 0, 255) : null,
+                'inventario_descontado' => false,
+            ])->save());
 
             $this->inscripcionesDe($venta)
                 ->whereIn('estado', ['pendiente', 'confirmada'])

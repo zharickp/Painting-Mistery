@@ -42,6 +42,10 @@
     $cursosOpen = request()->routeIs('admin.cursos.*')
         || request()->routeIs('admin.agenda-cursos.*');
 
+    $inventarioOpen = request()->routeIs('admin.inventario')
+        || request()->routeIs('admin.compras.*')
+        || request()->routeIs('admin.proveedores.*');
+
     $seguimientoOpen = request()->routeIs('admin.reportes')
         || request()->routeIs('admin.auditoria.*')
         || request()->routeIs('admin.resenas.*');
@@ -212,15 +216,46 @@
                 <span class="font-medium">Ventas</span>
             </a>
 
-            {{-- INVENTARIO --}}
-            <a href="{{ route('admin.inventario') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition
-                      {{ request()->routeIs('admin.inventario') ? 'bg-red-600/95 text-white shadow-lg shadow-red-900/30' : 'text-slate-400 hover:bg-slate-800/70 hover:text-white' }}">
-                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
-                </svg>
-                <span class="font-medium">Inventario</span>
-            </a>
+            {{-- INVENTARIO (grupo desplegable) --}}
+            <div x-data="{ open: {{ $inventarioOpen ? 'true' : 'false' }} }">
+                <button type="button" @click="open = !open"
+                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-left
+                               {{ $inventarioOpen ? 'text-white bg-slate-800/60' : 'text-slate-400 hover:bg-slate-800/70 hover:text-white' }}">
+                    <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+                    </svg>
+                    <span class="flex-1 font-medium">Inventario</span>
+                    <svg class="h-4 w-4 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div x-show="open" x-collapse class="mt-1 ml-4 pl-3 border-l border-slate-800 space-y-1">
+                    <a href="{{ route('admin.inventario') }}"
+                       class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition
+                              {{ request()->routeIs('admin.inventario') ? 'text-white bg-red-600/85' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <svg class="h-4 w-4 shrink-0 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+                        </svg>
+                        Inventario
+                    </a>
+                    <a href="{{ route('admin.compras.index') }}"
+                       class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition
+                              {{ request()->routeIs('admin.compras.*') ? 'text-white bg-red-600/85' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <svg class="h-4 w-4 shrink-0 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                        </svg>
+                        Compras
+                    </a>
+                    <a href="{{ route('admin.proveedores.index') }}"
+                       class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition
+                              {{ request()->routeIs('admin.proveedores.*') ? 'text-white bg-red-600/85' : 'text-slate-400 hover:text-white hover:bg-slate-800/60' }}">
+                        <svg class="h-4 w-4 shrink-0 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zm10 0a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                        </svg>
+                        Proveedores
+                    </a>
+                </div>
+            </div>
             @endif
 
             @if($esAdmin || $esGerente)

@@ -8,8 +8,8 @@ use Illuminate\Console\Command;
 
 /**
  * Cancela las ventas que se crearon pero nunca se pagaron (el cliente llegó a
- * la pantalla de pago y no terminó). No toca el inventario: el stock
- * solo se descuenta cuando el pago se aprueba.
+ * la pantalla de pago y no terminó). Las unidades que la orden tenía apartadas
+ * vuelven al inventario para que otros clientes las puedan comprar.
  */
 class ExpirarPedidosPendientesCommand extends Command
 {

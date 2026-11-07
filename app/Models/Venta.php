@@ -45,6 +45,7 @@ class Venta extends Model
         'total'           => 'decimal:2',
         'fecha'           => 'datetime',
         'fecha_cancelacion' => 'datetime',
+        'inventario_descontado' => 'boolean',
     ];
 
     // ─── Relaciones ────────────────────────────────────────────

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Banner;
 use App\Models\Curso;
+use App\Models\DetalleVentaProducto;
 use App\Models\Inscripcion;
 use App\Models\Producto;
 use App\Models\Resena;
@@ -12,11 +13,7 @@ class LandingController extends Controller
 {
     public function index()
     {
-        $productosDestacados = Producto::where('estado', true)
-            ->with(['categoria', 'imagenes', 'inventario', 'colores'])
-            ->orderBy('created_at', 'desc')
-            ->take(6)
-            ->get();
+        $productosDestacados = $this->masVendidos(6);
 
         $cursosDestacados = Curso::where('estado', true)
             ->with('fechasDisponibles')
@@ -36,6 +33,46 @@ class LandingController extends Controller
         $miResena = auth()->user()?->resena;
 
         return view('landing', compact('productosDestacados', 'cursosDestacados', 'banners', 'resenasClientes', 'miResena'));
+    }
+
+    /**
+     * Productos destacados = los más vendidos: unidades vendidas en ventas
+     * pagadas (las pendientes o canceladas no cuentan). Si todavía hay pocas
+     * ventas, se completa con los productos más recientes.
+     */
+    private function masVendidos(int $cantidad)
+    {
+        $relaciones = ['categoria', 'imagenes', 'inventario', 'colores'];
+
+        $ranking = DetalleVentaProducto::query()
+            ->join('venta', 'venta.id', '=', 'detalle_venta_producto.venta_id')
+            ->where('venta.estado', 'pagada')
+            ->groupBy('detalle_venta_producto.producto_id')
+            ->orderByRaw('sum(detalle_venta_producto.cantidad) desc')
+            ->limit(30)
+            ->pluck('detalle_venta_producto.producto_id')
+            ->all();
+
+        $vendidos = Producto::where('estado', true)
+            ->whereIn('id', $ranking ?: [0])
+            ->with($relaciones)
+            ->get()
+            ->sortBy(fn ($p) => array_search($p->id, $ranking))
+            ->take($cantidad)
+            ->values();
+
+        if ($vendidos->count() < $cantidad) {
+            $vendidos = $vendidos->concat(
+                Producto::where('estado', true)
+                    ->whereNotIn('id', $vendidos->pluck('id')->all() ?: [0])
+                    ->with($relaciones)
+                    ->orderByDesc('created_at')
+                    ->take($cantidad - $vendidos->count())
+                    ->get()
+            );
+        }
+
+        return $vendidos;
     }
 
     public function nosotros()

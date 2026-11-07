@@ -108,10 +108,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-end justify-between gap-4 mb-8">
                 <div>
-                    <h2 class="font-display uppercase text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">Productos destacados</h2>
-                    <p class="text-gray-500 text-sm mt-1">Lo más reciente que llegó a la tienda.</p>
+                    <h2 class="font-display uppercase text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">Más vendidos</h2>
+                    <p class="text-gray-500 text-sm mt-1">Los productos que más compran nuestros clientes.</p>
                 </div>
-                <a href="{{ route('tienda.index') }}" class="shrink-0 text-sm font-semibold text-red-600 hover:text-red-700">Ver tienda →</a>
+                <a href="{{ route('tienda.index', ['orden' => 'vendidos']) }}" class="shrink-0 text-sm font-semibold text-red-600 hover:text-red-700">Ver tienda →</a>
             </div>
 
             @if ($productosDestacados->isEmpty())

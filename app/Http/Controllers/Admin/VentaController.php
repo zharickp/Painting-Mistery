@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exceptions\StockInsuficienteException;
 use App\Http\Controllers\Controller;
 use App\Models\Venta;
 use App\Services\OrdenEstadoService;
@@ -62,7 +63,11 @@ class VentaController extends Controller
 
         // Confirmación manual desde el panel (por ejemplo, cuando se verifica el pago a mano):
         // queda registrado con el método que eligió el cliente.
-        $svc->confirmarPago($venta, auth()->user(), 'panel administrativo');
+        try {
+            $svc->confirmarPago($venta, auth()->user(), 'panel administrativo');
+        } catch (StockInsuficienteException $e) {
+            return back()->with('error', 'No se puede confirmar: ' . $e->getMessage());
+        }
 
         return back()->with('success', "Pago confirmado. La orden {$venta->numero_orden} quedó como Pagada.");
     }

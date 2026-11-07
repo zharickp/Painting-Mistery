@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\StockInsuficienteException;
 use App\Models\Carrito;
 use App\Models\DetalleVentaProducto;
 use App\Models\MetodoPago;
@@ -9,6 +10,7 @@ use App\Models\Pago;
 use App\Models\TipoDocumento;
 use App\Models\Venta;
 use App\Services\AuditoriaService;
+use App\Services\InventarioService;
 use App\Services\OrdenEstadoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -79,8 +81,14 @@ class CheckoutController extends Controller
                 continue;
             }
             $stock = $producto->inventario?->stock_actual ?? 0;
+            if ($stock <= 0) {
+                $errores[] = "\"{$producto->nombre}\" se agotó.";
+                continue;
+            }
             if ($d->cantidad > $stock) {
-                $errores[] = "Solo quedan {$stock} unidades de \"{$producto->nombre}\".";
+                $errores[] = $stock === 1
+                    ? "Solo queda 1 unidad de \"{$producto->nombre}\"."
+                    : "Solo quedan {$stock} unidades de \"{$producto->nombre}\".";
                 continue;
             }
             $total += $d->cantidad * $producto->precio;
@@ -92,6 +100,15 @@ class CheckoutController extends Controller
 
         try {
             $venta = DB::transaction(function () use ($carrito, $detalles, $total, $data) {
+                // Se aparta el stock antes de crear la orden. Las filas del inventario
+                // quedan bloqueadas mientras tanto: si otra persona compró las últimas
+                // unidades en este momento, aquí se detiene y no se crea nada.
+                $cantidades = [];
+                foreach ($detalles as $d) {
+                    $cantidades[$d->producto_id] = ($cantidades[$d->producto_id] ?? 0) + (int) $d->cantidad;
+                }
+                InventarioService::descontar($cantidades);
+
                 $venta = Venta::create([
                     'usuario_id'       => auth()->id(),
                     'total'            => $total,
@@ -103,6 +120,7 @@ class CheckoutController extends Controller
                     'tipo_documento'   => $data['tipo_documento'],
                     'numero_documento' => $data['numero_documento'],
                 ]);
+                $venta->forceFill(['inventario_descontado' => true])->saveQuietly();
 
                 // El número de orden depende del id, que solo existe después de insertar.
                 // saveQuietly: no genera una entrada de auditoría extra por este ajuste interno.
@@ -135,6 +153,8 @@ class CheckoutController extends Controller
 
                 return $venta;
             });
+        } catch (StockInsuficienteException $e) {
+            return back()->with('error', $e->getMessage() . ' Ajusta tu carrito para continuar.')->withInput();
         } catch (\Throwable $e) {
             Log::error('Checkout falló: ' . $e->getMessage());
             return back()->with('error', 'No se pudo crear la compra. Inténtalo de nuevo.')->withInput();
@@ -176,7 +196,11 @@ class CheckoutController extends Controller
 
         // Integración con pasarela de pagos: alcance futuro. Cuando exista, aquí se
         // envía el cobro y la venta se confirma o se cancela según su respuesta.
-        $this->estados->confirmarPago($venta, null, 'tienda');
+        try {
+            $this->estados->confirmarPago($venta, null, 'tienda');
+        } catch (StockInsuficienteException $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         return redirect()->route('checkout.resultado', $venta->numero_orden);
     }

@@ -11,7 +11,7 @@
         'precio_max' => $precioMax,
         'en_stock'   => $soloStock ? 1 : null,
         'oferta'     => $soloOferta ? 1 : null,
-        'orden'      => in_array($orden, ['precio_asc', 'precio_desc', 'nombre'], true) ? $orden : null,
+        'orden'      => in_array($orden, ['precio_asc', 'precio_desc', 'nombre', 'vendidos'], true) ? $orden : null,
         'por_pagina' => $porPagina !== 12 ? $porPagina : null,
     ], fn ($v) => $v !== null && $v !== '');
     $url = fn (array $o = []) => route('tienda.index', array_filter(array_merge($base, $o), fn ($v) => $v !== null && $v !== ''));
@@ -43,33 +43,6 @@
             @endif
         </div>
     </div>
-
-    {{-- Categorías --}}
-    @if ($categorias->isNotEmpty())
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <div class="flex gap-3 overflow-x-auto pb-2">
-            <a href="{{ $url(['categoria' => null]) }}"
-               class="flex items-center gap-2 flex-shrink-0 px-4 py-2 rounded-full border text-sm font-medium transition {{ !$categoria ? 'bg-red-600 border-red-600 text-white shadow-md shadow-red-600/20' : 'bg-white border-gray-200 text-gray-600 hover:border-red-300 hover:text-red-600' }}">
-                Todas
-            </a>
-            @foreach ($categorias as $cat)
-                @php $activa = (string) $categoria === (string) $cat->id; @endphp
-                <a href="{{ $url(['categoria' => $cat->id]) }}"
-                   class="flex items-center gap-2 flex-shrink-0 pl-1.5 pr-4 py-1.5 rounded-full border text-sm font-medium transition {{ $activa ? 'bg-red-600 border-red-600 text-white shadow-md shadow-red-600/20' : 'bg-white border-gray-200 text-gray-600 hover:border-red-300 hover:text-red-600' }}">
-                    <span class="h-8 w-8 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
-                        @if ($cat->imagenRepresentativa)
-                            <img src="{{ $cat->imagenRepresentativa }}" alt="" class="h-full w-full object-cover">
-                        @else
-                            <svg class="h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/></svg>
-                        @endif
-                    </span>
-                    {{ $cat->nombre }}
-                    <span class="text-[11px] {{ $activa ? 'text-red-100' : 'text-gray-400' }}">{{ $cat->productos_count }}</span>
-                </a>
-            @endforeach
-        </div>
-    </div>
-    @endif
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-16">
 
@@ -153,7 +126,16 @@
                             Sin resultados
                         @endif
                     </p>
-                    <div class="flex items-center gap-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                        @if ($categorias->isNotEmpty())
+                            <select onchange="location.href=this.value" aria-label="Categoría"
+                                    class="text-sm border rounded-full px-3 py-1.5 focus:outline-none focus:border-red-400 bg-white max-w-[230px] {{ $categoria ? 'border-red-400 text-red-700 font-semibold' : 'border-gray-200' }}">
+                                <option value="{{ $url(['categoria' => null]) }}" @selected(! $categoria)>Todas las categorías</option>
+                                @foreach ($categorias as $cat)
+                                    <option value="{{ $url(['categoria' => $cat->id]) }}" @selected((string) $categoria === (string) $cat->id)>{{ $cat->nombre }} ({{ $cat->productos_count }})</option>
+                                @endforeach
+                            </select>
+                        @endif
                         <select onchange="location.href=this.value" aria-label="Productos por página"
                                 class="text-sm border border-gray-200 rounded-full px-3 py-1.5 focus:outline-none focus:border-red-400 bg-white">
                             @foreach ([9, 12, 18, 24] as $n)
@@ -162,7 +144,8 @@
                         </select>
                         <select onchange="location.href=this.value" aria-label="Ordenar"
                                 class="text-sm border border-gray-200 rounded-full px-3 py-1.5 focus:outline-none focus:border-red-400 bg-white">
-                            <option value="{{ $url(['orden' => null]) }}" @selected(! in_array($orden, ['precio_asc', 'precio_desc', 'nombre'], true))>Más recientes</option>
+                            <option value="{{ $url(['orden' => null]) }}" @selected(! in_array($orden, ['precio_asc', 'precio_desc', 'nombre', 'vendidos'], true))>Más recientes</option>
+                            <option value="{{ $url(['orden' => 'vendidos']) }}" @selected($orden == 'vendidos')>Más vendidos</option>
                             <option value="{{ $url(['orden' => 'precio_asc']) }}" @selected($orden == 'precio_asc')>Precio: menor a mayor</option>
                             <option value="{{ $url(['orden' => 'precio_desc']) }}" @selected($orden == 'precio_desc')>Precio: mayor a menor</option>
                             <option value="{{ $url(['orden' => 'nombre']) }}" @selected($orden == 'nombre')>Nombre A-Z</option>

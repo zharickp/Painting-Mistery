@@ -128,11 +128,13 @@ class CarritoController extends Controller
         $carrito = $this->carritoActivo();
         $avisos  = [];
         $idsValidos = [];
+        $ajustes = []; // cantidades que el navegador debe corregir: [id => cantidad, 0 = quitar]
 
         foreach ($data['items'] as $item) {
             $producto = Producto::with('inventario')->find($item['id']);
             if (!$producto || !$producto->estado) {
-                $avisos[] = "\"{$producto?->nombre}\" ya no está disponible y fue omitido.";
+                $avisos[] = "\"{$producto?->nombre}\" ya no está disponible y se quitó del carrito.";
+                $ajustes[$item['id']] = 0;
                 continue;
             }
 
@@ -140,11 +142,13 @@ class CarritoController extends Controller
             $cantidad = min((int) $item['qty'], $stock);
 
             if ($cantidad < 1) {
-                $avisos[] = "\"{$producto->nombre}\" está agotado y fue omitido.";
+                $avisos[] = "\"{$producto->nombre}\" está agotado y se quitó del carrito.";
+                $ajustes[$producto->id] = 0;
                 continue;
             }
             if ($cantidad < $item['qty']) {
-                $avisos[] = "Solo hay {$stock} unidades de \"{$producto->nombre}\", se ajustó la cantidad.";
+                $avisos[] = "Solo hay {$stock} unidades de \"{$producto->nombre}\": se ajustó la cantidad.";
+                $ajustes[$producto->id] = $cantidad;
             }
 
             CarritoDetalle::updateOrCreate(
@@ -158,10 +162,16 @@ class CarritoController extends Controller
         $carrito->detalles()->whereNotIn('producto_id', $idsValidos ?: [0])->delete();
 
         if ($carrito->detalles()->count() === 0) {
-            return response()->json(['ok' => false, 'message' => 'No hay productos válidos para pagar.'], 422);
+            return response()->json([
+                'ok' => false, 'message' => 'No hay productos disponibles para pagar.',
+                'avisos' => $avisos, 'ajustes' => (object) $ajustes,
+            ], 422);
         }
-
-        return response()->json(['ok' => true, 'avisos' => $avisos]);
+        // Si hubo que corregir algo, el cliente lo ve en su carrito antes de pagar.
+        if ($ajustes) {
+            return response()->json(['ok' => false, 'avisos' => $avisos, 'ajustes' => (object) $ajustes], 409);
+        }
+        return response()->json(['ok' => true, 'avisos' => []]);
     }
 
     /**

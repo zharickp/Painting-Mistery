@@ -54,7 +54,14 @@ class TiendaController extends Controller
             ->when($orden === 'precio_desc', fn ($query) => $query->orderBy('precio', 'desc'))
             ->when($orden === 'nombre', fn ($query) => $query->orderBy('nombre', 'asc'))
             ->when($orden === 'recientes', fn ($query) => $query->orderByDesc('created_at'))
-            ->when(! in_array($orden, ['precio_asc', 'precio_desc', 'nombre', 'recientes'], true), function ($query) use ($normalizado) {
+            // Más vendidos: unidades vendidas en ventas pagadas.
+            ->when($orden === 'vendidos', fn ($query) => $query->orderByDesc(
+                \App\Models\DetalleVentaProducto::selectRaw('coalesce(sum(detalle_venta_producto.cantidad), 0)')
+                    ->join('venta', 'venta.id', '=', 'detalle_venta_producto.venta_id')
+                    ->whereColumn('detalle_venta_producto.producto_id', 'producto.id')
+                    ->where('venta.estado', 'pagada')
+            )->orderByDesc('producto.created_at'))
+            ->when(! in_array($orden, ['precio_asc', 'precio_desc', 'nombre', 'recientes', 'vendidos'], true), function ($query) use ($normalizado) {
                 if ($normalizado !== '') {
                     $query->orderByRaw("case when translate(lower(producto.nombre), 'áéíóúüñ', 'aeiouun') like ? then 0 else 1 end", ['%' . $normalizado . '%']);
                 }
@@ -66,21 +73,45 @@ class TiendaController extends Controller
         $categorias = CategoriaProducto::where('estado', true)
             ->withCount(['productos' => fn ($query) => $query->where('estado', true)])
             ->orderBy('nombre')
-            ->get()
-            ->map(function (CategoriaProducto $cat) {
-                $cat->imagenRepresentativa = \App\Models\ProductoImagen::whereHas('producto', fn ($q) => $q
-                        ->where('categoria_producto_id', $cat->id)
-                        ->where('estado', true))
-                    ->orderByDesc('es_portada')
-                    ->orderBy('orden')
-                    ->value('ruta');
-
-                return $cat;
-            });
+            ->get();
 
         return view('tienda.index', compact(
             'productos', 'categorias', 'buscar', 'categoria', 'orden', 'porPagina',
             'precioMin', 'precioMax', 'soloStock', 'soloOferta'
         ));
+    }
+
+    /**
+     * Existencias y precio actuales de los productos del carrito del navegador.
+     * El carrito se guarda en el navegador y puede tener datos viejos: con esto
+     * se muestran las unidades disponibles reales y no se deja pedir más.
+     * Solo responde stock, precio, nombre y si el producto sigue a la venta.
+     */
+    public function existencias(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $ids = collect(explode(',', (string) $request->query('ids', '')))
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $id > 0)
+            ->unique()
+            ->take(100)
+            ->values();
+
+        $productos = Producto::with('inventario')->whereIn('id', $ids)->get();
+
+        $datos = $productos->mapWithKeys(fn (Producto $p) => [$p->id => [
+            'stock'      => $p->estado ? max(0, $p->stockActual()) : 0,
+            'disponible' => (bool) $p->estado,
+            'precio'     => (float) $p->precio,
+            'nombre'     => $p->nombre,
+        ]]);
+
+        // Los que ya no existen se marcan como no disponibles.
+        foreach ($ids as $id) {
+            if (! $datos->has($id)) {
+                $datos[$id] = ['stock' => 0, 'disponible' => false, 'precio' => null, 'nombre' => null];
+            }
+        }
+
+        return response()->json($datos);
     }
 }

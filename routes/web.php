@@ -42,6 +42,8 @@ Route::get('/cursos/{curso}/inscribirse', [InscripcionController::class, 'create
 
 // ─── Tienda pública ───────────────────────────────────────────────────────────
 Route::get('/tienda', [TiendaController::class, 'index'])->name('tienda.index');
+Route::get('/tienda/existencias', [TiendaController::class, 'existencias'])
+    ->middleware('throttle:60,1')->name('tienda.existencias');
 Route::get('/productos/{producto}', [PublicProductoController::class, 'show'])->name('producto.show');
 
 // ── Reseña (solo clientes con sesión: queda ligada al usuario) ───────────
@@ -151,6 +153,16 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
 
         Route::post('/inventario/{inventario}/actualizar', [InventarioController::class, 'actualizar'])->name('inventario.actualizar');
 
+        // Proveedores y compras (entradas de inventario)
+        Route::get('/proveedores/crear',              [\App\Http\Controllers\Admin\ProveedorController::class, 'create'])->name('proveedores.create');
+        Route::post('/proveedores',                   [\App\Http\Controllers\Admin\ProveedorController::class, 'store'])->name('proveedores.store');
+        Route::get('/proveedores/{proveedor}/editar', [\App\Http\Controllers\Admin\ProveedorController::class, 'edit'])->name('proveedores.edit');
+        Route::put('/proveedores/{proveedor}',        [\App\Http\Controllers\Admin\ProveedorController::class, 'update'])->name('proveedores.update');
+        Route::post('/proveedores/{proveedor}/estado',[\App\Http\Controllers\Admin\ProveedorController::class, 'toggle'])->name('proveedores.toggle');
+        Route::get('/compras/registrar',              [\App\Http\Controllers\Admin\CompraController::class, 'create'])->name('compras.create');
+        Route::post('/compras',                       [\App\Http\Controllers\Admin\CompraController::class, 'store'])->name('compras.store');
+        Route::post('/compras/{compra}/anular',       [\App\Http\Controllers\Admin\CompraController::class, 'anular'])->name('compras.anular');
+
     });
 
     // ── Consulta de catálogo, inventario, ventas y reportes (Admin + Asesor + Gerente) ─
@@ -160,6 +172,9 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::get('agenda-cursos',          [\App\Http\Controllers\Admin\AgendaCursosController::class, 'index'])->name('agenda-cursos.index');
         Route::get('cursos/{curso}/inscripciones', [AdminInscripcionController::class, 'index'])->name('cursos.inscripciones');
         Route::get('/inventario',            [InventarioController::class, 'index'])->name('inventario');
+        Route::get('/proveedores',           [\App\Http\Controllers\Admin\ProveedorController::class, 'index'])->name('proveedores.index');
+        Route::get('/compras',               [\App\Http\Controllers\Admin\CompraController::class, 'index'])->name('compras.index');
+        Route::get('/compras/{compra}',      [\App\Http\Controllers\Admin\CompraController::class, 'show'])->whereNumber('compra')->name('compras.show');
         Route::get('/ventas',                [AdminVentaController::class, 'index'])->name('ventas');
         Route::get('/ventas/{venta}',             [AdminVentaController::class, 'show'])->whereNumber('venta')->name('ventas.show');
         Route::get('/ventas/{venta}/orden-venta', [AdminVentaController::class, 'orden'])->name('ventas.orden');

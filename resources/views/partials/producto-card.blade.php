@@ -7,6 +7,7 @@
      data-nombre="{{ $producto->nombre }}"
      data-precio="{{ $producto->precio }}"
      data-imagen="{{ $producto->imagen ?? '' }}"
+     data-stock="{{ max(0, $producto->stockActual()) }}"
      data-cat="{{ $producto->categoria_producto_id ?? '' }}">
 
     <a href="{{ route('producto.show', $producto) }}" class="relative h-48 bg-gray-100 overflow-hidden block">
@@ -34,6 +35,8 @@
             @endif
             @if ($producto->estaAgotado())
                 <span class="bg-gray-800 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">AGOTADO</span>
+            @elseif ($producto->stockActual() <= 3)
+                <span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ $producto->stockActual() === 1 ? 'ÚLTIMA UNIDAD' : 'ÚLTIMAS ' . $producto->stockActual() }}</span>
             @endif
         </div>
 

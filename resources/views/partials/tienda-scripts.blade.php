@@ -145,8 +145,14 @@ function wishToCart(id) {
     const wish = getWish();
     const item = wish.find(w => w.id == id);
     if (!item) return;
-    addToCart({ id: item.id, nombre: item.nombre, precio: item.precio, imagen: item.imagen }, 1);
-    showToast('Agregado al carrito');
+    // La lista de deseos no guarda el stock: se consulta antes de agregar.
+    consultarExistencias([item.id]).then(datos => {
+        const d = datos && datos[item.id];
+        const stock = d ? (d.disponible ? d.stock : 0) : null;
+        if (addToCart({ id: item.id, nombre: item.nombre, precio: item.precio, imagen: item.imagen, stock }, 1)) {
+            showToast('Agregado al carrito');
+        }
+    });
 }
 
 function quitarDeWish(id) {
@@ -156,22 +162,93 @@ function quitarDeWish(id) {
 }
 
 // ── Carrito ──
+// Cada producto del carrito guarda su stock ("stock"): nunca se deja pedir
+// más unidades de las que hay. El stock se vuelve a consultar al abrir el
+// carrito y el servidor lo revisa otra vez al pagar.
+function stockDe(valor) {
+    if (valor === undefined || valor === null || valor === '') return null;
+    const n = parseInt(valor, 10);
+    return isNaN(n) ? null : Math.max(0, n);
+}
+
+/** Agrega unidades respetando el stock. Devuelve true si agregó todo lo pedido. */
 function addToCart(prod, qty) {
     let cart = getCarrito();
     const idx = cart.findIndex(c => c.id == prod.id);
-    if (idx >= 0) { cart[idx].qty += qty; }
-    else { cart.push({ id: prod.id, nombre: prod.nombre, precio: prod.precio, imagen: prod.imagen, qty }); }
-    saveCarrito(cart);
-}
+    const stock = stockDe(prod.stock) ?? (idx >= 0 ? stockDe(cart[idx].stock) : null);
+    const enCarrito = idx >= 0 ? cart[idx].qty : 0;
+    let nueva = enCarrito + qty;
 
+    if (stock !== null) {
+        if (stock <= 0) { showToast('Este producto está agotado'); return false; }
+        if (enCarrito >= stock) {
+            showToast(`Ya tienes en el carrito las ${stock} unidades disponibles`);
+            return false;
+        }
+        if (nueva > stock) {
+            showToast(`Solo hay ${stock} disponibles: se agregaron ${stock - enCarrito}`);
+            nueva = stock;
+            qty = -1; // agregado parcial: quien llama no muestra "agregado"
+        }
+    }
+
+    if (idx >= 0) { cart[idx].qty = nueva; if (stock !== null) cart[idx].stock = stock; }
+    else { cart.push({ id: prod.id, nombre: prod.nombre, precio: prod.precio, imagen: prod.imagen, qty: nueva, stock }); }
+    saveCarrito(cart);
+    return qty !== -1;
+}
 function addToCartDesdeCard(card, btn) {
-    addToCart({ id: card.dataset.id, nombre: card.dataset.nombre, precio: parseFloat(card.dataset.precio), imagen: card.dataset.imagen }, 1);
-    showToast('Agregado al carrito');
+    const ok = addToCart({ id: card.dataset.id, nombre: card.dataset.nombre, precio: parseFloat(card.dataset.precio), imagen: card.dataset.imagen, stock: card.dataset.stock }, 1);
+    if (ok) showToast('Agregado al carrito');
     pulso(btn);
 }
 
+/** Pide al servidor stock y precio actuales: { id: {stock, disponible, precio, nombre} }. */
+async function consultarExistencias(ids) {
+    if (!ids.length) return {};
+    try {
+        const r = await fetch('{{ route("tienda.existencias") }}?ids=' + encodeURIComponent(ids.join(',')), { headers: { 'Accept': 'application/json' } });
+        return r.ok ? await r.json() : null;
+    } catch (e) { return null; }
+}
+
+let carritoAvisos = [];
+
+/** Actualiza stock y precio del carrito con lo que hay realmente y ajusta cantidades. */
+async function refrescarExistencias() {
+    const cart = getCarrito();
+    const datos = await consultarExistencias(cart.map(i => i.id));
+    if (!datos) return;
+    const avisos = [];
+    let cambio = false;
+    const nuevo = [];
+    cart.forEach(item => {
+        const d = datos[item.id];
+        if (!d) { nuevo.push(item); return; }
+        const stock = d.disponible ? d.stock : 0;
+        if (item.stock !== stock) { item.stock = stock; cambio = true; }
+        if (d.precio !== null && Number(item.precio) !== Number(d.precio)) { item.precio = d.precio; cambio = true; }
+        if (!d.disponible) {
+            avisos.push(`"${item.nombre}" ya no está a la venta y se quitó del carrito.`);
+            cambio = true;
+            return;
+        }
+        if (stock > 0 && item.qty > stock) {
+            avisos.push(`${stock === 1 ? "Solo queda 1 unidad" : "Solo hay " + stock + " unidades"} de "${item.nombre}": se ajustó la cantidad.`);
+            item.qty = stock;
+            cambio = true;
+        }
+        nuevo.push(item);
+    });
+    if (avisos.length) carritoAvisos = avisos;
+    if (cambio) saveCarrito(nuevo);
+    if (!document.getElementById('carritoModal').classList.contains('hidden')) renderCarrito();
+}
+
 function abrirCarrito() {
+    carritoAvisos = [];
     renderCarrito();
+    refrescarExistencias();
     document.getElementById('carritoModal').classList.remove('hidden');
     // rAF para que la transición de entrada se anime (si quitamos "hidden" y
     // trasladamos en el mismo tick, el navegador no dibuja el estado inicial)
@@ -195,9 +272,18 @@ function renderCarrito() {
         return;
     }
     let total = 0;
-    body.innerHTML = cart.map(item => {
+    const avisosHTML = carritoAvisos.length
+        ? `<div class="rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-xs px-3 py-2.5 space-y-1">${carritoAvisos.map(a => `<p>${a}</p>`).join('')}</div>`
+        : '';
+    body.innerHTML = avisosHTML + cart.map(item => {
         const sub = item.precio * item.qty;
         total += sub;
+        const stock = stockDe(item.stock);
+        const agotado = stock === 0;
+        const enTope = stock !== null && item.qty >= stock;
+        const textoStock = stock === null ? ''
+            : agotado ? '<p class="text-xs font-semibold text-red-600 mt-1">Agotado: quítalo para poder pagar</p>'
+            : `<p class="text-xs mt-1 ${stock <= 3 ? 'text-amber-600 font-semibold' : 'text-gray-400'}">${stock === 1 ? 'Queda 1 disponible' : stock + ' disponibles'}</p>`;
         return `
         <div class="flex gap-4 items-center border border-gray-100 rounded-xl p-3">
             <div class="h-16 w-16 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
@@ -209,8 +295,9 @@ function renderCarrito() {
                 <div class="flex items-center gap-1 mt-1">
                     <button onclick="cambiarQtyCarrito('${item.id}', -1)" class="h-6 w-6 rounded border border-gray-200 text-gray-600 hover:bg-gray-100 text-sm font-bold flex items-center justify-center transition">−</button>
                     <span class="text-sm font-semibold w-6 text-center">${item.qty}</span>
-                    <button onclick="cambiarQtyCarrito('${item.id}', 1)" class="h-6 w-6 rounded border border-gray-200 text-gray-600 hover:bg-gray-100 text-sm font-bold flex items-center justify-center transition">+</button>
+                    <button onclick="cambiarQtyCarrito('${item.id}', 1)" ${enTope ? 'disabled title="No hay más unidades disponibles"' : ''} class="h-6 w-6 rounded border border-gray-200 text-gray-600 hover:bg-gray-100 text-sm font-bold flex items-center justify-center transition disabled:opacity-30 disabled:cursor-not-allowed">+</button>
                 </div>
+                ${textoStock}
             </div>
             <div class="text-right flex-shrink-0">
                 <p class="font-bold text-gray-700 text-sm">${fmt(sub)}</p>
@@ -228,7 +315,13 @@ function cambiarQtyCarrito(id, delta) {
     let cart = getCarrito();
     const idx = cart.findIndex(c => c.id == id);
     if (idx < 0) return;
-    cart[idx].qty = Math.max(1, cart[idx].qty + delta);
+    const stock = stockDe(cart[idx].stock);
+    let nueva = Math.max(1, cart[idx].qty + delta);
+    if (stock !== null && nueva > stock) {
+        showToast(stock > 0 ? `Solo hay ${stock} disponibles` : 'Este producto está agotado');
+        nueva = Math.max(1, stock);
+    }
+    cart[idx].qty = nueva;
     saveCarrito(cart);
     renderCarrito();
 }
@@ -258,7 +351,23 @@ async function irACheckout(btn) {
             body: JSON.stringify({ items: cart.map(i => ({ id: i.id, qty: i.qty })) }),
         });
         const j = await r.json();
-
+        // El servidor corrigió cantidades (stock insuficiente o producto retirado):
+        // se aplican al carrito y el cliente las ve antes de pagar.
+        if (j.ajustes && Object.keys(j.ajustes).length) {
+            let c = getCarrito();
+            Object.entries(j.ajustes).forEach(([id, qty]) => {
+                const i = c.findIndex(x => x.id == id);
+                if (i < 0) return;
+                if (qty <= 0) c.splice(i, 1);
+                else { c[i].qty = qty; c[i].stock = qty; }
+            });
+            carritoAvisos = j.avisos || [];
+            saveCarrito(c);
+            renderCarrito();
+            btn.disabled = false;
+            btn.innerHTML = original;
+            return;
+        }
         if (!r.ok || !j.ok) {
             showToast(j.message || 'No se pudo validar el carrito.');
             btn.disabled = false;

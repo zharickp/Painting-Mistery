@@ -165,9 +165,10 @@
                         <span class="text-sm font-semibold text-gray-700">Cantidad</span>
                         <div class="flex items-center h-10 border border-gray-200 rounded-xl overflow-hidden">
                             <button onclick="cambiarCantidad(-1)" class="w-9 h-full flex items-center justify-center text-gray-600 hover:bg-gray-50 transition font-bold text-lg leading-none">−</button>
-                            <input id="prodCantidad" type="number" value="1" min="1" max="99" class="w-12 h-full text-center border-0 text-sm font-semibold focus:outline-none">
+                            <input id="prodCantidad" type="number" value="1" min="1" max="{{ max(1, $producto->stockActual()) }}" onchange="cambiarCantidad(0)" class="w-12 h-full text-center border-0 text-sm font-semibold focus:outline-none">
                             <button onclick="cambiarCantidad(1)" class="w-9 h-full flex items-center justify-center text-gray-600 hover:bg-gray-50 transition font-bold text-lg leading-none">+</button>
                         </div>
+                        <span id="prodDisponibles" class="text-sm text-gray-500"></span>
                     </div>
 
                     <button onclick="agregarAlCarritoDesdePagina(this)" id="btnAgregarCarrito"
@@ -340,15 +341,23 @@
     let colorActivoId = null;
 
     // ── Cantidad y agregar al carrito ──
+    // La cantidad nunca pasa de las unidades disponibles (ni escribiéndola a mano).
     function cambiarCantidad(delta) {
         const inp = document.getElementById('prodCantidad');
-        inp.value = Math.max(1, parseInt(inp.value || 1) + delta);
+        const stock = Math.max(0, window.stockGeneral || 0);
+        let valor = (parseInt(inp.value, 10) || 1) + delta;
+        if (stock > 0 && valor > stock) {
+            valor = stock;
+            if (delta > 0) showToast(stock === 1 ? 'Solo hay 1 disponible' : `Solo hay ${stock} disponibles`);
+        }
+        inp.value = Math.max(1, valor);
     }
 
     function agregarAlCarritoDesdePagina(btn) {
+        cambiarCantidad(0);
         const qty = parseInt(document.getElementById('prodCantidad').value) || 1;
-        addToCart({ id: window.productoId, nombre: window.productoNombre, precio: window.productoPrecio, imagen: window.productoImagen }, qty);
-        showToast(`${window.productoNombre} agregado al carrito`);
+        const ok = addToCart({ id: window.productoId, nombre: window.productoNombre, precio: window.productoPrecio, imagen: window.productoImagen, stock: window.stockGeneral }, qty);
+        if (ok) showToast(`${window.productoNombre} agregado al carrito`);
         pulso(btn);
     }
 
@@ -487,9 +496,11 @@
         const cantidad = document.getElementById('prodCantidad');
         if (btn) btn.disabled = stock <= 0;
         if (cantidad) {
-            cantidad.max = Math.max(1, stock || 99);
+            cantidad.max = Math.max(1, stock);
             if (parseInt(cantidad.value || 1) > cantidad.max) cantidad.value = cantidad.max;
         }
+        const disp = document.getElementById('prodDisponibles');
+        if (disp) disp.textContent = stock <= 0 ? '' : (stock === 1 ? 'Queda 1 disponible' : `${stock} disponibles`);
     }
 
     // ── Portada general: vista por defecto (no pertenece a ningún color) ──
@@ -655,7 +666,7 @@
 
     document.addEventListener('DOMContentLoaded', inicializarZoomHover);
     document.addEventListener('DOMContentLoaded', () => {
-        if (window.tieneColores) actualizarControlesStock(window.stockGeneral);
+        actualizarControlesStock(window.stockGeneral);
     });
 
     // ── Recomendados: carrusel horizontal ──
