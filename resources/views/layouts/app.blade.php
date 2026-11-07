@@ -24,6 +24,11 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @include('partials.tema-oscuro')
+    @if (auth()->check() && ! auth()->user()->puedeComprar())
+    {{-- Las cuentas del personal no compran: si en este navegador quedó un carrito
+         o una lista de deseos de antes de iniciar sesión, se descarta. --}}
+    <script>try { ['pm_carrito', 'pm_wishlist', 'pm_dueno'].forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}</script>
+    @endif
 </head>
 <body class="bg-slate-100 dark:bg-slate-950 transition-colors">
 @php

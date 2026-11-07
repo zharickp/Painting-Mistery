@@ -28,6 +28,8 @@
     @endphp
     <script>
         window.PM_CUENTA = @json($pmCuenta);
+        // Personal con sesión (Administrador, Asesor, Gerente): no tiene carrito ni lista de deseos.
+        window.PM_PERSONAL = @json(auth()->check() && ! auth()->user()->puedeComprar());
         window.PM_CUENTA_URL = @json($pmCuenta ? route('carrito.cuenta') : null);
 
         (function () {
@@ -45,7 +47,8 @@
 
                 if (!cuenta) {
                     // Sin cliente con sesión: si lo guardado es de una cuenta, se borra.
-                    if (dueno) {
+                    // Con una cuenta del personal también se borra: esas cuentas no compran.
+                    if (dueno || window.PM_PERSONAL) {
                         localStorage.removeItem(CART);
                         localStorage.removeItem(WISH);
                         localStorage.removeItem(DUENO);

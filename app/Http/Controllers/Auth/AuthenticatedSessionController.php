@@ -53,6 +53,18 @@ class AuthenticatedSessionController extends Controller
         // venía de ninguna, al inicio (clientes) o al panel (Administrador, Asesor y Gerente).
         $destino = auth()->user()->tieneRol('Cliente') ? route('inicio') : route('dashboard');
 
+        // El personal (Administrador, Asesor, Gerente) no compra. Si inició sesión
+        // desde el carrito o el pago, va al panel con el aviso, no a la compra.
+        if (! auth()->user()->puedeComprar()) {
+            $intencion = (string) $request->session()->get('url.intended', '');
+            if (str_contains($intencion, 'carrito=1') || str_contains($intencion, '/checkout')) {
+                $request->session()->forget('url.intended');
+
+                return redirect()->route('dashboard')->with('info',
+                    'Las cuentas del personal no pueden comprar. Para hacer una compra, inicia sesión con una cuenta de cliente.');
+            }
+        }
+
         return redirect()->intended($destino);
     }
 

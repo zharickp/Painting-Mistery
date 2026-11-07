@@ -1,9 +1,10 @@
 {{-- Avisos flotantes arriba a la derecha.
-     Éxito: se oculta solo a los 6 segundos. Error: se queda hasta que se cierre,
-     para que no se pierda lo que salió mal. --}}
+     Éxito: se oculta solo a los 6 segundos. Error e información: se quedan hasta
+     que se cierren, para que se alcancen a leer. --}}
 @php
     $avisos = array_filter([
         'error' => session('error'),
+        'info'  => session('info'),
         'exito' => session('success') ?? session('resena_ok'),
     ]);
 @endphp
@@ -12,7 +13,11 @@
         @foreach ($avisos as $tipo => $texto)
             <div class="pm-aviso" data-tipo="{{ $tipo }}" role="{{ $tipo === 'error' ? 'alert' : 'status' }}"
                  style="display:flex;align-items:flex-start;gap:.75rem;padding:.8rem 1rem;border-radius:.75rem;background:#0f172a;color:#f8fafc;border:1px solid #334155;box-shadow:0 10px 25px -5px rgba(0,0,0,.35);font-size:.875rem;line-height:1.35rem;transition:opacity .3s ease,transform .3s ease;">
-                @if ($tipo === 'error')
+                @if ($tipo === 'info')
+                    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" style="width:1.15rem;height:1.15rem;flex-shrink:0;margin-top:.1rem;color:#fbbf24">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                @elseif ($tipo === 'error')
                     <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" style="width:1.15rem;height:1.15rem;flex-shrink:0;margin-top:.1rem;color:#f87171">
                         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
                     </svg>

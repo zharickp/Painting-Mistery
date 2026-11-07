@@ -4,7 +4,7 @@
 
 <div class="mb-6">
     <h1 class="text-xl font-bold text-gray-800">Inventario</h1>
-    <p class="text-sm text-gray-400 mt-1">Existencias por producto. En rojo aparecen los que están por debajo del stock mínimo.</p>
+    <p class="text-sm text-gray-400 mt-1">Unidades por producto. En rojo aparecen los que están por debajo del stock mínimo.</p>
 </div>
 
 
@@ -114,12 +114,30 @@
         </div>
         <form id="formInventario" method="POST" class="p-6 space-y-4">
             @csrf
+            <p class="text-sm text-gray-600">Stock actual: <strong id="textoStockActual" class="text-gray-900"></strong></p>
+
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Stock actual</label>
-                <input type="number" name="stock_actual" id="inputStockActual"
-                       min="0" required
-                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de ajuste</label>
+                <select name="tipo" id="selectTipo" onchange="cambiarTipo()" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400 bg-white">
+                    <option value="">Ninguno (solo cambiar el stock mínimo)</option>
+                    @foreach ($tiposAjuste as $valor => $texto)
+                        <option value="{{ $valor }}">{{ $texto }}</option>
+                    @endforeach
+                </select>
+                <p class="text-xs text-gray-400 mt-1">La mercancía nueva se registra en Compras.</p>
             </div>
+
+            <div id="camposAjuste" class="hidden space-y-4">
+                <div>
+                    <label id="labelCantidad" class="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
+                    <input type="number" name="cantidad" id="inputCantidad" min="0" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Motivo</label>
+                    <input type="text" name="motivo" id="inputMotivo" maxlength="255" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
+                </div>
+            </div>
+
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Stock mínimo</label>
                 <input type="number" name="stock_minimo" id="inputStockMinimo"
@@ -134,7 +152,7 @@
                 </button>
                 <button type="submit"
                         class="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-lg py-2 text-sm font-semibold transition">
-                    Guardar cambios
+                    Guardar
                 </button>
             </div>
         </form>
@@ -144,10 +162,27 @@
 <script>
 function abrirModal(id, stockActual, stockMinimo, nombre) {
     document.getElementById('modalProductoNombre').textContent = nombre;
-    document.getElementById('inputStockActual').value = stockActual;
+    document.getElementById('textoStockActual').textContent = stockActual;
     document.getElementById('inputStockMinimo').value = stockMinimo;
+    document.getElementById('selectTipo').value = '';
+    document.getElementById('inputCantidad').value = '';
+    document.getElementById('inputMotivo').value = '';
+    document.getElementById('inputCantidad').dataset.stock = stockActual;
+    cambiarTipo();
     document.getElementById('formInventario').action = '/admin/inventario/' + id + '/actualizar';
     document.getElementById('modalInventario').classList.remove('hidden');
+}
+
+// Conteo físico: se escribe lo que se contó. Las demás: las unidades que salen.
+function cambiarTipo() {
+    const tipo = document.getElementById('selectTipo').value;
+    const cantidad = document.getElementById('inputCantidad');
+    const motivo = document.getElementById('inputMotivo');
+    document.getElementById('camposAjuste').classList.toggle('hidden', !tipo);
+    cantidad.required = motivo.required = !!tipo;
+    document.getElementById('labelCantidad').textContent = tipo === 'conteo' ? 'Cantidad contada' : 'Unidades que salen';
+    cantidad.min = tipo === 'conteo' ? 0 : 1;
+    if (tipo && tipo !== 'conteo') cantidad.max = cantidad.dataset.stock; else cantidad.removeAttribute('max');
 }
 
 function cerrarModal() {

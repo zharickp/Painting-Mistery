@@ -402,6 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (url.searchParams.get('carrito') !== '1') return;
     url.searchParams.delete('carrito');
     history.replaceState(null, '', url.pathname + url.search + url.hash);
+    if (window.PM_PERSONAL) return; // el personal no tiene carrito
     abrirCarrito();
 });
 </script>
