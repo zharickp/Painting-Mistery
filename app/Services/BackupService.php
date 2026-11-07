@@ -273,6 +273,12 @@ class BackupService
 
         $previa = $this->generar(previa: true);
 
+        // Copias hechas con pg_dump 17 o más nuevo traen "SET transaction_timeout",
+        // que PostgreSQL 16 (el del VPS) no conoce: con esa línea la restauración
+        // fallaba siempre. Se carga una copia temporal sin ella (el valor 0 es el
+        // que trae PostgreSQL por defecto, así que quitarla no cambia nada).
+        $temporal = $this->copiaCompatible($archivo);
+
         $binario = $this->rutaBinario('psql');
         $comando = [
             $binario,
@@ -286,7 +292,7 @@ class BackupService
             '--set=ON_ERROR_STOP=1',
             // Se vacía el esquema y se carga la copia; si algo falla se deshace todo.
             '--command=DROP SCHEMA public CASCADE; CREATE SCHEMA public;',
-            '--file=' . $archivo,
+            '--file=' . $temporal,
         ];
 
         $entorno = $this->entornoSistema() + ['PGPASSWORD' => (string) ($conf['password'] ?? '')];
@@ -294,7 +300,11 @@ class BackupService
             $entorno['PGSSLMODE'] = (string) $conf['sslmode'];
         }
 
-        $proceso = $this->ejecutar($comando, $entorno);
+        try {
+            $proceso = $this->ejecutar($comando, $entorno);
+        } finally {
+            File::delete($temporal);
+        }
 
         if (!$proceso->isSuccessful()) {
             $error = trim($proceso->getErrorOutput());
@@ -309,7 +319,38 @@ class BackupService
             throw new \RuntimeException(str_replace('generar la copia', 'restaurar la copia', $this->mensajeError('psql', $binario, $error)) . ' No se cambió nada.');
         }
 
+        // Una copia vieja puede no tener las tablas o columnas que se agregaron
+        // después (por ejemplo, proveedores). Se ponen al día para que el sistema
+        // funcione con el código actual.
+        try {
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        } catch (\Throwable $e) {
+            Log::error('Después de restaurar no se pudieron aplicar las migraciones: ' . $e->getMessage());
+        }
+
         return $previa;
+    }
+
+    /** Copia temporal del respaldo sin las líneas que PostgreSQL 16 no entiende. */
+    private function copiaCompatible(string $archivo): string
+    {
+        $temporal = $this->directorio() . DIRECTORY_SEPARATOR . '.restaurar_' . bin2hex(random_bytes(6)) . '.sql';
+
+        $entrada = fopen($archivo, 'rb');
+        $salida  = fopen($temporal, 'wb');
+        try {
+            while (($linea = fgets($entrada)) !== false) {
+                if (preg_match('/^SET transaction_timeout\s*=/', $linea)) {
+                    continue;
+                }
+                fwrite($salida, $linea);
+            }
+        } finally {
+            fclose($entrada);
+            fclose($salida);
+        }
+
+        return $temporal;
     }
 
     public function eliminar(string $nombre): bool
