@@ -80,6 +80,14 @@ class LandingController extends Controller
         return view('nosotros');
     }
 
+    /** Fecha desde la que rige la política. Cambiarla si se modifica el texto. */
+    public const POLITICA_VIGENTE_DESDE = '16 de noviembre de 2026';
+
+    public function privacidad()
+    {
+        return view('politica-privacidad');
+    }
+
     public function academia()
     {
         $cursos = Curso::where('estado', true)->with(['fechas' => fn ($q) => $q->whereDate('fecha', '>=', today())])->orderBy('id')->get();

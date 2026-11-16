@@ -33,6 +33,7 @@ use App\Http\Controllers\Admin\ResenaController as AdminResenaController;
 Route::get('/', [LandingController::class, 'index'])->name('inicio');
 Route::get('/nosotros', [LandingController::class, 'nosotros'])->name('nosotros');
 Route::get('/contacto', [LandingController::class, 'contacto'])->name('contacto');
+Route::get('/politica-de-privacidad', [LandingController::class, 'privacidad'])->name('privacidad');
 Route::get('/cursos', [LandingController::class, 'academia'])->name('academia');
 Route::redirect('/academia', '/cursos', 301);
 // Página para elegir fecha y método de pago (si no hay sesión, primero pide iniciarla).

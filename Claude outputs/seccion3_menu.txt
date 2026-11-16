@@ -1,0 +1,75 @@
+3. Descripción de las opciones del menú
+
+Este apartado describe las opciones del menú de cada tipo de usuario, para que se entienda cómo está organizada la navegación antes de usar el sistema.
+
+3.1 Menú del administrador
+
+El administrador tiene acceso a todas las opciones del sistema, por medio de una barra lateral, y su panel está dividido en gestión comercial y gestión del sistema, además de contar con un dashboard principal (inicio). En la parte superior de la pantalla cuenta con un buscador general del panel.
+
+3.1.1 Dashboard principal
+
+La opción “Inicio” es la primera de la barra lateral y muestra el resumen de las operaciones de la empresa con las gráficas de ventas por mes y estado de las ventas, además de la lista de las últimas ventas.
+
+3.1.2 Gestión comercial
+
+Este grupo tiene las opciones para administrar: “Productos”, “Cursos”, “Inventario” y “Ventas”.
+
+El grupo “Productos” contiene tres opciones. “Productos” permite consultar, registrar, modificar, activar y desactivar los productos de la tienda, y se relaciona con “Inventario”, porque cada producto tiene stock. “Tipo de IVA” y “Categorías” permiten administrar el IVA y las categorías que se asignan a los productos, por lo que se relacionan con “Productos”; solo el administrador puede modificar esta información.
+
+El grupo “Cursos” contiene dos opciones. “Cursos” permite consultar, registrar, modificar, activar y desactivar los cursos, agregar o quitar sus fechas y ver las inscripciones. “Agenda de cursos” permite consultar las fechas programadas y se relaciona con “Cursos”, donde se administran.
+
+La opción “Ventas” es independiente. Permite consultar las ventas con su detalle y su orden, confirmar un pago y cancelar una venta. Se relaciona con “Productos” e “Inventario”, porque las ventas afectan el stock de los productos.
+
+El grupo “Inventario” contiene tres opciones. “Inventario” permite consultar y actualizar el stock de cada producto. “Compras” permite registrar, consultar y anular las compras hechas a los proveedores, y cada compra registrada aumenta el stock. “Proveedores” permite registrar, modificar, activar y desactivar los proveedores, y se relaciona con “Compras”.
+
+3.1.3 Gestión del sistema
+
+Reúne las opciones de seguimiento y configuración del sistema.
+
+El grupo “Seguimiento” contiene tres opciones. “Reportes” permite consultar los reportes de ventas: ingresos mensuales, estado de las ventas, productos más vendidos y desglose por mes, y se relaciona con “Ventas” y “Productos”. “Auditoría” permite consultar el registro de las acciones realizadas en el sistema y su detalle, por lo que se relaciona con todas las demás opciones. “Reseñas” permite consultar las reseñas que dejan los clientes y activarlas o desactivarlas, sin eliminarlas; se relaciona con la tienda, donde se muestran las reseñas activas, y solo el administrador puede administrarlas.
+
+El grupo “Configuración” contiene cuatro opciones y solo está disponible para el administrador. “Banners” permite administrar los banners de la página. “Usuarios” permite consultar, registrar, modificar, activar y desactivar los usuarios del sistema. “Roles” permite ver y cambiar el rol de cada usuario, excepto el de los clientes y el de la propia cuenta del administrador, y se relaciona con “Usuarios”. “Copias de seguridad” permite crear, descargar, eliminar y restaurar copias de la información del sistema; al restaurar una copia, la información vuelve al estado en que estaba cuando se hizo, por lo que se debe usar con cuidado.
+
+3.2 Menú del gerente
+
+El gerente usa una barra lateral con un panel principal y las opciones de gestión comercial y de seguimiento, además de un buscador general en la parte superior de la pantalla. En todas sus opciones solo puede consultar, no puede registrar, modificar ni eliminar información.
+
+3.2.1 Panel principal
+
+La opción “Inicio” muestra indicadores de productos, cursos, ventas del mes y ventas del año, accesos directos a los módulos que consulta y un aviso cuando hay productos con stock bajo.
+
+3.2.2 Gestión comercial
+
+En el grupo “Productos”, la opción “Productos” permite consultar el catálogo, sus precios y el IVA, y las opciones “Tipo de IVA” y “Categorías” permiten consultar el IVA y las clasificaciones que se asignan a los productos; las tres se relacionan entre sí. En el grupo “Cursos”, “Cursos” permite consultar los cursos, sus fechas y las personas inscritas, y “Agenda de cursos” permite consultar las fechas programadas. La opción “Ventas” permite consultar el historial de ventas y pagos, con su detalle y su orden. En el grupo “Inventario”, “Inventario” permite consultar el stock, “Compras” las compras hechas a los proveedores y “Proveedores” los proveedores de la empresa; las tres se relacionan entre sí.
+
+3.2.3 Gestión del sistema
+
+En el grupo “Seguimiento”, “Reportes” permite consultar los reportes de ventas y se relaciona con “Ventas” y “Productos”, y “Auditoría” permite consultar el registro de las acciones realizadas en el sistema. El gerente no tiene acceso a las reseñas ni al grupo “Configuración”.
+
+3.3 Menú del asesor
+
+El asesor usa una barra lateral con un panel principal y las opciones de gestión comercial, además de un buscador general en la parte superior de la pantalla. En estas opciones puede consultar, registrar y modificar información.
+
+3.3.1 Panel principal
+
+La opción “Inicio” muestra el número de productos, los cursos disponibles, las ventas del mes y la lista de las últimas ventas.
+
+3.3.2 Gestión comercial
+
+En el grupo “Productos”, la opción “Productos” permite consultar, registrar, modificar, activar y desactivar los productos de la tienda, y se relaciona con “Inventario”, porque cada producto tiene stock. En el grupo “Cursos”, “Cursos” permite consultar, registrar, modificar, activar y desactivar los cursos, agregar o quitar sus fechas y ver las inscripciones, y “Agenda de cursos” permite consultar las fechas programadas. La opción “Ventas” permite consultar las ventas con su detalle y su orden, confirmar un pago y cancelar una venta, y se relaciona con “Productos” e “Inventario”, porque las ventas afectan el stock. En el grupo “Inventario”, “Inventario” permite consultar y actualizar el stock, “Compras” permite registrar, consultar y anular las compras hechas a los proveedores, y “Proveedores” permite registrar, modificar, activar y desactivar los proveedores; cada compra registrada aumenta el stock y se relaciona con un proveedor.
+
+El asesor no tiene acceso a las categorías, los tipos de IVA, los reportes, la auditoría, las reseñas ni al grupo “Configuración”.
+
+3.4 Menú del cliente
+
+El cliente navega por la barra superior, que aparece en todas las páginas del sistema, y por el menú de “Mi cuenta”, al que entra cuando inicia sesión. Quien aún no ha iniciado sesión ve en la barra superior las opciones “Iniciar sesión” y “Registrarse”.
+
+3.4.1 Barra superior
+
+Las opciones “Inicio”, “Tienda”, “Cursos”, “Nosotros” y “Contacto” están disponibles para cualquier persona. “Inicio” lleva a la página principal de la empresa; “Tienda” permite ver y buscar productos y agregarlos al carrito o a la lista de deseos; “Cursos” permite ver los cursos disponibles e inscribirse; “Nosotros” presenta información de la empresa y “Contacto” los medios para comunicarse con ella. Para terminar una compra o inscribirse en un curso se debe iniciar sesión.
+
+En la misma barra están el buscador de productos, la “Lista de deseos”, donde se guardan los productos de interés, y el “Carrito”, que muestra los productos agregados y permite continuar con la compra; este se relaciona con “Mis compras”, donde queda el pedido.
+
+3.4.2 Menú “Mi cuenta”
+
+Este menú solo está disponible para el cliente. “Resumen” muestra las últimas compras, los cursos sugeridos y los productos destacados. “Mis compras” permite consultar los pedidos, ver su detalle y su orden de venta, y cancelar un pedido. “Mis cursos” permite consultar las inscripciones y ver el comprobante de cada una, y se relaciona con “Cursos”. “Mi perfil” permite consultar y actualizar los datos personales. “Ir a la tienda” lleva de vuelta a la tienda y “Cerrar sesión” termina la sesión.

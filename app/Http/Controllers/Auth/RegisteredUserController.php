@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\LandingController;
 use App\Mail\VerificationCodeMail;
+use App\Services\AuditoriaService;
 use App\Models\Rol;
 use App\Models\TipoDocumento;
 use App\Models\Usuario;
@@ -40,7 +42,9 @@ class RegisteredUserController extends Controller
             'password'          => ['required', 'confirmed',
                 Password::min(8)->mixedCase()->numbers()->symbols()
             ],
+            'acepto_politica'   => ['accepted'],
         ], [
+            'acepto_politica.accepted'    => 'Debes autorizar el tratamiento de tus datos personales para crear la cuenta.',
             'required'                    => 'Este campo es obligatorio.',
             'email'                       => 'El correo no tiene un formato válido.',
             'numero_documento.unique'     => 'Este número de documento ya está registrado. Si es tuyo, inicia sesión o recupera tu contraseña.',
@@ -103,6 +107,16 @@ class RegisteredUserController extends Controller
 
         Auth::login($usuario);
         $request->session()->regenerate();
+
+        // Prueba de la autorización (Ley 1581 de 2012): queda en la auditoría
+        // con la fecha, la IP y el navegador desde donde se aceptó.
+        AuditoriaService::registrar([
+            'accion'            => 'autorizacion',
+            'modulo'            => 'Usuario',
+            'registro_afectado' => $usuario->id,
+            'descripcion'       => 'Aceptó la política de tratamiento de datos personales vigente desde el '
+                . LandingController::POLITICA_VIGENTE_DESDE . '.',
+        ]);
 
         return redirect()->route('verification.notice')
             ->with('success', '¡Cuenta creada! Revisa tu correo para verificarla.');

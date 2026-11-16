@@ -40,6 +40,7 @@ class Auditoria extends Model
         'eliminado'   => 'Eliminado',
         'login'       => 'Inicio de sesión',
         'logout'      => 'Cierre de sesión',
+        'autorizacion' => 'Autorización de datos',
     ];
 
     public function usuario()

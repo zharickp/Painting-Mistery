@@ -32,7 +32,7 @@
 
                 {{-- Búsqueda: envía directo al catálogo --}}
                 <form action="{{ route('tienda.index') }}" method="GET" class="relative hidden sm:flex items-center" id="searchWrapper">
-                    <input id="searchInput" name="buscar" type="text" placeholder="Buscar productos..." value="{{ request('buscar') }}"
+                    <input id="searchInput" name="buscar" type="text" autocomplete="off" placeholder="Buscar productos..." value="{{ request('buscar') }}"
                            class="w-0 overflow-hidden opacity-0 transition-all duration-300 text-sm border border-gray-200 rounded-full px-4 py-1.5 focus:outline-none focus:border-red-400"
                            style="transition: width 0.3s ease, opacity 0.3s ease;">
                     <button type="button" onclick="toggleSearch()"

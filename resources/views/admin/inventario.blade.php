@@ -114,6 +114,7 @@
         </div>
         <form id="formInventario" method="POST" class="p-6 space-y-4">
             @csrf
+            <div id="pasoDatos" class="space-y-4">
             <p class="text-sm text-gray-600">Stock actual: <strong id="textoStockActual" class="text-gray-900"></strong></p>
 
             <div>
@@ -155,6 +156,25 @@
                     Guardar
                 </button>
             </div>
+            </div>
+
+            {{-- Paso 2: confirmar antes de guardar, porque el ajuste cambia el stock real --}}
+            <div id="pasoConfirmar" class="hidden space-y-4">
+                <div class="rounded-lg border border-amber-200 bg-amber-50 p-4">
+                    <p class="text-sm font-semibold text-amber-800">¿Confirmas este ajuste?</p>
+                    <ul id="resumenAjuste" class="mt-2 space-y-1 text-sm text-gray-700"></ul>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="volverAjuste()"
+                            class="flex-1 border border-gray-200 rounded-lg py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition">
+                        Volver
+                    </button>
+                    <button type="button" id="btnConfirmarAjuste" onclick="confirmarAjuste()"
+                            class="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-lg py-2 text-sm font-semibold transition">
+                        Sí, guardar
+                    </button>
+                </div>
+            </div>
         </form>
     </div>
 </div>
@@ -168,7 +188,9 @@ function abrirModal(id, stockActual, stockMinimo, nombre) {
     document.getElementById('inputCantidad').value = '';
     document.getElementById('inputMotivo').value = '';
     document.getElementById('inputCantidad').dataset.stock = stockActual;
+    document.getElementById('inputStockMinimo').dataset.anterior = stockMinimo;
     cambiarTipo();
+    volverAjuste();
     document.getElementById('formInventario').action = '/admin/inventario/' + id + '/actualizar';
     document.getElementById('modalInventario').classList.remove('hidden');
 }
@@ -183,6 +205,56 @@ function cambiarTipo() {
     document.getElementById('labelCantidad').textContent = tipo === 'conteo' ? 'Cantidad contada' : 'Unidades que salen';
     cantidad.min = tipo === 'conteo' ? 0 : 1;
     if (tipo && tipo !== 'conteo') cantidad.max = cantidad.dataset.stock; else cantidad.removeAttribute('max');
+}
+
+// Antes de guardar se muestra un resumen del cambio para confirmarlo.
+document.getElementById('formInventario').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!this.reportValidity()) return;
+
+    const tipo      = document.getElementById('selectTipo');
+    const cantidad  = parseInt(document.getElementById('inputCantidad').value || '0', 10);
+    const actual    = parseInt(document.getElementById('inputCantidad').dataset.stock, 10);
+    const minimo    = document.getElementById('inputStockMinimo');
+    const minAnt    = parseInt(minimo.dataset.anterior, 10);
+    const minNuevo  = parseInt(minimo.value, 10);
+    const lineas    = [];
+
+    if (tipo.value) {
+        const nuevo = tipo.value === 'conteo' ? cantidad : actual - cantidad;
+        lineas.push('Tipo de ajuste: <strong>' + tipo.options[tipo.selectedIndex].text + '</strong>');
+        lineas.push(nuevo === actual
+            ? 'El stock se mantiene en <strong>' + actual + '</strong>'
+            : 'Stock actual: <strong>' + actual + ' → ' + nuevo + '</strong>');
+        lineas.push('Motivo: ' + textoSeguro(document.getElementById('inputMotivo').value));
+    }
+    if (minNuevo !== minAnt) {
+        lineas.push('Stock mínimo: <strong>' + minAnt + ' → ' + minNuevo + '</strong>');
+    }
+    if (!lineas.length) {
+        lineas.push('No hay cambios: el stock mínimo sigue en <strong>' + minAnt + '</strong>.');
+    }
+
+    document.getElementById('resumenAjuste').innerHTML = lineas.map(l => '<li>' + l + '</li>').join('');
+    document.getElementById('pasoDatos').classList.add('hidden');
+    document.getElementById('pasoConfirmar').classList.remove('hidden');
+});
+
+function volverAjuste() {
+    document.getElementById('pasoConfirmar').classList.add('hidden');
+    document.getElementById('pasoDatos').classList.remove('hidden');
+    document.getElementById('btnConfirmarAjuste').disabled = false;
+}
+
+function confirmarAjuste() {
+    document.getElementById('btnConfirmarAjuste').disabled = true; // evita doble envío
+    HTMLFormElement.prototype.submit.call(document.getElementById('formInventario'));
+}
+
+function textoSeguro(t) {
+    const d = document.createElement('div');
+    d.textContent = t;
+    return d.innerHTML;
 }
 
 function cerrarModal() {

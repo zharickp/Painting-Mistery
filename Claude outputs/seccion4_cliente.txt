@@ -1,0 +1,215 @@
+4.5. Rol Cliente
+
+Esta sección describe las pantallas que usa el cliente: la página de inicio, la tienda, los cursos y el panel “Mi cuenta”, en el orden en que se usan.
+
+4.5.1. Páginas informativas
+
+4.5.1.1. Inicio
+
+Figura X. Página de inicio desde el rol Cliente en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Es la primera página que se ve al entrar. Presenta el taller y tiene accesos a la tienda, los cursos y el contacto, los productos más vendidos, los cursos disponibles, las reseñas de otros clientes y las preguntas frecuentes. En la parte de arriba está la barra de navegación, que se repite en todas las páginas: Inicio, Tienda, Cursos, Nosotros, Contacto, el buscador de productos, la lista de deseos, el carrito y el menú de la cuenta.
+
+4.5.1.2. Reseñas
+
+Figura X. Formulario para dejar una reseña en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Al final de la página de inicio, el cliente con sesión iniciada puede dejar su opinión sobre un trabajo, un curso o una compra. Solo se permite una reseña por cliente: si ya dejó una, el mismo formulario la actualiza.
+
+Tabla X. Campos del formulario de reseña en el sistema de Painting Mistery
+Campo | Tipo | Obligatorio | Descripción
+Calificación | Estrellas (1 a 5) | Sí | Nota que se le da al servicio.
+Comentario | Texto (5 a 1000 caracteres) | Sí | Opinión del cliente.
+
+Elija las estrellas, escriba el comentario y haga clic en “Enviar reseña” (o “Actualizar reseña”). El sistema muestra “Gracias por tu reseña.” o “Tu reseña quedó actualizada.” Avisa si falta la calificación (“Elige de 1 a 5 estrellas.”) o el comentario (“Escribe tu opinión.” o “Escribe un poco más en tu opinión.”). La reseña se publica en la página mientras el administrador la mantenga activa.
+
+4.5.1.3. Nosotros
+
+Figura X. Página Nosotros en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Cuenta quiénes son Painting Mistery, su historia, su misión y su visión, y lo que ofrece el taller. Solo se consulta.
+
+4.5.1.4. Contacto
+
+Figura X. Página de contacto en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Muestra el WhatsApp, el correo, las redes sociales, el horario, la dirección y el mapa del taller. También tiene un formulario: el cliente escribe sus datos y su mensaje y, al hacer clic en “Enviar por WhatsApp”, se abre WhatsApp con el mensaje listo para enviar. Si falta el nombre o el mensaje, el sistema avisa “Por favor completa al menos tu nombre y tu mensaje.”
+
+Tabla X. Campos del formulario de contacto en el sistema de Painting Mistery
+Campo | Tipo | Obligatorio | Descripción
+Nombre | Texto | Sí | Nombre de quien escribe.
+Apellido | Texto | No | Apellido de quien escribe.
+Correo | Correo electrónico | No | Correo de contacto.
+Número de celular | Texto | No | Celular de contacto.
+¿En qué podemos ayudarte? | Texto | Sí | Mensaje o consulta.
+
+4.5.2. Tienda
+
+4.5.2.1. Listado de productos
+
+Figura X. Tienda desde el rol Cliente en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Muestra los productos activos de la tienda. Se pueden encontrar con el buscador o con los filtros: rango de precio, “En stock”, “En oferta” y categoría. También se pueden ordenar (más recientes, más vendidos, precio o nombre) y elegir cuántos se ven por página. Con “Limpiar todo” se quitan los filtros. Si no hay coincidencias, aparece “No encontramos productos”. Al hacer clic en un producto se abre su detalle.
+
+4.5.2.2. Detalle del producto
+
+Figura X. Detalle de un producto en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Muestra las fotos del producto, su precio, si está disponible o sin existencias, la descripción, la garantía y otros productos que pueden interesar. Si el producto tiene colores, se elige uno y las fotos y el stock cambian según el color. Con los botones − y + se elige la cantidad, sin pasar del stock disponible. Para comprar, haga clic en “Agregar al carrito”; para guardarlo para después, en “Agregar a la lista de deseos”. El sistema avisa “Agregado al carrito”, “Este producto está agotado” o “Solo hay N disponibles”.
+
+4.5.2.3. Carrito y lista de deseos
+
+Figura X. Carrito de compras en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Figura X. Lista de deseos en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Se abren desde los íconos de la barra de navegación. El carrito, “Mi carrito”, muestra los productos agregados con su cantidad y el total, y permite cambiar las cantidades o quitar productos. Para pagar, haga clic en “Finalizar compra”; si no ha iniciado sesión, el botón dice “Iniciar sesión para pagar” y, al entrar, vuelve al carrito. La lista de deseos guarda los productos que el cliente quiere tener a la mano. Si el carrito o la lista están vacíos, el sistema lo indica.
+
+Antes de pasar al pago, el sistema revisa el stock: si un producto ya no está a la venta o se agotó, lo quita del carrito, y si hay menos unidades de las pedidas, ajusta la cantidad y avisa “Solo hay N unidades de “[producto]”: se ajustó la cantidad.”
+
+4.5.2.4. Finalizar compra
+
+Figura X. Formulario de finalizar compra en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Es el paso donde el cliente confirma sus datos y elige cómo va a pagar. Los datos del comprador aparecen ya llenos con los de su cuenta y se pueden corregir. A un lado está el resumen de la compra con el total (IVA incluido).
+
+Tabla X. Campos del formulario de finalizar compra en el sistema de Painting Mistery
+Campo | Tipo | Obligatorio | Descripción
+Nombre completo | Texto | Sí | Nombre de quien compra.
+Teléfono | Texto | Sí | Teléfono de contacto.
+Correo | Correo electrónico | Sí | Correo al que se asocia la compra.
+Tipo de documento | Lista | Sí | Tipo de documento de identidad.
+Número de documento | Texto | Sí | Sin puntos ni espacios.
+Método de pago | Opción | Sí | Medios de pago activos (tarjeta, PSE, Nequi o Daviplata).
+Términos y condiciones | Casilla | Sí | Se debe marcar para continuar. Se pueden leer desde el enlace.
+
+Llene los datos, elija el método de pago, marque los términos y haga clic en “Continuar al pago”. El sistema crea la compra como pendiente de pago y abre la pantalla de pago. Avisa si falta un dato, si no se eligió método de pago (“Elige un método de pago.”) o si no se aceptaron los términos (“Debes aceptar los términos y condiciones para continuar.”). También avisa si el carrito está vacío o si un producto se agotó.
+
+4.5.2.5. Pago
+
+Figura X. Pantalla de pago en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Muestra el método de pago elegido, el número de orden y el total a pagar. Haga clic en “Pagar $[valor]” para pagar en ese momento, o en “Pagar más tarde” para dejar la compra pendiente. La compra pendiente se puede pagar después desde “Mis compras”, pero se cancela sola si pasan 24 horas sin pagarla.
+
+4.5.2.6. Resultado del pago
+
+Figura X. Resultado del pago en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Muestra cómo quedó la compra: “¡Pago aprobado!”, “Pago pendiente” (con el enlace “Ir a pagar →”) o “Pago no completado” (si el pago fue rechazado, la compra se cancela). También muestra el número de orden, el método de pago, el comprobante, el estado y el total, y los botones “Ver detalle de la compra” y “Seguir comprando”.
+
+4.5.3. Cursos
+
+4.5.3.1. Listado de cursos
+
+Figura X. Cursos desde el rol Cliente en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Muestra los cursos disponibles con su precio, lo que debe traer el estudiante, si entregan certificado y sus fechas. Explica el proceso de inscripción en cuatro pasos: elegir el curso, escoger la fecha, pagar en línea y asistir a la clase. Si el curso no tiene fechas, aparece “Todavía no hay fechas publicadas” con un botón para escribir por WhatsApp; si no quedan cupos, dice “Cupos agotados por ahora”; si el cliente ya está inscrito, aparece “Ver mi inscripción →”. Para inscribirse, haga clic en “Inscribirme”. Las inscripciones solo se hacen desde una cuenta de cliente.
+
+4.5.3.2. Inscripción a un curso
+
+Figura X. Formulario de inscripción a un curso en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Tabla X. Campos del formulario de inscripción en el sistema de Painting Mistery
+Campo | Tipo | Obligatorio | Descripción
+Fecha | Opción | Sí | Fechas disponibles del curso.
+Método de pago | Lista | Sí | Medios de pago activos.
+
+Elija la fecha y el método de pago y haga clic en “Inscribirme y pagar $[valor]”. El sistema crea la inscripción como pendiente y abre la pantalla de pago. El curso se paga completo y el cupo queda apartado 24 horas mientras se hace el pago; si no se paga en ese tiempo, el cupo se libera. Cuando el pago se aprueba, la inscripción queda confirmada.
+
+El sistema avisa “Elige una de las fechas disponibles.”, “Elige cómo vas a pagar.”, “Esa fecha ya no tiene cupos. Elige otra.” y, si el cliente ya tiene el curso, “Ya tienes una inscripción activa para este curso. Revísala en “Mis cursos”.”
+
+4.5.4. Mi cuenta
+
+Es el panel personal del cliente. Tiene un menú con las opciones “Resumen”, “Mis compras”, “Mis cursos” y “Mi perfil”, además de “Ir a la tienda →” y “Cerrar sesión”.
+
+4.5.4.1. Resumen
+
+Figura X. Resumen de Mi cuenta desde el rol Cliente en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Es la primera pantalla de “Mi cuenta”. Muestra cuántas compras tiene el cliente, cuántas están pendientes de pago y cuántas están aprobadas, y el total invertido (solo compras pagadas). Si hay compras pendientes, avisa cuánto dinero suman. También muestra las últimas compras, el enlace a la orden de venta de la última compra pagada, los cursos inscritos y el próximo curso, y sugerencias de cursos y productos. Abajo hay un botón para contactar al taller por WhatsApp.
+
+4.5.4.2. Mis compras
+
+Figura X. Mis compras desde el rol Cliente en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Es el historial de compras del cliente, con el número de orden, la fecha, el total y el estado de cada una. Con “Ver detalle →” se abre la compra. Si todavía no hay compras, aparece “Aún no tienes compras” y un botón para ir a la tienda.
+
+4.5.4.3. Detalle de la compra
+
+Figura X. Detalle de una compra desde el rol Cliente en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Muestra lo que se compró (productos o cursos), los datos del comprador, el total, el método de pago, el comprobante y la fecha de pago. El botón “Ver orden de venta” abre el documento de la compra. Si la compra está pendiente, hay dos opciones: “Pagar ahora” y “Cancelar compra”. Al cancelar, el sistema pide confirmar y responde “Tu compra fue cancelada. Sigue apareciendo en tu historial.” Solo se pueden cancelar las compras que están pendientes de pago.
+
+4.5.4.4. Orden de venta
+
+Figura X. Orden de venta desde el rol Cliente en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Es el documento de la compra, con los datos del cliente, lo comprado, el método y el estado del pago. Se imprime o se guarda como PDF con “Descargar / Imprimir”. El botón “Volver” regresa al detalle de la compra.
+
+4.5.4.5. Mis cursos
+
+Figura X. Mis cursos desde el rol Cliente en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Tiene dos partes. “Mis inscripciones” muestra cada curso al que se inscribió el cliente, con su fecha, lugar, duración, lo que debe traer, las indicaciones que le dejó el taller y si recibe certificado. Si la reserva aún no está pagada, aparece “Elegir fecha y pagar”; si ya está pagada, “Ver comprobante de reserva →”. “Cursos disponibles” muestra los demás cursos, con “Elegir fecha” para inscribirse o “Cupos agotados”.
+
+4.5.4.6. Comprobante de reserva
+
+Figura X. Comprobante de reserva de un curso en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Es un documento con los datos del estudiante, del curso y del pago, lo que debe traer y qué sigue después. Con “Imprimir / guardar PDF” se imprime o se guarda, y con “Enviar comprobante por WhatsApp” se envía al taller. No es una factura: el cupo queda asegurado cuando el pago está aprobado.
+
+4.5.4.7. Mi perfil
+
+Figura X. Mi perfil desde el rol Cliente en el sistema de Painting Mistery
+[INSERTAR FIGURA]
+Fuente: Elaboración propia.
+
+Permite actualizar los datos de contacto. El correo y el documento solo se muestran y no se pueden cambiar desde aquí; si hay que modificarlos, se escribe al taller por WhatsApp.
+
+Tabla X. Campos del formulario de mi perfil en el sistema de Painting Mistery
+Campo | Tipo | Obligatorio | Descripción
+Primer nombre | Texto | Sí | Primer nombre.
+Segundo nombre | Texto | No | Segundo nombre.
+Primer apellido | Texto | Sí | Primer apellido.
+Segundo apellido | Texto | No | Segundo apellido.
+Teléfono | Texto | No | Teléfono de contacto.
+
+Cambie los datos y haga clic en “Guardar cambios”. El sistema muestra “Tu perfil se actualizó correctamente.” y avisa si falta el nombre o el apellido.

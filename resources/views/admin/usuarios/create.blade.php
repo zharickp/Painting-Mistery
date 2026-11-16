@@ -72,7 +72,7 @@
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Correo *</label>
-                <input type="email" name="correo" value="{{ old('correo') }}" required
+                <input type="email" name="correo" value="{{ old('correo') }}" required autocomplete="off"
                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
             </div>
             <div>
@@ -113,7 +113,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña *</label>
                 <div class="relative">
-                    <input type="password" id="password" name="password" required
+                    <input type="password" id="password" name="password" required autocomplete="new-password"
                            class="w-full rounded-lg border border-gray-300 px-3 py-2 pr-10 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
                     <button type="button" onclick="togglePass('password', this)" aria-label="Mostrar contraseña" title="Mostrar contraseña"
                             class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
@@ -125,7 +125,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña *</label>
                 <div class="relative">
-                    <input type="password" id="password_confirmation" name="password_confirmation" required
+                    <input type="password" id="password_confirmation" name="password_confirmation" required autocomplete="new-password"
                            class="w-full rounded-lg border border-gray-300 px-3 py-2 pr-10 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
                     <button type="button" onclick="togglePass('password_confirmation', this)" aria-label="Mostrar contraseña" title="Mostrar contraseña"
                             class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">

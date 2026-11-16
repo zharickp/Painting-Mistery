@@ -39,7 +39,7 @@
         </div>
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Correo <span class="text-gray-400">(opcional)</span></label>
-            <input type="email" name="correo" value="{{ old('correo', $proveedor->correo) }}" maxlength="120" class="{{ $campo }}">
+            <input type="email" name="correo" value="{{ old('correo', $proveedor->correo) }}" autocomplete="off" maxlength="120" class="{{ $campo }}">
         </div>
         <div class="sm:col-span-2">
             <label class="block text-sm font-medium text-gray-700 mb-1">Dirección <span class="text-gray-400">(opcional)</span></label>

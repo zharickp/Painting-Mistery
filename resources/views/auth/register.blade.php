@@ -88,7 +88,7 @@
 
                 <div>
                     <label for="correo" class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
-                    <input id="correo" name="correo" type="email" value="{{ old('correo') }}" required
+                    <input id="correo" name="correo" type="email" value="{{ old('correo') }}" required autocomplete="email"
                            class="rounded-md block w-full px-3 py-2 border border-gray-300 text-gray-900 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm">
                 </div>
 
@@ -102,7 +102,7 @@
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
                     <div class="relative">
-                        <input id="password" name="password" type="password" required
+                        <input id="password" name="password" type="password" required autocomplete="new-password"
                                class="rounded-md block w-full px-3 py-2 pr-10 border border-gray-300 text-gray-900 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
                                oninput="checkStrength(this.value)" placeholder="Mínimo 8 caracteres">
                         <button type="button" onclick="togglePass('password', this)" aria-label="Mostrar contraseña" title="Mostrar contraseña"
@@ -125,7 +125,7 @@
                 <div>
                     <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
                     <div class="relative">
-                        <input id="password_confirmation" name="password_confirmation" type="password" required
+                        <input id="password_confirmation" name="password_confirmation" type="password" required autocomplete="new-password"
                                class="rounded-md block w-full px-3 py-2 pr-10 border border-gray-300 text-gray-900 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
                                placeholder="Repite la contraseña">
                         <button type="button" onclick="togglePass('password_confirmation', this)" aria-label="Mostrar contraseña" title="Mostrar contraseña"
@@ -135,6 +135,15 @@
                         </button>
                     </div>
                 </div>
+
+                <label class="flex items-start gap-2 text-sm text-gray-600 cursor-pointer">
+                    <input type="checkbox" name="acepto_politica" value="1" required {{ old('acepto_politica') ? 'checked' : '' }}
+                           class="mt-0.5 rounded border-gray-300 text-red-600 focus:ring-red-500">
+                    <span>
+                        Autorizo el tratamiento de mis datos personales según la
+                        <a href="{{ route('privacidad') }}" target="_blank" class="text-red-600 underline hover:text-red-700 font-medium">política de tratamiento de datos personales</a>.
+                    </span>
+                </label>
 
                 <button type="submit"
                         class="w-full flex justify-center py-3 px-4 text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition">

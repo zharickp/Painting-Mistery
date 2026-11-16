@@ -30,5 +30,35 @@ return Application::configure(basePath: dirname(__DIR__))
 
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Error 419 (página caducada): pasa cuando la sesión se venció por
+        // inactividad y luego se envía un formulario. En vez de mostrar la
+        // página de error, se lleva a la persona a la página principal.
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, \Illuminate\Http\Request $request) {
+            if ($e->getStatusCode() !== 419) {
+                return null;
+            }
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Tu sesión expiró. Recarga la página.'], 419);
+            }
+
+            // Si estaba cerrando sesión, no hace falta avisar nada.
+            if ($request->routeIs('logout')) {
+                return redirect()->route('inicio');
+            }
+
+            // Si estaba en el inicio de sesión, el registro o la recuperación de
+            // contraseña, se le devuelve al mismo formulario con lo que había escrito.
+            if (in_array($request->path(), ['login', 'register', 'forgot-password', 'reset-password'], true)) {
+                return redirect('/' . $request->path())
+                    ->withInput($request->except('password', 'password_confirmation', '_token'))
+                    ->with('info', 'La página llevaba mucho tiempo abierta. Vuelve a intentarlo.');
+            }
+
+            $mensaje = auth()->check()
+                ? 'La página estaba desactualizada. Vuelve a intentarlo.'
+                : 'Tu sesión se cerró por inactividad. Inicia sesión de nuevo.';
+
+            return redirect()->route('inicio')->with('info', $mensaje);
+        });
     })->create();

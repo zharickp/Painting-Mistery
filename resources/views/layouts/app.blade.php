@@ -473,7 +473,7 @@
                     <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
-                    <input type="search" name="q" value="{{ request()->routeIs('admin.buscar') ? request('q') : '' }}" placeholder="Buscar productos, cursos, ventas..." aria-label="Buscar en el sistema"
+                    <input type="search" name="q" autocomplete="off" value="{{ request()->routeIs('admin.buscar') ? request('q') : '' }}" placeholder="Buscar productos, cursos, ventas..." aria-label="Buscar en el sistema"
                            class="w-full pl-9 pr-3 py-2 text-sm rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-red-400 focus:bg-white dark:focus:bg-slate-900 focus:outline-none text-slate-700 dark:text-slate-200 placeholder-slate-400">
                 </form>
             </div>

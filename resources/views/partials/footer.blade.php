@@ -59,7 +59,10 @@
             </div>
         </div>
 
-        <p class="pt-6 text-xs text-gray-500">&copy; {{ date('Y') }} Painting Mistery</p>
+        <p class="pt-6 text-xs text-gray-500">
+            &copy; {{ date('Y') }} Painting Mistery ·
+            <a href="{{ route('privacidad') }}" class="hover:text-white underline transition">Política de tratamiento de datos personales</a>
+        </p>
     </div>
 </footer>
 
