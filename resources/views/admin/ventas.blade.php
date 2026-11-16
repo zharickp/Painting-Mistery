@@ -14,7 +14,6 @@
 
 <div class="mb-5">
     <h1 class="text-xl font-bold text-gray-800">Historial de ventas</h1>
-    <p class="text-sm text-gray-400 mt-1">Las órdenes canceladas también quedan en el historial.</p>
 </div>
 
 

@@ -80,35 +80,23 @@
             </select>
         </div>
 
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-                Imagen principal <span class="text-gray-400">(opcional, máx. 8MB)</span>
-            </label>
-            <input type="file" name="imagen" accept="image/jpg,image/jpeg,image/png,image/webp" data-preview="previewImagenPrincipal"
-                   class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-red-50 file:text-red-600 hover:file:bg-red-100">
-            <p class="text-xs text-gray-400 mt-1">Es la foto de portada que aparece en el catálogo.</p>
-            <div id="previewImagenPrincipal" class="flex flex-wrap gap-2 mt-2"></div>
-        </div>
-
         <div class="border-t border-gray-100 pt-5">
-            <p class="text-sm font-semibold text-gray-800">Fotos del producto</p>
+            <p class="text-sm font-semibold text-gray-800">Fotos</p>
+            <p class="text-xs text-gray-400 mb-3">La primera foto será la portada en la tienda.</p>
+            @include('admin.productos._subir-fotos', ['nombre' => 'imagenes[]', 'id' => 'fotosGenerales', 'marcarPortada' => true])
 
-            <div class="border border-gray-200 rounded-xl p-4 mt-3 mb-4">
-                <p class="text-sm font-semibold text-gray-700">Fotos generales <span class="text-gray-400 font-normal">(opcional)</span></p>
-                <p class="text-[11px] text-gray-400 mb-2">Se muestran cuando el cliente no ha elegido un color. Puedes subir varias a la vez.</p>
-                <input type="file" name="imagenes[]" multiple accept="image/jpg,image/jpeg,image/png,image/webp" data-preview="previewGaleria"
-                       class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-red-50 file:text-red-600 hover:file:bg-red-100">
-                <div id="previewGaleria" class="flex flex-wrap gap-2 mt-2"></div>
+            <div class="mt-6 flex items-center justify-between gap-3">
+                <div>
+                    <p class="text-sm font-semibold text-gray-800">Colores <span class="font-normal text-gray-400">(opcional)</span></p>
+                    <p class="text-xs text-gray-400">Solo si el producto viene en varios colores. Cada color lleva sus fotos.</p>
+                </div>
+                <button type="button" onclick="agregarGrupoColor()"
+                        class="shrink-0 text-sm font-medium text-red-600 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 transition inline-flex items-center gap-1.5">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Agregar color
+                </button>
             </div>
-
-            <p class="text-sm font-semibold text-gray-700">Colores <span class="text-gray-400 font-normal">(opcional)</span></p>
-            <p class="text-[11px] text-gray-400 mb-2">Si el producto viene en varios colores, agrega uno por color con sus fotos. En la tienda cada color aparece como un círculo con su propia galería. El stock se maneja en Inventario.</p>
-            <div id="gruposColorNuevos" class="space-y-3"></div>
-            <button type="button" onclick="agregarGrupoColor()"
-                    class="mt-3 text-sm font-medium text-red-600 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 transition inline-flex items-center gap-1.5">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Agregar color
-            </button>
+            <div id="gruposColorNuevos" class="mt-3 space-y-3"></div>
         </div>
 
         <button type="submit"
@@ -118,39 +106,6 @@
     </form>
 </div>
 
-<script>
-let contadorGrupoColor = 0;
-function agregarGrupoColor() {
-    contadorGrupoColor++;
-    const clave = 'n' + contadorGrupoColor;
-    const html = document.getElementById('plantillaGrupoColor').innerHTML.replaceAll('__CLAVE__', clave);
-    const envoltorio = document.createElement('div');
-    envoltorio.innerHTML = html.trim();
-    const nodo = envoltorio.firstElementChild;
-    document.getElementById('gruposColorNuevos').appendChild(nodo);
-    const input = nodo.querySelector('input[type="file"]');
-    if (input && window.attachFilePreview) window.attachFilePreview(input);
-}
-</script>
-
-<template id="plantillaGrupoColor">
-<div class="grupo-color-nuevo border border-dashed border-red-200 rounded-xl p-4 bg-red-50/30">
-    <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-semibold text-gray-600">Color nuevo</span>
-        <button type="button" onclick="this.closest('.grupo-color-nuevo').remove()" class="text-xs font-medium text-gray-500 hover:text-red-600">Quitar</button>
-    </div>
-    <div class="flex items-center gap-2 mb-3">
-        <input type="color" name="grupos_color[__CLAVE__][hex]" value="#dc2626" class="h-8 w-8 rounded border border-gray-200 cursor-pointer flex-shrink-0" title="Tono del círculo en la tienda">
-        <input type="text" name="grupos_color[__CLAVE__][nombre]" placeholder="Nombre del color (ej. Tornasol)" maxlength="40"
-               class="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:border-red-400">
-    </div>
-    <span class="text-xs font-medium text-gray-600">Fotos de este color</span>
-    <input type="file" name="grupos_color[__CLAVE__][archivos][]" multiple accept="image/jpg,image/jpeg,image/png,image/webp"
-           data-preview="previewGrupo__CLAVE__"
-           class="mt-1 w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-red-50 file:text-red-600 hover:file:bg-red-100">
-    <div id="previewGrupo__CLAVE__" class="flex flex-wrap gap-2 mt-2"></div>
-    <p class="text-[11px] text-gray-400 mt-2">Si no subes fotos, el color no se crea.</p>
-</div>
-</template>
+@include('admin.productos._color-nuevo')
 
 @endsection

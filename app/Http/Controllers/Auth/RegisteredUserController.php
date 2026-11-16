@@ -86,19 +86,11 @@ class RegisteredUserController extends Controller
             'vencimiento_codigo'   => now()->addMinutes(15),
         ]);
 
-        // Emails con acceso de Administrador automático
-        $adminEmails = ['zharick-castellanos@upc.edu.co', 'sebastian-guzman2@upc.edu.co'];
-
-        if (in_array(strtolower($datos['correo']), $adminEmails)) {
-            $rolAdmin = Rol::where('nombre', 'Administrador')->first();
-            if ($rolAdmin) {
-                $usuario->roles()->attach($rolAdmin->id);
-            }
-        } else {
-            // El registro público SIEMPRE crea un Cliente.
-            $rolCliente = Rol::where('nombre', 'Cliente')->firstOrFail();
-            $usuario->roles()->attach($rolCliente->id);
-        }
+        // El registro público siempre crea un Cliente. Los demás roles los asigna
+        // un administrador desde Usuarios; el primer administrador lo crea el
+        // AdministradorSeeder al instalar el sistema.
+        $rolCliente = Rol::where('nombre', 'Cliente')->firstOrFail();
+        $usuario->roles()->attach($rolCliente->id);
 
         // Enviar código de verificación por Brevo
         Mail::to($usuario->correo)->send(

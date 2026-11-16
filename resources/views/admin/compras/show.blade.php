@@ -71,15 +71,50 @@
         </div>
 
         @if ($puedeEditar && ! $compra->estaAnulada())
-        <form method="POST" action="{{ route('admin.compras.anular', $compra) }}" class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-3"
-              onsubmit="return confirm('¿Anular la compra #{{ $compra->id }}? Sus unidades se restarán del inventario.')">
+        @php $unidades = $compra->detalles->sum('cantidad'); @endphp
+        <form id="formAnular" method="POST" action="{{ route('admin.compras.anular', $compra) }}" class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             @csrf
-            <h3 class="font-semibold text-gray-800 text-sm">Anular compra</h3>
-            <p class="text-xs text-gray-500">Si se registró por error. Las unidades salen del inventario; si ya se vendieron, no se puede anular.</p>
-            <input type="text" name="motivo" required minlength="3" maxlength="255" placeholder="Motivo"
-                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
-            <button type="submit" class="w-full bg-white border border-red-200 text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg text-sm font-medium transition">Anular compra</button>
+            <div id="anularDatos" class="space-y-3">
+                <h3 class="font-semibold text-gray-800 text-sm">Anular compra</h3>
+                <p class="text-xs text-gray-500">Si se registró por error. Las unidades salen del inventario; si ya se vendieron, no se puede anular.</p>
+                <input type="text" id="motivoAnular" name="motivo" required minlength="3" maxlength="255" placeholder="Motivo"
+                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
+                <button type="submit" class="w-full bg-white border border-red-200 text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg text-sm font-medium transition">Anular compra</button>
+            </div>
+
+            {{-- Paso 2: confirmar --}}
+            <div id="anularConfirmar" class="hidden space-y-3">
+                <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-gray-700">
+                    <p class="font-semibold text-amber-800">¿Confirmas la anulación?</p>
+                    <ul class="mt-2 space-y-1">
+                        <li>Compra <strong>#{{ $compra->id }}</strong> a {{ $compra->proveedor?->nombre }} por <strong>${{ number_format($compra->total, 0, ',', '.') }}</strong></li>
+                        <li>Salen <strong>{{ $unidades }}</strong> unidad(es) del inventario</li>
+                        <li>Motivo: <span id="motivoResumen"></span></li>
+                    </ul>
+                </div>
+                <div class="flex gap-3">
+                    <button type="button" onclick="volverAnular()" class="flex-1 border border-gray-200 rounded-lg py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition">Volver</button>
+                    <button type="button" id="btnConfirmarAnular" onclick="confirmarAnular()" class="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-lg py-2 text-sm font-semibold transition">Sí, anular</button>
+                </div>
+            </div>
         </form>
+        <script>
+        document.getElementById('formAnular').addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (!this.reportValidity()) return;
+            document.getElementById('motivoResumen').textContent = document.getElementById('motivoAnular').value;
+            document.getElementById('anularDatos').classList.add('hidden');
+            document.getElementById('anularConfirmar').classList.remove('hidden');
+        });
+        function volverAnular() {
+            document.getElementById('anularConfirmar').classList.add('hidden');
+            document.getElementById('anularDatos').classList.remove('hidden');
+        }
+        function confirmarAnular() {
+            document.getElementById('btnConfirmarAnular').disabled = true;
+            HTMLFormElement.prototype.submit.call(document.getElementById('formAnular'));
+        }
+        </script>
         @endif
     </div>
 </div>

@@ -90,103 +90,68 @@
             </select>
         </div>
 
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-                Imagen principal <span class="text-gray-400">(opcional, máx. 8MB)</span>
-            </label>
-            @if ($producto->imagen)
-                <div class="mb-3">
-                    <img src="{{ $producto->imagen }}" alt="{{ $producto->nombre }}"
-                         class="h-32 w-32 object-cover rounded-lg border border-gray-200">
-                    <p class="text-xs text-gray-400 mt-1">Portada actual. Puedes subir una foto nueva como portada o marcar "Portada" en una de las fotos generales.</p>
-                </div>
-            @endif
-            <input type="file" name="imagen" accept="image/jpg,image/jpeg,image/png,image/webp" data-preview="previewImagenPrincipal"
-                   class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-red-50 file:text-red-600 hover:file:bg-red-100">
-            <div id="previewImagenPrincipal" class="flex flex-wrap gap-2 mt-2"></div>
-        </div>
-
         {{-- ── FOTOS ─────────────────────────────────────────────── --}}
         <div class="border-t border-gray-100 pt-5">
-            <p class="text-sm font-semibold text-gray-800">Fotos del producto</p>
-            <p class="text-xs text-gray-400 mt-0.5 mb-4">
-                El botón <span class="font-semibold text-red-600">Eliminar</span> borra la foto de inmediato.
-                Las fotos nuevas, el orden (arrastrando) y la portada se guardan con <span class="font-semibold">Actualizar producto</span>.
-            </p>
+            <p class="text-sm font-semibold text-gray-800">Fotos</p>
+            <p class="text-xs text-gray-400 mb-3">Marca la <span class="font-semibold text-red-600">portada</span> y arrastra las fotos para cambiar el orden.</p>
 
             <div id="avisoFotos" class="hidden mb-3 text-xs rounded-lg px-3 py-2"></div>
 
-            {{-- Fotos generales (sin color) --}}
-            <div class="grupo-fotos border border-gray-200 rounded-xl p-4 mb-4">
-                <div class="flex items-center justify-between gap-2 mb-3">
-                    <div>
-                        <p class="text-sm font-semibold text-gray-700">Fotos generales</p>
-                        <p class="text-[11px] text-gray-400">Se muestran cuando el cliente no ha elegido un color.</p>
-                    </div>
-                </div>
-
-                <div class="grilla-fotos grid grid-cols-3 sm:grid-cols-4 gap-3">
+            <div class="grupo-fotos">
+                <div class="grilla-fotos grid grid-cols-4 sm:grid-cols-6 gap-2 mb-2">
                     @foreach ($fotosCompartidas as $img)
                         @include('admin.productos._foto', ['img' => $img, 'conPortada' => true])
                     @endforeach
                 </div>
-                <p class="vacio-fotos text-xs text-gray-400 {{ $fotosCompartidas->isEmpty() ? '' : 'hidden' }}">Sin fotos generales.</p>
+                <p class="vacio-fotos text-xs text-gray-400 mb-2 {{ $fotosCompartidas->isEmpty() ? '' : 'hidden' }}">Aún no tiene fotos.</p>
+            </div>
+            @include('admin.productos._subir-fotos', ['nombre' => 'imagenes[]', 'id' => 'fotosGenerales', 'texto' => 'Agregar fotos'])
 
-                <label class="mt-3 block">
-                    <span class="text-xs font-medium text-gray-600">Agregar fotos generales</span>
-                    <input type="file" name="imagenes[]" multiple accept="image/jpg,image/jpeg,image/png,image/webp" data-preview="previewGaleria"
-                           class="mt-1 w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-red-50 file:text-red-600 hover:file:bg-red-100">
-                </label>
-                <div id="previewGaleria" class="flex flex-wrap gap-2 mt-2"></div>
+            {{-- Colores --}}
+            <div class="mt-6 flex items-center justify-between gap-3">
+                <div>
+                    <p class="text-sm font-semibold text-gray-800">Colores <span class="font-normal text-gray-400">(opcional)</span></p>
+                    <p class="text-xs text-gray-400">Solo si el producto viene en varios colores. Cada color lleva sus fotos.</p>
+                </div>
+                <button type="button" onclick="agregarGrupoColor()"
+                        class="shrink-0 text-sm font-medium text-red-600 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 transition inline-flex items-center gap-1.5">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Agregar color
+                </button>
             </div>
 
-            {{-- Colores existentes --}}
-            <p class="text-sm font-semibold text-gray-700">Colores</p>
-            <p class="text-[11px] text-gray-400 mb-2">Cada color aparece en la tienda como un círculo con sus propias fotos. El stock se maneja en Inventario.</p>
-
-            <div id="coloresExistentes" class="space-y-4">
+            <div id="coloresExistentes" class="mt-3 space-y-3">
                 @foreach ($producto->colores as $color)
-                    <div class="grupo-fotos tarjeta-color border border-gray-200 rounded-xl p-4" data-color-id="{{ $color->id }}">
-                        <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <div class="grupo-fotos tarjeta-color rounded-xl border border-gray-200 p-4" data-color-id="{{ $color->id }}">
+                        <div class="flex items-center gap-2 mb-3">
                             <input type="color" name="colores_existentes[{{ $color->id }}][hex]" value="{{ $color->codigo_color ?: '#dc2626' }}"
-                                   class="h-8 w-8 rounded border border-gray-200 cursor-pointer flex-shrink-0" title="Tono del círculo en la tienda">
+                                   class="h-9 w-9 rounded-lg border border-gray-200 cursor-pointer flex-shrink-0" title="Tono del círculo en la tienda">
                             <input type="text" name="colores_existentes[{{ $color->id }}][nombre]" value="{{ $color->nombre }}" maxlength="40"
-                                   class="flex-1 min-w-[8rem] rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-semibold text-gray-700 focus:outline-none focus:border-red-400">
-                            <button type="button"
+                                   class="flex-1 min-w-[8rem] rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 focus:outline-none focus:border-red-400">
+                            <button type="button" title="Eliminar color" aria-label="Eliminar color"
                                     onclick="eliminarColor(this, @js(route('admin.productos.colores.destroy', [$producto, $color])), @js($color->nombre), {{ $color->imagenes->count() }})"
-                                    class="text-xs font-medium text-red-600 border border-red-200 rounded-lg px-2.5 py-1.5 hover:bg-red-50 transition">
-                                Eliminar color
+                                    class="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
                         </div>
 
-                        <div class="grilla-fotos grid grid-cols-3 sm:grid-cols-4 gap-3">
+                        <div class="grilla-fotos grid grid-cols-4 sm:grid-cols-6 gap-2 mb-2">
                             @foreach ($color->imagenes as $img)
                                 @include('admin.productos._foto', ['img' => $img, 'conPortada' => false])
                             @endforeach
                         </div>
-                        <p class="vacio-fotos text-xs text-gray-400 {{ $color->imagenes->isEmpty() ? '' : 'hidden' }}">Este color no tiene fotos.</p>
+                        <p class="vacio-fotos text-xs text-gray-400 mb-2 {{ $color->imagenes->isEmpty() ? '' : 'hidden' }}">Este color no tiene fotos.</p>
 
-                        <label class="mt-3 block">
-                            <span class="text-xs font-medium text-gray-600">Agregar fotos a "{{ $color->nombre }}"</span>
-                            <input type="file" name="fotos_color[{{ $color->id }}][]" multiple accept="image/jpg,image/jpeg,image/png,image/webp"
-                                   data-preview="previewColor{{ $color->id }}"
-                                   class="mt-1 w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-red-50 file:text-red-600 hover:file:bg-red-100">
-                        </label>
-                        <div id="previewColor{{ $color->id }}" class="flex flex-wrap gap-2 mt-2"></div>
+                        @include('admin.productos._subir-fotos', ['nombre' => 'fotos_color[' . $color->id . '][]', 'id' => 'fotosColor' . $color->id, 'texto' => 'Agregar fotos de ' . $color->nombre])
                     </div>
                 @endforeach
             </div>
-            <p id="sinColores" class="text-xs text-gray-400 {{ $producto->colores->isEmpty() ? '' : 'hidden' }}">Este producto no tiene colores. Si viene en varios, agrégalos abajo.</p>
+            <p id="sinColores" class="hidden"></p>
 
             <div id="ordenImagenesContainer"></div>
+            <div id="gruposColorNuevos" class="mt-3 space-y-3"></div>
 
-            {{-- Colores nuevos --}}
-            <div id="gruposColorNuevos" class="mt-4 space-y-3"></div>
-            <button type="button" onclick="agregarGrupoColor()"
-                    class="mt-3 text-sm font-medium text-red-600 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 transition inline-flex items-center gap-1.5">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Agregar color
-            </button>
+            <p class="mt-4 text-[11px] text-gray-400">Las fotos y los colores que elimines se borran de inmediato. Lo demás se guarda con "Actualizar producto".</p>
         </div>
 
         <button type="submit"
@@ -306,20 +271,6 @@ async function eliminarColor(boton, url, nombre, cantidad) {
     }
 }
 
-// ── Grupos de color nuevos (subir varias fotos de un color en un solo paso) ──
-let contadorGrupoColor = 0;
-function agregarGrupoColor() {
-    contadorGrupoColor++;
-    const clave = 'n' + contadorGrupoColor;
-    const html = document.getElementById('plantillaGrupoColor').innerHTML.replaceAll('__CLAVE__', clave);
-    const envoltorio = document.createElement('div');
-    envoltorio.innerHTML = html.trim();
-    const nodo = envoltorio.firstElementChild;
-    document.getElementById('gruposColorNuevos').appendChild(nodo);
-    const input = nodo.querySelector('input[type="file"]');
-    if (input && window.attachFilePreview) window.attachFilePreview(input);
-}
-
 document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.grupo-fotos').forEach(grupo => habilitarArrastre(grupo, '.foto-card', sincronizarOrden));
@@ -331,24 +282,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<template id="plantillaGrupoColor">
-<div class="grupo-color-nuevo border border-dashed border-red-200 rounded-xl p-4 bg-red-50/30">
-    <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-semibold text-gray-600">Color nuevo <span class="font-normal text-gray-400">(se crea al guardar)</span></span>
-        <button type="button" onclick="this.closest('.grupo-color-nuevo').remove()" class="text-xs font-medium text-gray-500 hover:text-red-600">Quitar</button>
-    </div>
-    <div class="flex items-center gap-2 mb-3">
-        <input type="color" name="grupos_color[__CLAVE__][hex]" value="#dc2626" class="h-8 w-8 rounded border border-gray-200 cursor-pointer flex-shrink-0" title="Tono del círculo en la tienda">
-        <input type="text" name="grupos_color[__CLAVE__][nombre]" placeholder="Nombre del color (ej. Tornasol)" maxlength="40"
-               class="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:border-red-400">
-    </div>
-    <span class="text-xs font-medium text-gray-600">Fotos de este color</span>
-    <input type="file" name="grupos_color[__CLAVE__][archivos][]" multiple accept="image/jpg,image/jpeg,image/png,image/webp"
-           data-preview="previewGrupo__CLAVE__"
-           class="mt-1 w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-red-50 file:text-red-600 hover:file:bg-red-100">
-    <div id="previewGrupo__CLAVE__" class="flex flex-wrap gap-2 mt-2"></div>
-    <p class="text-[11px] text-gray-400 mt-2">Si no subes fotos, el color no se crea.</p>
-</div>
-</template>
+@include('admin.productos._color-nuevo')
 
 @endsection

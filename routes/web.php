@@ -177,7 +177,10 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::get('/ventas',                [AdminVentaController::class, 'index'])->name('ventas');
         Route::get('/ventas/{venta}',             [AdminVentaController::class, 'show'])->whereNumber('venta')->name('ventas.show');
         Route::get('/ventas/{venta}/orden-venta', [AdminVentaController::class, 'orden'])->name('ventas.orden');
-        Route::get('/reportes',              fn() => view('admin.reportes'))->name('reportes');
+        Route::get('/reportes',              [\App\Http\Controllers\Admin\ReporteController::class, 'ventas'])->name('reportes');
+        Route::get('/reportes/ventas/pdf',   [\App\Http\Controllers\Admin\ReporteController::class, 'ventasPdf'])->name('reportes.ventas.pdf');
+        Route::get('/reportes/compras',      [\App\Http\Controllers\Admin\ReporteController::class, 'compras'])->name('reportes.compras');
+        Route::get('/reportes/compras/pdf',  [\App\Http\Controllers\Admin\ReporteController::class, 'comprasPdf'])->name('reportes.compras.pdf');
         Route::get('/buscar',                [\App\Http\Controllers\Admin\BuscarController::class, 'index'])->name('buscar');
     });
 

@@ -122,9 +122,9 @@ class Venta extends Model
     public function estadoColor(): string
     {
         return match ($this->estado) {
-            'pagada'    => 'bg-emerald-100 text-emerald-800 border-emerald-300',
-            'cancelada' => 'bg-rose-100 text-rose-800 border-rose-300',
-            default     => 'bg-amber-100 text-amber-800 border-amber-300',
+            'pagada'    => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+            'cancelada' => 'bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+            default     => 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
         };
     }
 

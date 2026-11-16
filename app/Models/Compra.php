@@ -58,6 +58,12 @@ class Compra extends Model
         return $this->hasMany(DetalleCompra::class);
     }
 
+    /** Compras que cuentan en las estadísticas: todas menos las anuladas. */
+    public function scopeVigentes($query)
+    {
+        return $query->where('compra.estado', '!=', 'anulada');
+    }
+
     public function estaAnulada(): bool
     {
         return $this->estado === 'anulada';
