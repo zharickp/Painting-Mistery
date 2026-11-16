@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\TestMail;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\EmailVerificationController;
@@ -217,8 +215,3 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
 
 });
 
-
-Route::get('/send-test-mail', function () {
-    Mail::to('sg0077010@gmail.com')->send(new TestMail());
-    return response('Correo de prueba enviado a sg0077010@gmail.com', 200);
-});
