@@ -95,11 +95,7 @@ class ClienteDashboardController extends Controller
         $inscripciones = Inscripcion::with(['curso', 'cursoFecha'])
             ->where('usuario_id', $userId)->latest()->get();
 
-        // Un curso que ya terminó se puede volver a tomar.
-        $inscritosActivos = $inscripciones->filter(fn ($i) => $i->estaVigente())->pluck('curso_id');
-        $disponibles = Curso::where('estado', true)->whereNotIn('id', $inscritosActivos)->orderBy('precio')->get();
-
-        return view('cliente.cursos', compact('inscripciones', 'disponibles'));
+        return view('cliente.cursos', compact('inscripciones'));
     }
 
     public function perfil(): View

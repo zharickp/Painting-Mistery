@@ -16,6 +16,7 @@
     @if($inscripciones->isEmpty())
         <div class="bg-white border border-dashed border-slate-200 rounded-2xl p-10 text-center mb-10">
             <p class="text-slate-500 text-sm">Aún no te has inscrito a ningún curso.</p>
+            <a href="{{ route('academia') }}" class="inline-block mt-3 text-sm font-bold text-red-600 hover:text-red-700">Ver cursos →</a>
         </div>
     @else
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
@@ -51,36 +52,6 @@
                 @if($ins->estado !== 'cancelada')
                     <a href="{{ route('mi-cuenta.cursos.comprobante', $ins->id) }}" class="inline-block mt-3 text-xs font-bold text-red-600 hover:text-red-700">Ver comprobante de reserva →</a>
                 @endif
-            </div>
-            @endforeach
-        </div>
-    @endif
-
-    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3">Cursos disponibles</h2>
-    @if($disponibles->isEmpty())
-        <p class="text-sm text-slate-500">Por ahora no hay más cursos disponibles.</p>
-    @else
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            @foreach($disponibles as $c)
-            @php $libres = $c->cuposDisponibles(); @endphp
-            <div class="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col">
-                <div class="flex items-start justify-between gap-3 mb-2">
-                    <h3 class="font-bold text-slate-800">{{ $c->nombre }}</h3>
-                    <span class="text-red-600 font-extrabold shrink-0">${{ number_format($c->precio, 0, ',', '.') }}</span>
-                </div>
-                <p class="text-sm text-slate-500 mb-3 line-clamp-3">{{ $c->descripcion }}</p>
-                <div class="flex flex-wrap gap-2 text-[11px] text-slate-500 mb-4">
-                    <span class="bg-slate-100 rounded-full px-2.5 py-1">{{ $c->duracionTexto() }}</span>
-                    <span class="bg-slate-100 rounded-full px-2.5 py-1">{{ $libres === null ? 'Cupos disponibles' : $libres . ' cupos libres' }}</span>
-                    @if($c->incluye_certificado ?? true)<span class="bg-green-50 text-green-700 rounded-full px-2.5 py-1">Con certificado</span>@endif
-                </div>
-                <div class="mt-auto flex items-center gap-2">
-                                        @if($libres === null || $libres > 0)
-                    <a href="{{ route('academia') }}#curso-{{ $c->id }}" class="ml-auto bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-xl text-sm transition">Elegir fecha</a>
-                    @else
-                        <span class="ml-auto text-xs font-semibold text-slate-400">Cupos agotados</span>
-                    @endif
-                </div>
             </div>
             @endforeach
         </div>
