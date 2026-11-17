@@ -36,7 +36,7 @@
                     <td class="px-5 py-3 font-medium text-gray-800">{{ $tipo->nombre }}</td>
                     <td class="px-5 py-3 text-center">
                         <span class="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs rounded-full font-medium">
-                            {{ $tipo->porcentaje }}%
+                            {{ (float) $tipo->porcentaje }}%
                         </span>
                     </td>
                     <td class="px-5 py-3 text-center">

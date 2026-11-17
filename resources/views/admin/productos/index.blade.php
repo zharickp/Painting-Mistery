@@ -42,7 +42,7 @@
                     {{ $producto->estado ? 'Activo' : 'Inactivo' }}
                 </span>
                 <span class="text-xs text-gray-400">
-                    IVA {{ $producto->tipoIva->porcentaje ?? 0 }}%
+                    IVA {{ (float) ($producto->tipoIva->porcentaje ?? 0) }}%
                 </span>
             </div>
 

@@ -92,10 +92,17 @@ class RegisteredUserController extends Controller
         $rolCliente = Rol::where('nombre', 'Cliente')->firstOrFail();
         $usuario->roles()->attach($rolCliente->id);
 
-        // Enviar código de verificación por Brevo
-        Mail::to($usuario->correo)->send(
-            new VerificationCodeMail($code, $usuario->primer_nombre)
-        );
+        // Enviar el código de verificación. Si el correo falla, la cuenta ya quedó
+        // creada: se avisa y la persona pide otro código desde la verificación.
+        $correoEnviado = true;
+        try {
+            Mail::to($usuario->correo)->send(
+                new VerificationCodeMail($code, $usuario->primer_nombre)
+            );
+        } catch (\Throwable $e) {
+            $correoEnviado = false;
+            \Illuminate\Support\Facades\Log::error('Error enviando correo de verificación al registrarse: ' . $e->getMessage());
+        }
 
         Auth::login($usuario);
         $request->session()->regenerate();
@@ -110,7 +117,8 @@ class RegisteredUserController extends Controller
                 . LandingController::POLITICA_VIGENTE_DESDE . '.',
         ]);
 
-        return redirect()->route('verification.notice')
-            ->with('success', '¡Cuenta creada! Revisa tu correo para verificarla.');
+        return $correoEnviado
+            ? redirect()->route('verification.notice')->with('success', '¡Cuenta creada! Revisa tu correo para verificarla.')
+            : redirect()->route('verification.notice')->with('error', 'Tu cuenta se creó, pero no pudimos enviar el código. Pulsa "Reenviar código" en unos minutos.');
     }
 }

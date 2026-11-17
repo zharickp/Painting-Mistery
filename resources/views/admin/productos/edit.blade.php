@@ -47,7 +47,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Precio</label>
                 <input type="number" name="precio"
-                       value="{{ old('precio', $producto->precio) }}"
+                       value="{{ old('precio', (float) $producto->precio) }}"
                        min="0" step="0.01" required
                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
             </div>
@@ -56,7 +56,7 @@
                     Precio antes del descuento <span class="text-gray-400">(opcional)</span>
                 </label>
                 <input type="number" name="precio_anterior"
-                       value="{{ old('precio_anterior', $producto->precio_anterior) }}"
+                       value="{{ old('precio_anterior', $producto->precio_anterior !== null ? (float) $producto->precio_anterior : '') }}"
                        min="0" step="0.01"
                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
             </div>
@@ -70,7 +70,7 @@
                 @foreach ($tiposIva as $iva)
                     <option value="{{ $iva->id }}"
                         {{ old('tipo_iva_id', $producto->tipo_iva_id) == $iva->id ? 'selected' : '' }}>
-                        {{ $iva->nombre }} ({{ $iva->porcentaje }}%)
+                        {{ $iva->nombre }}@unless (str_contains($iva->nombre, '%')) ({{ (float) $iva->porcentaje }}%)@endunless
                     </option>
                 @endforeach
             </select>

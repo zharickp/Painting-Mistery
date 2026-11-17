@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Mail\VerificationCodeMail;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
@@ -30,6 +31,13 @@ class EmailVerificationController extends Controller
 
         $usuario = auth()->user();
 
+        // Máximo 5 intentos cada 15 minutos, para que el código no se pueda adivinar probando.
+        $llave = 'verificar-correo:' . $usuario->id;
+        if (RateLimiter::tooManyAttempts($llave, 5)) {
+            $minutos = (int) ceil(RateLimiter::availableIn($llave) / 60);
+            return back()->withErrors(['code' => "Demasiados intentos. Espera {$minutos} minuto(s) o pide un código nuevo."]);
+        }
+
         if (! $usuario->codigo_verificacion) {
             return back()->withErrors(['code' => 'No hay un código activo. Solicita uno nuevo.']);
         }
@@ -39,8 +47,11 @@ class EmailVerificationController extends Controller
         }
 
         if ($request->code !== $usuario->codigo_verificacion) {
+            RateLimiter::hit($llave, 900);
             return back()->withErrors(['code' => 'El código ingresado no es correcto.']);
         }
+
+        RateLimiter::clear($llave);
 
         $usuario->update([
             'fecha_verificacion_correo' => now(),
@@ -59,6 +70,16 @@ class EmailVerificationController extends Controller
         if ($usuario->fecha_verificacion_correo) {
             return redirect()->route('dashboard');
         }
+
+        // Máximo 3 códigos cada 10 minutos, para no llenar el correo ni gastar el cupo de envíos.
+        $llaveReenvio = 'reenviar-codigo:' . $usuario->id;
+        if (RateLimiter::tooManyAttempts($llaveReenvio, 3)) {
+            $minutos = (int) ceil(RateLimiter::availableIn($llaveReenvio) / 60);
+            return back()->with('error', "Ya enviamos varios códigos. Espera {$minutos} minuto(s) antes de pedir otro.");
+        }
+        RateLimiter::hit($llaveReenvio, 600);
+        // Un código nuevo da otra vez los 5 intentos.
+        RateLimiter::clear('verificar-correo:' . $usuario->id);
 
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
