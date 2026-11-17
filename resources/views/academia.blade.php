@@ -98,7 +98,7 @@
                             </div>
                             <div class="flex flex-wrap gap-2 text-[11px] font-semibold">
                                 <span class="px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">{{ $curso->duracionTexto() }}</span>
-                                <span class="px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">{{ $libres === null ? 'Cupos limitados' : $libres . ' cupos libres' }}</span>
+                                <span class="px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">{{ $curso->cupos ? $curso->cupos . ' cupos por fecha' : 'Cupos limitados' }}</span>
                                 @if($curso->incluye_certificado ?? true)<span class="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-500">Con certificado</span>@endif
                             </div>
                         </div>
@@ -126,7 +126,21 @@
                                class="block text-center bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl py-3 text-sm transition">Escribir por WhatsApp</a>
                         @else
                             {{-- La fecha y el pago se eligen en una página aparte, para que la tarjeta no sea tan larga --}}
-                            <p class="text-sm mb-3 {{ $suave }}">Próximas fechas: {{ $curso->fechas->take(3)->map(fn ($f) => $f->etiqueta($curso->dias()))->implode(' · ') }}</p>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Próximas fechas</p>
+                            <ul class="mb-4 space-y-1.5 text-sm">
+                                @foreach($curso->fechas->take(3) as $f)
+                                    @php $quedan = $f->cuposLibres(); @endphp
+                                    <li class="flex items-center justify-between gap-3">
+                                        <span class="text-gray-700">{{ $f->etiqueta($curso->dias()) }}</span>
+                                        <span class="text-xs font-semibold {{ $quedan === 0 ? 'text-gray-400' : 'text-emerald-600' }}">
+                                            {{ $quedan === null ? 'Disponible' : ($quedan === 0 ? 'Sin cupos' : ($quedan === 1 ? 'Queda 1 cupo' : 'Quedan ' . $quedan . ' cupos')) }}
+                                        </span>
+                                    </li>
+                                @endforeach
+                                @if($curso->fechas->count() > 3)
+                                    <li class="text-xs text-gray-400">y {{ $curso->fechas->count() - 3 }} fecha(s) más al inscribirte</li>
+                                @endif
+                            </ul>
                             @if(auth()->check() && ! auth()->user()->tieneRol('Cliente'))
                                 <p class="text-xs text-center text-gray-400">Las inscripciones se hacen desde una cuenta de cliente.</p>
                             @else

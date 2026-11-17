@@ -27,9 +27,9 @@
             <thead class="bg-gray-50/80 border-b border-gray-100">
                 <tr class="text-xs text-gray-500 font-bold uppercase tracking-wide text-left">
                     <th class="px-5 py-3.5">Curso</th>
-                    <th class="px-5 py-3.5 hidden sm:table-cell">Fechas</th>
+                    <th class="px-5 py-3.5 hidden sm:table-cell">Próximas fechas <span class="normal-case font-normal text-gray-400">(ocupados/cupos)</span></th>
                     <th class="px-5 py-3.5 text-center">Cupos por fecha</th>
-                    <th class="px-5 py-3.5 text-center">Inscritos</th>
+                    <th class="px-5 py-3.5 text-center">Inscripciones</th>
                     <th class="px-5 py-3.5 text-right">Costo</th>
                     <th class="px-5 py-3.5 text-center">Estado</th>
                     @if ($puedeEditar)<th class="px-5 py-3.5 text-center">Acciones</th>@endif
@@ -43,37 +43,29 @@
                         <p class="text-xs text-gray-400 line-clamp-1 mt-0.5">{{ $c->descripcion }}</p>
                     </td>
                     <td class="px-5 py-4 hidden sm:table-cell text-gray-500 text-xs">
-                        @php $proxima = $c->fechasDisponibles->first(); @endphp
-                        @if($proxima)
-                            <p>Próxima: {{ $proxima->fecha->format('d/m/Y') }}</p>
-                            @if($c->fechasDisponibles->count() > 1)
-                                <p class="text-gray-400">{{ $c->fechasDisponibles->count() }} fechas programadas</p>
-                            @endif
-                        @else
+                        @forelse($c->fechasDisponibles->take(3) as $f)
+                            @php $libresF = $f->cuposLibres(); @endphp
+                            <p class="flex items-center gap-2 {{ $loop->first ? 'text-gray-600 font-medium' : '' }}">
+                                {{ $f->fecha->format('d/m/Y') }}
+                                @if($c->cupos)
+                                    <span class="{{ $libresF === 0 ? 'text-red-500' : 'text-gray-400' }}">· {{ $c->cupos - $libresF }}/{{ $c->cupos }}</span>
+                                @endif
+                            </p>
+                        @empty
                             <span class="text-gray-300">Sin fechas programadas</span>
+                        @endforelse
+                        @if($c->fechasDisponibles->count() > 3)
+                            <p class="text-gray-400">+{{ $c->fechasDisponibles->count() - 3 }} más</p>
                         @endif
                     </td>
                     <td class="px-5 py-4 text-center">
-                        @php
-                            // Qué tan llenas están las próximas fechas (cada fecha tiene sus propios cupos).
-                            $totalCupos = $c->cupos ? $c->cupos * $c->fechasDisponibles->count() : 0;
-                            $pct = $totalCupos ? min(100, round((($totalCupos - $c->cuposDisponibles()) / $totalCupos) * 100)) : 0;
-                        @endphp
-                        <div class="flex flex-col items-center gap-1">
-                            <span class="font-semibold text-gray-700">{{ $c->cupos ?? '∞' }}</span>
-                            @if($c->cupos)
-                            <div class="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                <div class="h-full rounded-full {{ $pct >= 90 ? 'bg-red-500' : ($pct >= 60 ? 'bg-yellow-400' : 'bg-green-400') }}"
-                                     style="width: {{ $pct }}%"></div>
-                            </div>
-                            @endif
-                        </div>
+                        <span class="font-semibold text-gray-700">{{ $c->cupos ?? 'Sin límite' }}</span>
                     </td>
                     <td class="px-5 py-4 text-center">
-                        <a href="{{ route('admin.cursos.inscripciones', $c) }}" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full font-semibold hover:bg-indigo-100 transition">
-                            {{ $c->inscripciones_count }}
+                        <a href="{{ route('admin.cursos.inscripciones', $c) }}" class="inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-full font-semibold hover:bg-indigo-100 transition">
+                            Ver
                             @if($c->pendientes_count > 0)
-                                <span class="h-4 w-4 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center">{{ $c->pendientes_count }}</span>
+                                <span class="px-1.5 rounded-full bg-amber-500 text-white text-[10px] whitespace-nowrap" title="Inscripciones pendientes de pago">{{ $c->pendientes_count }} por pagar</span>
                             @endif
                         </a>
                     </td>
