@@ -102,7 +102,7 @@
 
 <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 max-w-2xl mt-6">
     <h2 class="text-base font-bold text-gray-800">Fechas disponibles</h2>
-    <p class="text-xs text-gray-400 mt-0.5 mb-4">Los cursos se dictan de lunes a viernes. El cliente solo puede reservar en las fechas que publiques aquí.</p>
+    <p class="text-xs text-gray-400 mt-0.5 mb-4">Solo de lunes a viernes.</p>
 
     <ul class="divide-y divide-gray-50 mb-4">
         @forelse($curso->fechas as $f)

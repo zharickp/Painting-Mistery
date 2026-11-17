@@ -36,7 +36,6 @@
                    placeholder="Ej: 19" min="0" max="100" step="0.01"
                    required
                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
-            <p class="text-xs text-gray-400 mt-1">Ingresa el porcentaje sin el símbolo %. Ej: 19 para IVA del 19%.</p>
         </div>
 
         <button type="submit"

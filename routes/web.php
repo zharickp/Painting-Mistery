@@ -170,6 +170,7 @@ Route::middleware(['auth', 'email.verified'])->group(function () {
         Route::get('cursos',                 [CursoController::class, 'index'])->name('cursos.index');
         Route::get('agenda-cursos',          [\App\Http\Controllers\Admin\AgendaCursosController::class, 'index'])->name('agenda-cursos.index');
         Route::get('cursos/{curso}/inscripciones', [AdminInscripcionController::class, 'index'])->name('cursos.inscripciones');
+        Route::get('cursos/{curso}/inscripciones/{fecha}', [AdminInscripcionController::class, 'fecha'])->name('cursos.inscripciones.fecha');
         Route::get('/inventario',            [InventarioController::class, 'index'])->name('inventario');
         Route::get('/proveedores',           [\App\Http\Controllers\Admin\ProveedorController::class, 'index'])->name('proveedores.index');
         Route::get('/compras',               [\App\Http\Controllers\Admin\CompraController::class, 'index'])->name('compras.index');

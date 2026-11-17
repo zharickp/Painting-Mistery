@@ -93,7 +93,7 @@
         {{-- ── FOTOS ─────────────────────────────────────────────── --}}
         <div class="border-t border-gray-100 pt-5">
             <p class="text-sm font-semibold text-gray-800">Fotos</p>
-            <p class="text-xs text-gray-400 mb-3">Marca la <span class="font-semibold text-red-600">portada</span> y arrastra las fotos para cambiar el orden.</p>
+            <p class="text-xs text-gray-400 mb-3">Arrastra para cambiar el orden.</p>
 
             <div id="avisoFotos" class="hidden mb-3 text-xs rounded-lg px-3 py-2"></div>
 
@@ -111,7 +111,6 @@
             <div class="mt-6 flex items-center justify-between gap-3">
                 <div>
                     <p class="text-sm font-semibold text-gray-800">Colores <span class="font-normal text-gray-400">(opcional)</span></p>
-                    <p class="text-xs text-gray-400">Solo si el producto viene en varios colores. Cada color lleva sus fotos.</p>
                 </div>
                 <button type="button" onclick="agregarGrupoColor()"
                         class="shrink-0 text-sm font-medium text-red-600 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 transition inline-flex items-center gap-1.5">
@@ -151,7 +150,6 @@
             <div id="ordenImagenesContainer"></div>
             <div id="gruposColorNuevos" class="mt-3 space-y-3"></div>
 
-            <p class="mt-4 text-[11px] text-gray-400">Las fotos y los colores que elimines se borran de inmediato. Lo demás se guarda con "Actualizar producto".</p>
         </div>
 
         <button type="submit"

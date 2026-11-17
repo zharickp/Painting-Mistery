@@ -115,7 +115,6 @@
                 </svg>
             </div>
             <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">Todavía no hay copias de seguridad</p>
-            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Genera la primera con el botón "Generar ahora".</p>
         </div>
     @else
         <div class="divide-y divide-slate-100 dark:divide-slate-800">

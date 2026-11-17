@@ -9,7 +9,6 @@
 <div class="mb-6">
     <a href="{{ route('admin.compras.index') }}" class="text-sm text-gray-400 hover:text-red-600 transition">← Volver a compras</a>
     <h1 class="text-xl font-bold text-gray-800 mt-2">Registrar compra</h1>
-    <p class="text-sm text-gray-400 mt-1">Al guardarla, las cantidades se suman al inventario de cada producto.</p>
 </div>
 
 @if ($errors->any())

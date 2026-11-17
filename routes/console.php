@@ -22,3 +22,8 @@ Schedule::command('respaldos:generar --si-corresponde')
 Schedule::command('pedidos:expirar-pendientes')
     ->hourly()
     ->onOneServer();
+
+// Marca como completadas las inscripciones de los cursos que ya terminaron.
+Schedule::command('cursos:completar-finalizados')
+    ->dailyAt('00:10')
+    ->onOneServer();

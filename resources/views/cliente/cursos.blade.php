@@ -9,7 +9,6 @@
 
     <div class="mb-6">
         <h1 class="text-2xl font-extrabold text-slate-800">Mis cursos</h1>
-        <p class="text-sm text-slate-500 mt-1">Tus inscripciones y los cursos que puedes tomar en el taller.</p>
     </div>
 
 
@@ -33,7 +32,7 @@
                         <p><strong>Lugar:</strong> {{ $ins->curso->ubicacion ?: 'Taller Painting Mistery, Melgar – Tolima' }}</p>
                         <p><strong>Duración:</strong> {{ $ins->curso->duracionTexto() }}</p>
                         @if($ins->curso->materiales)<p><strong>Debes traer:</strong> {{ $ins->curso->materiales }}</p>@endif
-                        @if($ins->indicaciones)<p><strong>Indicaciones:</strong> {{ $ins->indicaciones }}</p>@endif
+                        @if($ins->indicaciones)<p><strong>Nota del taller:</strong> {{ $ins->indicaciones }}</p>@endif
                         @if($ins->curso->incluye_certificado ?? true)<p class="text-green-700">Recibirás certificado al finalizar.</p>@endif
                     </div>
                 @elseif($ins->estado === 'pendiente' && $ins->venta?->estado === 'pendiente')

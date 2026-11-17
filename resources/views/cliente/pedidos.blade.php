@@ -15,7 +15,6 @@
                 <span class="text-slate-800 font-semibold">Mis compras</span>
             </p>
             <h1 class="text-3xl font-extrabold text-slate-800">Mis compras</h1>
-            <p class="text-sm text-slate-500 mt-1">Consulta el historial de tus compras.</p>
         </div>
         <a href="{{ route('mi-cuenta.inicio') }}"
            class="text-sm text-slate-600 hover:text-red-600 flex items-center gap-1">

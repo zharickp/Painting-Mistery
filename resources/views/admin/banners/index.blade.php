@@ -5,7 +5,6 @@
 <div class="mb-6 flex items-center justify-between">
     <div>
         <h1 class="text-xl font-bold text-gray-800">Banners de inicio</h1>
-        <p class="text-sm text-gray-400 mt-1">Imágenes del carrusel de la página de inicio.</p>
     </div>
     <a href="{{ route('admin.banners.create') }}"
        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">

@@ -6,7 +6,6 @@
 <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
     <div>
         <h1 class="text-xl font-bold text-gray-800">Proveedores</h1>
-        <p class="text-sm text-gray-400 mt-1">Empresas o personas a las que se les compra la mercancía.</p>
     </div>
     @if ($puedeEditar)
     <a href="{{ route('admin.proveedores.create') }}"

@@ -13,24 +13,55 @@ use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
- * Inscripciones de un curso vistas desde el panel. No se aprueban a mano:
- * quedan "Inscrito" solas cuando se paga la venta. Desde aquí se
- * ajusta la fecha, se dejan indicaciones, se marca el curso como completado
- * o se cancela la inscripción (lo que también cancela su venta).
+ * Inscripciones de un curso vistas desde el panel.
+ *  - index: las fechas del curso con sus cupos ocupados.
+ *  - fecha: las personas inscritas en una fecha.
+ *
+ * No se aprueban a mano: quedan "Inscrito" solas cuando se paga la venta, y pasan
+ * a "Completado" solas cuando la fecha termina. Mientras la fecha no haya empezado
+ * se puede cambiar a otra fecha, dejarle una nota al estudiante o cancelar
+ * (lo que también cancela su venta).
  */
 class InscripcionController extends Controller
 {
     public function index(Curso $curso): View
     {
-        $inscripciones = $curso->inscripciones()
-            ->with(['usuario', 'cursoFecha'])
-            ->orderByRaw("CASE inscripcion.estado WHEN 'pendiente' THEN 0 WHEN 'confirmada' THEN 1 WHEN 'completada' THEN 2 ELSE 3 END")
-            ->orderByDesc('inscripcion.created_at')
-            ->paginate(15);
+        Inscripcion::completarFinalizadas();
 
-        $curso->load('fechas');
+        $fechas = $curso->fechas()
+            ->withCount([
+                'inscripciones as ocupados'   => fn ($q) => $q->activas(),
+                'inscripciones as pendientes' => fn ($q) => $q->where('estado', 'pendiente'),
+            ])
+            ->orderBy('fecha')
+            ->get()
+            ->each->setRelation('curso', $curso);
 
-        return view('admin.cursos.inscripciones', compact('curso', 'inscripciones'));
+        [$anteriores, $proximas] = $fechas->partition(fn ($f) => $f->yaTermino());
+
+        return view('admin.cursos.inscripciones', [
+            'curso'      => $curso,
+            'proximas'   => $proximas->values(),
+            'anteriores' => $anteriores->sortByDesc('fecha')->values(),
+        ]);
+    }
+
+    public function fecha(Curso $curso, CursoFecha $fecha): View
+    {
+        abort_unless($fecha->curso_id === $curso->id, 404);
+        $fecha->setRelation('curso', $curso);
+
+        $inscripciones = $fecha->inscripciones()
+            ->with('usuario')
+            ->orderByRaw("CASE estado WHEN 'pendiente' THEN 0 WHEN 'confirmada' THEN 1 WHEN 'completada' THEN 2 ELSE 3 END")
+            ->orderBy('created_at')
+            ->get()
+            ->each->setRelation('cursoFecha', $fecha);
+
+        // Fechas a las que se puede pasar a alguien: las que aún no empiezan.
+        $fechasDestino = $curso->fechas()->whereDate('fecha', '>=', today())->orderBy('fecha')->get();
+
+        return view('admin.cursos.inscripciones-fecha', compact('curso', 'fecha', 'inscripciones', 'fechasDestino'));
     }
 
     public function update(Request $request, Inscripcion $inscripcion, OrdenEstadoService $estados): RedirectResponse
@@ -38,17 +69,19 @@ class InscripcionController extends Controller
         $permitidos = $inscripcion->estadosPermitidos();
 
         if ($permitidos === []) {
-            return back()->withErrors(['estado' => 'Esta inscripción está cancelada y ya no se puede modificar.']);
+            return back()->withErrors(['estado' => 'Esta inscripción ya no se puede modificar: está cancelada o la fecha del curso ya empezó.']);
         }
 
         $request->validate([
             'estado'         => ['required', Rule::in($permitidos)],
-            // Solo una de las fechas publicadas de este mismo curso.
-            'curso_fecha_id' => ['required', Rule::exists('curso_fecha', 'id')->where('curso_id', $inscripcion->curso_id)],
+            // Solo fechas de este mismo curso que aún no hayan empezado.
+            'curso_fecha_id' => ['required', Rule::exists('curso_fecha', 'id')
+                ->where('curso_id', $inscripcion->curso_id)
+                ->where(fn ($q) => $q->whereDate('fecha', '>=', today()))],
             'indicaciones'   => ['nullable', 'string', 'max:1000'],
         ], [
             'estado.in'             => 'Ese cambio de estado no está permitido. La inscripción se confirma sola cuando se paga.',
-            'curso_fecha_id.exists' => 'Esa fecha no pertenece a este curso.',
+            'curso_fecha_id.exists' => 'Elige una fecha de este curso que aún no haya empezado.',
         ]);
 
         // Si se pasa a otra fecha, esa fecha debe tener cupo.

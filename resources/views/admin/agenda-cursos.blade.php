@@ -12,7 +12,6 @@
 <div class="mb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
     <div>
         <h1 class="text-xl font-bold text-gray-800">Agenda de cursos</h1>
-        <p class="text-sm text-gray-400 mt-1">Cursos programados en el mes y cuántas personas hay inscritas.</p>
     </div>
     <div class="flex items-center gap-2">
         <a href="{{ route('admin.agenda-cursos.index', ['mes' => $anterior]) }}" class="h-9 w-9 rounded-lg border border-gray-200 bg-white hover:border-gray-400 flex items-center justify-center" aria-label="Mes anterior">‹</a>

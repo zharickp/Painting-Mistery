@@ -44,7 +44,6 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">Orden</label>
                 <input type="number" name="orden" value="{{ old('orden', 0) }}" min="0"
                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
-                <p class="text-xs text-gray-400 mt-1">Los banners se muestran de menor a mayor.</p>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">

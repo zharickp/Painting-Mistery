@@ -68,7 +68,7 @@
                 <tr><td>Debes traer</td><td class="der">{{ $curso->materiales }}</td></tr>
             @endif
             @if ($ins->indicaciones)
-                <tr><td>Indicaciones</td><td class="der">{{ $ins->indicaciones }}</td></tr>
+                <tr><td>Nota del taller</td><td class="der">{{ $ins->indicaciones }}</td></tr>
             @endif
         </tbody>
     </table>

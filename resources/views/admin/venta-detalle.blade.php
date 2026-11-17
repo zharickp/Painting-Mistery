@@ -70,8 +70,7 @@
         @if($puedeGestionar && $venta->estado !== 'cancelada')
         <div class="bg-white rounded-xl border border-rose-100 shadow-sm p-5">
             <h2 class="text-sm font-bold text-rose-700 mb-1">Cancelar venta</h2>
-            <p class="text-xs text-gray-500 mb-3">La venta no se elimina: queda como cancelada con quién, cuándo y por qué.
-                @if($venta->estado === 'pagada') Como ya estaba pagada, el inventario se devolverá. @endif</p>
+            <p class="text-xs text-gray-500 mb-3">@if($venta->estado === 'pagada')Las unidades vuelven al inventario.@endif</p>
             <form method="POST" action="{{ route('admin.ventas.cancelar', $venta->id) }}" class="flex flex-col sm:flex-row gap-3"
                   onsubmit="return confirm('¿Cancelar esta venta? Queda registrado en la auditoría.')">
                 @csrf

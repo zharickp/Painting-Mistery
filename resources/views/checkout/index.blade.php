@@ -15,7 +15,6 @@
             <span class="text-slate-800 font-semibold">Finalizar compra</span>
         </p>
         <h1 class="text-3xl font-extrabold text-slate-800">Finaliza tu compra</h1>
-        <p class="text-sm text-slate-500 mt-1">Completa tus datos y elige cómo pagar.</p>
     </div>
 
     @if($errors->any())

@@ -5,7 +5,6 @@
 <div class="mb-6 flex items-center justify-between">
     <div>
         <h1 class="text-xl font-bold text-gray-800">Usuarios</h1>
-        <p class="text-sm text-gray-400 mt-1">Usuarios registrados en el sistema.</p>
     </div>
     <a href="{{ route('admin.usuarios.create') }}"
        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">

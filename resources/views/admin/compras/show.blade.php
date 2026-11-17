@@ -76,7 +76,6 @@
             @csrf
             <div id="anularDatos" class="space-y-3">
                 <h3 class="font-semibold text-gray-800 text-sm">Anular compra</h3>
-                <p class="text-xs text-gray-500">Si se registró por error. Las unidades salen del inventario; si ya se vendieron, no se puede anular.</p>
                 <input type="text" id="motivoAnular" name="motivo" required minlength="3" maxlength="255" placeholder="Motivo"
                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
                 <button type="submit" class="w-full bg-white border border-red-200 text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg text-sm font-medium transition">Anular compra</button>

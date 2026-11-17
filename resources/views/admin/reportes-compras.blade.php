@@ -29,7 +29,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
     <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
         <h2 class="text-base font-bold text-slate-800 dark:text-slate-100">Compras y ventas por mes</h2>
-        <p class="text-xs text-slate-400 mt-0.5 mb-5">Lo que se invirtió en mercancía frente a lo que se vendió en {{ $anio }}</p>
+        <p class="text-xs text-slate-400 mt-0.5 mb-5">Año {{ $anio }}</p>
         <div class="relative w-full h-[280px]"><canvas id="graficaCompras"></canvas></div>
     </div>
 
@@ -50,7 +50,7 @@
                 <dd class="text-lg font-black {{ $diferencia >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">{{ $diferencia < 0 ? '-' : '' }}{{ $pesos(abs($diferencia)) }}</dd>
             </div>
         </dl>
-        <p class="mt-4 text-[11px] text-slate-400 leading-relaxed">Es la resta entre ventas y compras. No es la ganancia, porque la mercancía comprada puede venderse en otros meses.</p>
+        <p class="mt-4 text-[11px] text-slate-400 leading-relaxed">Ventas menos compras. No es la ganancia.</p>
     </div>
 </div>
 

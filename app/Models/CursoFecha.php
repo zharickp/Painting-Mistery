@@ -23,6 +23,30 @@ class CursoFecha extends Model
         return $this->hasMany(Inscripcion::class);
     }
 
+    /** Último día del curso en esta fecha. */
+    public function fechaFin()
+    {
+        return $this->fin($this->curso?->dias() ?? 1);
+    }
+
+    /** Ya empezó (el día de inicio ya pasó). Desde ahí las inscripciones no se modifican. */
+    public function yaEmpezo(): bool
+    {
+        return $this->fecha->lt(today());
+    }
+
+    /** Ya terminó (pasó el último día del curso). */
+    public function yaTermino(): bool
+    {
+        return $this->fechaFin()->lt(today());
+    }
+
+    /** Estado de la fecha para mostrar en el panel. */
+    public function situacion(): string
+    {
+        return $this->yaTermino() ? 'Finalizada' : ($this->fecha->lte(today()) ? 'En curso' : 'Próxima');
+    }
+
     /** Cupos libres en esta fecha (null = el curso no tiene límite). */
     public function cuposLibres(): ?int
     {

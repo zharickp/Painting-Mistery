@@ -12,7 +12,6 @@
         </button>
     </div>
     @include('admin.productos._subir-fotos', ['nombre' => 'grupos_color[__CLAVE__][archivos][]', 'id' => 'fotosColor__CLAVE__', 'texto' => 'Fotos de este color'])
-    <p class="text-[11px] text-gray-400 mt-1.5">El color se guarda cuando tiene al menos una foto.</p>
 </div>
 </template>
 

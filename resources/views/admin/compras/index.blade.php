@@ -6,7 +6,6 @@
 <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
     <div>
         <h1 class="text-xl font-bold text-gray-800">Compras a proveedores</h1>
-        <p class="text-sm text-gray-400 mt-1">Mercancía que entra al inventario.</p>
     </div>
     @if ($puedeEditar)
     <a href="{{ route('admin.compras.create', array_filter(['proveedor' => $proveedorId])) }}"

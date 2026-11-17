@@ -177,13 +177,37 @@ class Inscripcion extends Model
      */
     public function estadosPermitidos(): array
     {
+        // Cuando la fecha del curso ya empezó, la inscripción queda como está.
+        if ($this->cursoFecha?->yaEmpezo()) {
+            return [];
+        }
+
         return match ($this->estado) {
             'pendiente'  => $this->ventaActual() === null
                 ? ['pendiente', 'confirmada', 'cancelada']   // reserva antigua, sin venta
                 : ['pendiente', 'cancelada'],
-            'confirmada' => ['confirmada', 'completada', 'cancelada'],
-            'completada' => ['completada', 'confirmada'],     // por si se marcó por error
-            default      => [],
+            'confirmada' => ['confirmada', 'cancelada'],
+            default      => [],                              // completada o cancelada
         };
+    }
+
+    /**
+     * Pasa a "Completado" a los inscritos de las fechas que ya terminaron.
+     * Lo hace solo la tarea programada cada noche; no se marca a mano.
+     */
+    public static function completarFinalizadas(): int
+    {
+        $ids = self::with('cursoFecha.curso')
+            ->where('estado', 'confirmada')
+            ->whereHas('cursoFecha', fn ($q) => $q->whereDate('fecha', '<', today()))
+            ->get()
+            ->filter(fn ($i) => $i->cursoFecha->yaTermino())
+            ->pluck('id');
+
+        if ($ids->isEmpty()) {
+            return 0;
+        }
+
+        return self::whereIn('id', $ids)->update(['estado' => 'completada', 'updated_at' => now()]);
     }
 }

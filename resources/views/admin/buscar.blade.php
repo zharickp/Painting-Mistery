@@ -75,7 +75,7 @@
                     </a>
                 @endforeach
                 @if($filas->count() > $porGrupo)
-                    <p class="px-5 py-2 text-xs text-gray-400">Y {{ $filas->count() - $porGrupo }} más. Escribe algo más específico para afinar.</p>
+                    <p class="px-5 py-2 text-xs text-gray-400">Y {{ $filas->count() - $porGrupo }} más.</p>
                 @endif
             </div>
         @endforeach

@@ -6,7 +6,6 @@
 <div class="mb-6 flex items-center justify-between">
     <div>
         <h1 class="text-xl font-bold text-gray-800">Tipos de IVA</h1>
-        <p class="text-sm text-gray-400 mt-1">Tipos de IVA que se pueden asignar a los productos.</p>
     </div>
     @if ($puedeEditar)
     <a href="{{ route('admin.tipo-iva.create') }}"
