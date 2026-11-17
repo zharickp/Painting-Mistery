@@ -30,7 +30,7 @@
                     Tu moto, <span class="text-red-500">tu estilo.</span>
                 </h1>
                 <p class="text-gray-300 text-base md:text-lg max-w-xl">
-                    Accesorios, repuestos y personalización para tu moto.
+                    Accesorios, lujos y personalización para tu moto.
                     También dictamos cursos de pintura en el taller.
                 </p>
             </div>
@@ -86,7 +86,7 @@
         </div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-5">
             @foreach ([
-                ['Tienda',            'Accesorios y repuestos para tu moto.',          route('tienda.index'), $fotoTienda],
+                ['Tienda',            'Accesorios y lujos para tu moto.',             route('tienda.index'), $fotoTienda],
                 ['Cursos',            'Oferta de cursos.',                             route('academia'),     $fotoCursos],
                 ['Contacto',          'Comunícate con nosotros.',                      route('contacto'),     $fotoContacto],
             ] as [$titulo, $texto, $url, $foto])

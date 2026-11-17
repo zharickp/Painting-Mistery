@@ -50,7 +50,7 @@
                     desde la preparación de la pieza hasta el acabado final.
                 </p>
                 <p class="text-gray-600 leading-relaxed">
-                    Con el tiempo sumamos la venta de accesorios y repuestos para motocicletas, y
+                    Con el tiempo sumamos la venta de accesorios y lujos para motocicletas, y
                     abrimos cursos para quienes quieren aprender de pintura y restauración de motos.
                 </p>
             </div>
@@ -69,10 +69,10 @@
                     <div class="relative">
                         <h3 class="text-2xl font-bold text-gray-900 mb-3">Misión</h3>
                         <p class="text-gray-600 leading-relaxed">
-                            Brindar servicios de personalización y restauración de motocicletas, ofreciendo repuestos,
-                            accesorios e insumos de calidad que satisfagan las necesidades de nuestros clientes.
-                            Nos enfocamos en el detalle, la innovación y la atención personalizada para transformar
-                            cada motocicleta en una pieza única.
+                            Somos una empresa dedicada a la personalización y restauración de motocicletas, a la venta
+                            de accesorios y lujos, y a la enseñanza de pintura a través de cursos. Trabajamos según las necesidades
+                            de cada cliente, cuidando los detalles, aportando creatividad y ofreciendo un trato
+                            personalizado, para transformar cada motocicleta en una pieza única.
                         </p>
                     </div>
                 </div>
@@ -81,10 +81,9 @@
                     <div class="relative">
                         <h3 class="text-2xl font-bold mb-3">Visión</h3>
                         <p class="text-gray-300 leading-relaxed">
-                            Ser una empresa reconocida a nivel regional por la calidad en la personalización y
-                            restauración de motocicletas, destacándonos por nuestro trabajo profesional, la formación
-                            de nuevos talentos a través de capacitaciones y el uso de herramientas tecnológicas que
-                            mejoren la experiencia de nuestros clientes.
+                            Ser una empresa reconocida en la región por nuestros servicios de personalización y
+                            restauración de motocicletas, así como por nuestro compromiso con el trabajo de calidad
+                            y la formación de nuevos talentos a través de nuestros cursos.
                         </p>
                     </div>
                 </div>
@@ -101,7 +100,7 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 @foreach([
-                    ['Productos','Accesorios y repuestos de calidad para distintas marcas y modelos de motocicletas.','M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10'],
+                    ['Productos','Accesorios y lujos de calidad para distintas marcas y modelos de motocicletas.','M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10'],
                     ['Cursos','Cursos de aprendizaje de pintura y restauración de motocicletas.','M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'],
                     ['Servicios','Diseños personalizados para tu motocicleta, así como trabajos de restauración y pintura.','M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'],
                 ] as $v)
