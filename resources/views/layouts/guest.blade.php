@@ -7,8 +7,8 @@
     <title>{!! trim($__env->yieldContent('title')) !== '' ? trim($__env->yieldContent('title')) . ' - ' : '' !!}Painting Mistery</title>
 
     {{-- Favicon Painting Mistery (múltiples formatos para máxima compatibilidad) --}}
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <link rel="icon" type="image/png" sizes="64x64" href="{{ asset('favicon.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=2">
+    <link rel="icon" type="image/png" sizes="64x64" href="{{ asset('favicon.png') }}?v=2">
     <link rel="apple-touch-icon" sizes="256x256" href="{{ asset('images/logo-painting-mistery.png') }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
